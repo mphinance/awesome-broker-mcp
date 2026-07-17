@@ -19,6 +19,10 @@ a confirmed "no" is a real answer and saves you the same afternoon.
 
 ![Every entry, compared: status, trading capability, server type, and the caveat that matters most for each](images/broker-mcp-full-comparison.png)
 
+<sub>⚠️ Chart is a snapshot and currently lags the tables — it still shows Alpaca as
+community; Alpaca is **official** (see [below](#official-servers)). **The tables are
+authoritative.** Chart regenerating.</sub>
+
 **The pattern worth noticing:** the official integrations trend conservative — hosted
 plus draft-approval (IBKR, Trade Agent), or hosted with genuinely no execution path at
 all (SnapTrade, Truthifi, Webull's Cloud MCP). The brokers with the most compliance
@@ -63,6 +67,7 @@ First-party. Built or hosted by the broker themselves.
 
 | Broker | Trades? | What it trades | Type |
 |---|---|---|---|
+| [Alpaca](brokers/alpaca.md) | Yes | Equities, ETFs, crypto, multi-leg options, fixed income, indices. **Paper by default** | Local (`uvx`) |
 | [Interactive Brokers](brokers/interactive-brokers.md) | Draft only | Global, multi-asset — builds the order, **you** submit it | Remote |
 | [Robinhood](brokers/robinhood.md) | Yes | Stocks, options, futures | Remote |
 | [Tradier](brokers/tradier.md) | Yes | Equities + multi-leg options | Remote |
@@ -79,7 +84,6 @@ trust it with an account — this is the category where abandonment is a live ri
 
 | Broker | Trades? | What it trades | Type |
 |---|---|---|---|
-| [Alpaca](brokers/alpaca.md) | Yes | Stocks, ETFs, crypto, options, fixed income, indices | Local (`uvx`) |
 | [tastytrade](brokers/tastytrade.md) | Yes | Equities, options, futures, multi-leg | Local or Modal |
 | [Charles Schwab](brokers/schwab.md) | Yes | Equities, options, brackets/OCO. Opt-in required | Local |
 | [moomoo / Futu](brokers/moomoo.md) | Yes | Full execution; live orders need an explicit unlock | Local + OpenD gateway |

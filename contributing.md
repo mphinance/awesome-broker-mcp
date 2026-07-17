@@ -40,6 +40,14 @@ worth protecting.
 - **official** — first-party. Built and/or hosted by the broker themselves.
 - **community** — a third-party repo. Not endorsed by the broker. Works, but you are
   trusting a stranger with broker credentials — the list says so, every time.
+
+> **Check whose GitHub org it is before you call something community.** We shipped
+> Alpaca as "community" when `alpacahq` is Alpaca's *own* org and the README literally
+> says "Alpaca's official MCP Server." A local server is not the same thing as an
+> unofficial one — **official/community** (who wrote it) and **local/remote** (where it
+> runs) are independent axes, and conflating them is the easiest mistake to make here.
+> Getting this wrong isn't cosmetic: "community" carries a warning about trusting a
+> stranger's code, which is unfair to a broker who built and stands behind the thing.
 - **aggregator-only** — no direct server; reachable only via SnapTrade/Truthifi/etc.
 - **none** — **checked, and confirmed nothing exists.** This is a real entry, not a
   gap. Knowing SoFi has no MCP route saves the next person the same afternoon.
