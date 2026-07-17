@@ -16,9 +16,14 @@ plainly what it can and can't do, and keeps its hedges intact where something co
 be confirmed. Entries that were checked and found to have **nothing** are listed too:
 a confirmed "no" is a real answer and saves you the same afternoon.
 
-**65 entries, 61 with a page of their own.** 26 have an official first-party server, 20
-have only a community one, 3 are reachable solely through an aggregator, and 16 were
+**65 entries, 61 with a page of their own.** 27 have an official first-party server, 22
+have only a community one, 1 is reachable solely through an aggregator, and 15 were
 checked and confirmed to have no MCP route at all.
+
+Every existing entry was independently re-verified on 2026-07-16 by a second pass whose
+job was to *refute* the first. **11 of 19 needed correcting** — including two brokers we
+wrongly said had no route, one server we said trades that can't, and one we said doesn't
+that does. Those corrections are documented in place, not quietly edited.
 
 ## Contents
 
@@ -45,14 +50,25 @@ Two columns decide almost everything.
 - **None** — checked, confirmed nothing exists.
 
 **Trades?** — whether it can actually place an order. Read this one carefully. "Has an
-MCP server" and "can trade" are different claims, and the gap between them is where
-most of the confusion lives. Webull ships two servers and only one trades. IBKR drafts
-an order and hands it back for *you* to submit. IG, Upstox and Crypto.com are official
-but deliberately read-only.
+MCP server" and "can trade" are different claims, and the gap between them is where most
+of the confusion lives. Three values:
 
-**Two axes people conflate:** official/community is about *who wrote it*.
-local/remote is about *where it runs*. They're independent. Alpaca is official **and**
-local. We shipped that error ourselves once — see [alpaca.md](brokers/alpaca.md).
+- **Yes** — it places a real order on its own tool call.
+- **No** — read-only. IG, Upstox and Crypto.com are *official* but deliberately
+  read-only. eToro's official server only reads API docs.
+- **Draft only** — it builds an order; a human submits it in the broker's own UI.
+  [IBKR](brokers/interactive-brokers.md) is the reference case, and it's the strongest
+  guardrail here because it's architectural, not a setting.
+
+**Two axes people conflate:** official/community is about *who wrote it*. local/remote
+is about *where it runs*. They're independent — Alpaca and Kraken are official **and**
+local. We shipped that error ourselves; see [alpaca.md](brokers/alpaca.md).
+
+**A README claiming MCP doesn't make it MCP.** We verify the tool surface, not the
+marketing. [E\*TRADE](brokers/etrade.md)'s library has `place_order` but never registers
+it as an MCP tool — it cannot trade, whatever the listings say.
+[OANDA](brokers/oanda.md)'s only "order-capable" server has no MCP SDK in its
+dependencies at all.
 
 **Where the landscape actually is:** crypto exchanges are well ahead of traditional
 brokers. Kraken, OKX, Bybit and Gemini all ship first-party servers with real
@@ -69,13 +85,13 @@ First-party. Built or hosted by the broker themselves.
 | Broker | Trades? | What it trades | Type |
 |---|---|---|---|
 | [Alpaca](brokers/alpaca.md) | Yes | Equities, ETFs, crypto, multi-leg options, fixed income, indices. **Paper by default** | Local (`uvx`) |
-| [Interactive Brokers](brokers/interactive-brokers.md) | Draft only | Global, multi-asset — builds the order, **you** submit it | Remote |
-| [Robinhood](brokers/robinhood.md) | Yes | Stocks, options, futures | Remote |
+| [Interactive Brokers](brokers/interactive-brokers.md) | **Draft only** | Global, multi-asset. The server *cannot* submit — you approve every order in IBKR's own UI | Remote |
+| [Robinhood](brokers/robinhood.md) | Yes | Stocks, options, futures. Dedicated agentic account; no server-side approval step | Remote |
 | [Tradier](brokers/tradier.md) | Yes | Equities + multi-leg options | Remote |
-| [Webull](brokers/webull.md) | **Both** | Cloud MCP is read-only; `webull-openapi-mcp` (local) trades stocks/options/futures/crypto | Remote + local |
-| [TradeStation](brokers/tradestation.md) | Yes | Equities + more. Needs Claude Pro and a $10k balance | Local |
-| [Public.com](brokers/public.md) | Yes | Stocks, ETFs, options, crypto; brokerage + IRA | Local |
-| [eToro](brokers/etoro.md) | Yes | Agent Portfolios — a dedicated portfolio, $200 minimum | Remote |
+| [Webull](brokers/webull.md) | **Both** | Cloud MCP is read-only; `webull-openapi-mcp` (local) trades. **Sandbox by default** | Remote + local |
+| [TradeStation](brokers/tradestation.md) | Yes | Equities + more. Needs a paid AI tier and a $10k balance | **Remote** |
+| [Public.com](brokers/public.md) | Yes | Stocks, ETFs, options, crypto; brokerage + IRA. ⚠️ **No paper mode — all orders live** | Local |
+| [eToro](brokers/etoro.md) | ⚠️ See page | The official MCP server is **docs-only and can't trade**. Agent Portfolios trades but is **REST, not MCP** | Remote |
 | [Longbridge](brokers/longbridge.md) | Yes | US + HK equities, options, warrants. ~148 tools, OAuth 2.1 | Remote |
 | [Tiger Brokers](brokers/tiger-brokers.md) | Yes | Stocks, options, futures across US/HK/CN/SG | Local (`uvx`) |
 | [Zerodha](brokers/zerodha-kite-connect.md) | Yes* | Indian equities, F&O, currency, commodities. *Order placement only on the self-hosted build* | Remote + local |
@@ -112,8 +128,10 @@ effectively dead.
 | [tastytrade](brokers/tastytrade.md) | Yes | Equities, options, futures, multi-leg | Local or Modal |
 | [Charles Schwab](brokers/schwab.md) | Yes | Equities, options, brackets/OCO. Opt-in required | Local |
 | [moomoo / Futu](brokers/moomoo.md) | Yes | Full execution; live orders need an explicit unlock | Local + OpenD gateway |
-| [E*TRADE](brokers/etrade.md) | Yes | Full order placement + risk validation | Local |
-| [eToro](brokers/etoro.md) | Yes | 35 tools against your own account | Local (`npx`) |
+| [E*TRADE](brokers/etrade.md) | **No** | The client library has `place_order`; the **MCP surface doesn't expose it**. Cannot trade | Local |
+| [eToro](brokers/etoro.md) | Yes | 35 tools against your own account. The only eToro route that is both MCP *and* trading-capable | Local (`npx`) |
+| [Fidelity](brokers/fidelity.md) | Yes | ⚠️ Drives Fidelity's website with Playwright — your password + 2FA. `dry_run` defaults true | Local |
+| [Trading 212](brokers/trading212.md) | Yes | Market/limit/stop + cancel, on the official beta API. ⚠️ Quickstart config hardcodes `live` | Local |
 | [Interactive Brokers](brokers/interactive-brokers.md) | Varies | Superseded by the official connector | Local |
 | [Saxo Bank](brokers/saxo-bank.md) | Yes | Equities, FX, CFDs, futures, options. Writes are triple-gated, SIM by default | Local |
 | [Angel One](brokers/angel-one.md) | Yes | Indian equities + F&O via SmartAPI | Local |
@@ -138,12 +156,12 @@ everywhere," not a substitute for a broker's own trading server.
 
 | Aggregator | Trades? | Covers |
 |---|---|---|
-| [Trade Agent](aggregators/trade-agent.md) | **Yes** — draft-first, explicit confirm | Robinhood, Schwab, E*TRADE, Webull, Public, tastytrade, Coinbase, Kraken |
+| [Trade It](aggregators/trade-agent.md) *(was Trade Agent)* | **Yes** — draft-first, explicit confirm | Robinhood, Schwab, E*TRADE, Webull, Public, tastytrade, Coinbase, Kraken |
+| [ConnectTrade](aggregators/connecttrade.md) | **Yes** — early access. Guardrails undocumented | 20+ brokers incl. Alpaca, Lightspeed, TradeZero, Webull, TradeStation |
 | [SnapTrade](aggregators/snaptrade.md) | No — read-only, stated outright | Robinhood, Schwab, Fidelity, Vanguard, E*TRADE, Alpaca, Tradier, Trading 212 |
-| [Truthifi](aggregators/truthifi.md) | No — "an information channel, not an action channel" | 18,000+ institutions |
+| [Truthifi](aggregators/truthifi.md) | No — reads only; 2 non-financial write tools | 18,000+ institutions |
 | [Plaid](aggregators/plaid.md) | No | Official, read-only account data |
 | [Teller](aggregators/teller.md) | No | Community, read-only |
-| [ConnectTrade](aggregators/connecttrade.md) | Trades, but **has no MCP server** | Alpaca, Lightspeed, TradeZero, Webull, TradeStation |
 
 Read-only is the norm for a reason. An aggregator already holds delegated credentials
 to every account you've linked; giving an LLM write access *through* that layer stacks
@@ -156,9 +174,11 @@ No direct server, official or community.
 
 | Broker | Route | Trading |
 |---|---|---|
-| [Fidelity](brokers/fidelity.md) | SnapTrade / Truthifi | None |
 | [Vanguard](brokers/vanguard.md) | SnapTrade / Truthifi | None |
-| [Trading 212](brokers/trading212.md) | SnapTrade (read-only MCP) | None via MCP — SnapTrade's raw REST API can, with a DIY wrapper |
+
+> Fidelity and Trading 212 used to sit here. Both were wrong — each has a direct
+> community server that places real orders. They're in
+> [Community servers](#community-servers) now, with the caveats that route deserves.
 
 ## Confirmed no MCP route
 

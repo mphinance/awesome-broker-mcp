@@ -29,10 +29,11 @@ Hosted endpoint: `https://mcp.snaptrade.com/mcp`
 and brokerage credentials are never exposed to the AI assistant — SnapTrade resolves
 identity from the token, not the credentials.
 
-Per your original notes, broker coverage includes Robinhood, Schwab, Fidelity,
-Vanguard, E*TRADE, Alpaca, Tradier, Trading 212 — the docs page fetched didn't itself
-enumerate the broker list, so that coverage claim traces to your notes, not this
-source_url directly.
+Broker coverage is reported as Robinhood, Schwab, Fidelity, Vanguard, E\*TRADE, Alpaca,
+Tradier and Trading 212. **Flagged as unverified:** the MCP docs page we cite does not
+itself enumerate the broker list, so that coverage claim does not trace to our
+`source_url`. Confirm against SnapTrade's own brokerage directory before relying on any
+specific broker being covered.
 
 ## Trading scope
 

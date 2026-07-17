@@ -62,19 +62,35 @@ query. Stocks, options, futures, crypto, event contracts. Combo orders
 (OTO/OCO/OTOCO, US only), multi-leg options (US only), algo orders — TWAP, VWAP, POV
 (US only). Region-specific order types and session validation apply.
 
-**Safety / guardrails**: notional limits by currency (e.g.
-`WEBULL_MAX_ORDER_NOTIONAL_USD=10000` default), max order quantity caps, symbol
-whitelist enforcement, audit logging.
+**Safety / guardrails**: **sandbox is the default.** `WEBULL_ENVIRONMENT` accepts `uat`
+(sandbox) or `prod` and defaults to `uat`. The security section says so outright:
+*"Default sandbox — The server defaults to UAT (sandbox) environment. You must
+explicitly set `WEBULL_ENVIRONMENT=prod` for live trading."* Both official repos behave
+this way. That puts Webull alongside [Alpaca](alpaca.md) and [Kraken](kraken.md) in the
+small group that ships safe-by-default, and it's the kind of fact this directory should
+lead with rather than omit.
 
-**Maintenance**: Apache 2.0, 12 stars, 23 commits, actively developed but modest in
-scope — a young project, not battle-tested at scale.
+Beyond that: notional limits by currency (`WEBULL_MAX_ORDER_NOTIONAL_USD` default
+`10000`), max order quantity caps (`MAX_ORDER_QUANTITY` default `1000`), symbol
+whitelist enforcement (`WEBULL_SYMBOL_WHITELIST`), and audit logging
+(`WEBULL_AUDIT_LOG_FILE`) — all backed by `guards.py` / `audit.py` in the tree.
 
-## 3. OpenAPI Skills — CLI/agent-skill layer
+**Maintenance**: Apache 2.0, 12 stars, 23 commits, latest release v1.1.7 (2026-07-13) —
+actively developed but modest in scope; a young project, not battle-tested at scale.
+
+## 3. OpenAPI Skills — CLI **and** MCP server
 
 `github.com/webull-inc/webull-openapi-skills` — also built on the official SDK, same
-org. A skill/CLI wrapper rather than an MCP server: `webull-skill auth`,
-`webull-skill trading --action account-list`, etc. Multi-region, same asset-class
-and risk-control coverage as the MCP server. 21 commits, actively developed.
+org. **It is dual-layer: a CLI *and* an MCP server.** Its README states plainly *"This
+skill works as an MCP server"* and ships an `mcpServers` config using command
+`webull-skill` with args `["mcp"]` for Claude Code and Codex.
+
+CLI usage: `webull-skill auth`, `webull-skill trading --action account-list`, etc.
+Multi-region, same asset-class and risk-control coverage as the MCP server — including
+the same sandbox-by-default posture. 21 commits, actively developed.
+
+> An earlier version of this page called this "a skill/CLI wrapper rather than an MCP
+> server." That was wrong — it's both.
 
 ## How they relate
 
@@ -82,19 +98,13 @@ and risk-control coverage as the MCP server. 21 commits, actively developed.
 flowchart TD
     SDK["webull-openapi-python-sdk\n(official, Apache 2.0, full trading)"]
     MCP["webull-openapi-mcp\n(official, local, full trading MCP)"]
-    Skill["webull-openapi-skills\n(official, CLI/agent-skill layer)"]
-    Sidecar["webull-sidecar\n(mph's private companion app)"]
+    Skill["webull-openapi-skills\n(official, CLI + MCP server)"]
     Cloud["Cloud MCP\n(official, hosted, read-only)"]
 
     SDK --> MCP
     SDK --> Skill
-    SDK --> Sidecar
     Cloud -.separate product, no shared code.-> SDK
 ```
-
-`webull-sidecar` (documented separately, private) independently confirmed the SDK's
-trading capability before either official MCP repo surfaced in this conversation —
-now corroborated by Webull's own developer-facing MCP server.
 
 ## Caveats
 

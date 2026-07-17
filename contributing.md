@@ -30,7 +30,7 @@ worth protecting.
 | `name` | string | Display name of the broker/exchange. |
 | `region` | string | Where you can actually open an account. |
 | `status` | `official` \| `community` \| `aggregator-only` \| `none` | See below. |
-| `trading` | `true` \| `false` | Can it place a real order? Read-only is `false`. |
+| `trading` | `true` \| `false` \| `draft-only` | Can it place a real order? See below. |
 | `server_type` | `remote` \| `local` \| `n/a` | Hosted URL vs. a process on your machine. |
 | `source_url` | URL | The single best first-party source. |
 | `last_verified` | `YYYY-MM-DD` | **The date you personally checked.** |
@@ -40,6 +40,32 @@ worth protecting.
 - **official** — first-party. Built and/or hosted by the broker themselves.
 - **community** — a third-party repo. Not endorsed by the broker. Works, but you are
   trusting a stranger with broker credentials — the list says so, every time.
+
+### What the `trading` values mean
+
+- **`true`** — the MCP server can place a real order on its own tool call.
+- **`false`** — read-only. It cannot place an order.
+- **`draft-only`** — it *builds* an order, but a human submits it in the broker's own
+  UI. The server never puts anything on the market. IBKR is the reference case:
+  drafted instructions land in an "AI Instructions tab" and you convert each one
+  yourself.
+
+> **`draft-only` is not a hedge, it's a category.** We originally allowed only
+> `true`/`false`, so IBKR was filed as `trading: true` while the page's own prose said
+> Claude never submits. The frontmatter contradicted the body for anyone scanning the
+> tables. If a human must press the button, it is `draft-only`.
+
+### Verify the tool surface, not the README
+
+The single highest-value check: **does the server actually register the tool it claims?**
+
+- E\*TRADE's client library has `place_order`, but it is never registered as an MCP
+  tool — an LLM connected to that server cannot trade. We had it as `trading: true`.
+- The only order-capable "OANDA MCP server" has no MCP SDK in `requirements.txt` at
+  all. It's a FastAPI REST app claiming MCP compatibility in prose.
+
+Clone it, find `list_tools()` / `server.tool(...)`, and enumerate. A listing site
+saying "supports order placement" is not evidence.
 
 > **Check whose GitHub org it is before you call something community.** We shipped
 > Alpaca as "community" when `alpacahq` is Alpaca's *own* org and the README literally

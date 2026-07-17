@@ -38,6 +38,19 @@ const today = new Date();
 const rows = [];
 const errors = [];
 
+// The enums are load-bearing. `trading` in particular: we once had only true/false,
+// which forced IBKR — where a human submits every order — to be filed as trading:true,
+// contradicting its own page. Validate rather than trust.
+const STATUS = ["official", "community", "aggregator-only", "none"];
+const TRADING = ["true", "false", "draft-only"];
+
+function validEnum(raw, allowed) {
+  // eToro is genuinely both: an official docs-only server AND a community trading one.
+  return String(raw)
+    .split("+")
+    .every((t) => allowed.includes(t.trim()));
+}
+
 for (const dir of DIRS) {
   let files;
   try {
@@ -56,6 +69,13 @@ for (const dir of DIRS) {
       errors.push(`${path}: no frontmatter block`);
       continue;
     }
+    if (fm.status && !validEnum(fm.status, STATUS)) {
+      errors.push(`${path}: status '${fm.status}' not in ${STATUS.join(" | ")}`);
+    }
+    if (fm.trading && !validEnum(fm.trading, TRADING)) {
+      errors.push(`${path}: trading '${fm.trading}' not in ${TRADING.join(" | ")}`);
+    }
+
     if (!fm.last_verified) {
       errors.push(`${path}: missing 'last_verified'`);
       continue;
