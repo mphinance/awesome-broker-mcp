@@ -41,6 +41,25 @@ jobs:
         # The scheduled run is what nags.
         run: node scripts/check-freshness.mjs
 
+  chart:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Chart builds from the readme tables
+        # Doesn't re-render the PNG (needs a browser); just proves the generator still
+        # parses readme.md after an edit, so a table change can't silently break it.
+        run: |
+          node scripts/build-chart.mjs > /tmp/chart.html
+          rows=$(grep -o '<tr>' /tmp/chart.html | wc -l)
+          echo "chart rows parsed: $rows"
+          if [ "$rows" -lt 50 ]; then
+            echo "::error::Chart generator parsed only $rows rows — readme table structure likely changed."
+            exit 1
+          fi
+
   links:
     runs-on: ubuntu-latest
     steps:

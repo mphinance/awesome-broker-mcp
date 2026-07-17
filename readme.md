@@ -25,6 +25,20 @@ job was to *refute* the first. **11 of 19 needed correcting** — including two 
 wrongly said had no route, one server we said trades that can't, and one we said doesn't
 that does. Those corrections are documented in place, not quietly edited.
 
+![Every entry compared: status, trading capability, server type, and the caveat that matters most for each](images/broker-mcp-full-comparison.png)
+
+<sub>Generated from the tables below by `node scripts/build-chart.mjs`, so it can't
+drift from them — regenerate it whenever an entry changes.</sub>
+
+**The pattern worth noticing:** the official integrations trend conservative — hosted
+plus draft-approval ([IBKR](brokers/interactive-brokers.md),
+[Trade It](aggregators/trade-agent.md)), or hosted with genuinely no execution path at
+all ([SnapTrade](aggregators/snaptrade.md), [Truthifi](aggregators/truthifi.md),
+[Webull](brokers/webull.md)'s Cloud MCP). The brokers with the most compliance exposure
+chose the most cautious posture, and that isn't an accident. Community servers mostly
+skip straight to direct execution with no platform-level approval step; there, the
+guardrail is whatever *you* configure client-side, not something the broker enforces.
+
 ## Contents
 
 - [How to read this](#how-to-read-this)
