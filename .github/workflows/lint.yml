@@ -1,0 +1,59 @@
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Monthly — surfaces entries that have quietly gone stale.
+    - cron: "0 9 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  awesome-lint:
+    runs-on: ubuntu-latest
+    # Informational, not blocking: awesome-lint's `awesome-git-repo-age` rule requires
+    # the repo to be 30+ days old, so a brand-new list fails for a reason that fixes
+    # itself with time. Read the output; don't let it gate unrelated PRs.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # awesome-lint reads git history for the repo-age rule
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: awesome-lint
+        run: npx awesome-lint
+
+  freshness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check entry freshness
+        # Non-strict on PRs: an old entry shouldn't block an unrelated fix.
+        # The scheduled run is what nags.
+        run: node scripts/check-freshness.mjs
+
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress
+            --max-retries 2
+            --accept 200,206,403,429
+            --exclude-path node_modules
+            './**/*.md'
+          fail: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

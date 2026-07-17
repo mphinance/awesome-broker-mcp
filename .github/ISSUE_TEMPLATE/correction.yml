@@ -1,0 +1,48 @@
+name: Correct or refresh an entry
+description: Something here is wrong, out of date, or a server has shut down
+title: "[fix] "
+labels: ["correction"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **The most valuable issue you can open.** This space moves fast and a stale
+        entry is how a list like this becomes worthless. Thank you for catching it.
+
+  - type: input
+    id: entry
+    attributes:
+      label: Which entry?
+      placeholder: e.g. brokers/tradier.md
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What's wrong?
+      options:
+        - It's now out of date (something changed)
+        - It was never right
+        - The server has been discontinued / repo is gone
+        - It's listed as trading-capable but isn't (or vice versa)
+        - Broken link
+        - Something exists now that we listed as "none"
+    validations:
+      required: true
+
+  - type: textarea
+    id: correction
+    attributes:
+      label: What's the correct information?
+    validations:
+      required: true
+
+  - type: input
+    id: source
+    attributes:
+      label: Source URL
+      description: What you checked, so the next person can re-check it too.
+      placeholder: https://...
+    validations:
+      required: true

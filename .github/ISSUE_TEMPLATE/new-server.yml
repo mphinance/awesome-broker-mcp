@@ -1,0 +1,72 @@
+name: Add a broker MCP server
+description: A broker or exchange with an MCP server that isn't listed yet
+title: "[add] "
+labels: ["addition"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks! One rule: **every claim traces to a source you actually opened.**
+        The broker's own docs or the server's own repo — not a roundup post.
+
+  - type: input
+    id: broker
+    attributes:
+      label: Broker / exchange
+      placeholder: e.g. Saxo Bank
+    validations:
+      required: true
+
+  - type: input
+    id: source
+    attributes:
+      label: Source URL
+      description: The first-party page or repo you checked. This is the important field.
+      placeholder: https://...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Official or community?
+      options:
+        - official (first-party, built/hosted by the broker)
+        - community (third-party repo, not endorsed by the broker)
+        - not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: trading
+    attributes:
+      label: Can it actually place orders?
+      options:
+        - "Yes — it places real orders"
+        - "No — read-only (data/positions only)"
+        - "Draft-only — it builds an order, a human submits it"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: What does it do?
+      description: Asset classes, order types, how you connect it, and any guardrails (draft-first? explicit confirm? live-trading unlock?).
+    validations:
+      required: true
+
+  - type: textarea
+    id: caveats
+    attributes:
+      label: What couldn't you confirm?
+      description: Genuinely useful. "Couldn't find the endpoint URL without signing up" is a good answer.
+
+  - type: checkboxes
+    id: disclosure
+    attributes:
+      label: Disclosure
+      options:
+        - label: This is my own project (fine — we just ask that you say so)
+        - label: I have no affiliation with this broker or server
