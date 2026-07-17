@@ -67,10 +67,14 @@ jobs:
       - name: Check links
         uses: lycheeverse/lychee-action@v2
         with:
+          # --include-fragments validates #anchors too. Emoji in headings shift the
+          # generated slug (GitHub strips the emoji but keeps the space-turned-hyphen),
+          # which silently broke three TOC links here once already.
           args: >-
             --no-progress
             --max-retries 2
             --accept 200,206,403,429
+            --include-fragments
             --exclude-path node_modules
             './**/*.md'
           fail: true
