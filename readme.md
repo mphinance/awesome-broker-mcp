@@ -170,6 +170,7 @@ First-party. Built or hosted by the broker themselves.
 | [eToro](brokers/etoro.md) | ⚠️ See page | The official MCP server is **docs-only and can't trade**. Agent Portfolios trades but is **REST, not MCP** | Remote |
 | [Longbridge](brokers/longbridge.md) | ✅ Yes | US + HK equities, options, warrants. ~148 tools, OAuth 2.1 | Remote |
 | [Tiger Brokers](brokers/tiger-brokers.md) | ✅ Yes | Stocks, options, futures across US/HK/CN/SG | Local (`uvx`) |
+| [moomoo / Futu](brokers/moomoo.md) | ✅ Yes | Full trading + data across HK/US/CN/SG/JP. ⚠️ Official route ships as **Agent Skills** (MCP-compatible tools), not a standalone MCP server | Local + OpenD |
 | [Zerodha](brokers/zerodha-kite-connect.md) | ✅ Yes | Indian equities, F&O, currency, commodities. Order placement only on the self-hosted build | Remote + local |
 | [Upstox](brokers/upstox.md) | 👁️ No | Read-only by design | Remote |
 
@@ -205,7 +206,7 @@ effectively dead.
 |---|---|---|---|
 | [tastytrade](brokers/tastytrade.md) | ✅ Yes | Equities, options, futures, multi-leg | Local or Modal |
 | [Charles Schwab](brokers/schwab.md) | ✅ Yes | Equities, options, brackets/OCO. Opt-in required | Local |
-| [moomoo / Futu](brokers/moomoo.md) | ✅ Yes | Full execution; 🛡️ live orders need an explicit unlock | Local + OpenD gateway |
+| [moomoo / Futu](brokers/moomoo.md) | ✅ Yes | `moomoo-api-mcp` — the genuine standalone MCP server. 🛡️ SIMULATE-only until you set trade creds + `unlock_trade` | Local + OpenD gateway |
 | [eToro](brokers/etoro.md) | ✅ Yes | 35 tools against your own account. The only eToro route that is both MCP *and* trading-capable | Local (`npx`) |
 | [Saxo Bank](brokers/saxo-bank.md) | ✅ Yes | Equities, FX, CFDs, futures, options. 🛡️ Writes are triple-gated, SIM by default | Local |
 | [Angel One](brokers/angel-one.md) | ✅ Yes | Indian equities + F&O via SmartAPI | Local |
