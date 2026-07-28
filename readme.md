@@ -361,10 +361,9 @@ answer for it:
 
 **[alpha-skills](https://github.com/mphinance/alpha-skills)** — 114 AI agent skills for
 quant research: screeners (VCP, CANSLIM, PEAD), regime detectors, an edge-research
-pipeline, options and risk tooling. It ships a
-[`broker-mcp-selector`](https://github.com/mphinance/alpha-skills/tree/main/skills/broker-mcp-selector)
-skill built directly on this directory, so once a skill produces a plan, the agent can
-pick a broker from here and execute it safely (paper-by-default, least-privilege).
+pipeline, options and risk tooling. It ships a **`broker-mcp-selector`** skill built
+directly on this directory, so once a skill produces a plan, the agent can pick a broker
+from here and execute it safely (paper-by-default, least-privilege).
 
 The pattern the skills enforce is the same one this list argues for: **separate the brain
 from the hands.** Analysis needs no trading scope; keep the connector that decides *what*
