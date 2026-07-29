@@ -72,9 +72,10 @@ jobs:
           # which silently broke three TOC links here once already.
           args: >-
             --no-progress
-            --max-retries 2
-            --timeout 30
-            --accept 200,206,401,403,405,429
+            --max-retries 4
+            --retry-wait-time 3
+            --timeout 60
+            --accept 200,202,206,401,403,405,429
             --include-fragments
             --exclude-path node_modules
             --exclude 'github\.com/your-username/trade-republic-bot'
@@ -84,9 +85,11 @@ jobs:
             --exclude 'webapi\.tradezero\.com'
             --exclude 'snaptrade\.com/brokerages/fidelity'
             './**/*.md'
-          # --accept includes 401/403/405/429: many entries here are live broker
+          # --accept includes 202/401/403/405/429: many entries here are live broker
           # MCP/API endpoints that are reachable but reject lychee's unauthenticated
-          # GET (auth wall, wrong method) — that's "up", not "broken".
+          # GET (auth wall, wrong method, async-accept) — that's "up", not "broken".
+          # Longer timeout + more retries absorb slow external news/press citations
+          # that intermittently time out under CI without being dead.
           # --exclude covers URLs the entries deliberately cite AS dead evidence: a
           # copy-paste placeholder quoted from another repo's README (trade-republic),
           # a confirmed-nonexistent repo (wealthsimple), the deleted upstream the XTB
