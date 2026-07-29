@@ -14,6 +14,11 @@
   <a href="license"><img src="https://img.shields.io/badge/license-CC0--1.0-8957e5" alt="CC0-1.0"></a>
 </p>
 
+<p align="center">
+  <sub><b>The mphinance AI trading stack</b></sub><br>
+  <sub>🧠 <b>Brain</b> · <a href="https://github.com/mphinance/alpha-skills">alpha-skills</a> — 114 analysis skills that decide <i>what</i> to trade &nbsp;•&nbsp; 🖐️ <b>Hands</b> · this list — <i>where</i> an AI can actually place the order &nbsp;•&nbsp; 📡 <b>Intelligence</b> · <a href="https://traderdaddy.pro">TraderDaddy Pro</a></sub>
+</p>
+
 ---
 
 [MCP](https://modelcontextprotocol.io) is how an AI assistant connects to outside tools.
@@ -76,6 +81,7 @@ guardrail is whatever *you* configure client-side, not something the broker enfo
 - [💻 Local vs. remote](#-local-vs-remote)
 - [⚠️ Before you connect one to real money](#-before-you-connect-one-to-real-money)
 - [🤝 Contributing](#-contributing)
+- [🧠 The brain that decides what to trade](#-the-brain-that-decides-what-to-trade)
 
 ## 🧭 How to read this
 
@@ -347,7 +353,26 @@ entries are aging.
 
 ---
 
+## 🧠 The brain that decides what to trade
+
+This list is the **hands** — it tells you *where* an AI agent can place an order. It says
+nothing about *what* to trade. That's a separate job, and there's a free, open-source
+answer for it:
+
+**[alpha-skills](https://github.com/mphinance/alpha-skills)** — 114 AI agent skills for
+quant research: screeners (VCP, CANSLIM, PEAD), regime detectors, an edge-research
+pipeline, options and risk tooling. It ships a **`broker-mcp-selector`** skill built
+directly on this directory, so once a skill produces a plan, the agent can pick a broker
+from here and execute it safely (paper-by-default, least-privilege).
+
+The pattern the skills enforce is the same one this list argues for: **separate the brain
+from the hands.** Analysis needs no trading scope; keep the connector that decides *what*
+apart from the one that can *submit*.
+
+---
+
 Maintained alongside [TraderDaddy Pro](https://traderdaddy.pro) — an MCP *intelligence*
-layer (screeners, options flow, technicals) that deliberately doesn't place trades. The
-brokers above are the hands; that's the brain. The
+layer (screeners, options flow, technicals) that deliberately doesn't place trades. So the
+full stack: [alpha-skills](https://github.com/mphinance/alpha-skills) is the brain, the
+brokers above are the hands, TraderDaddy is the live-data intelligence feeding both. The
 [SDK](https://github.com/mphinance/traderdaddy-sdk) is open source.
