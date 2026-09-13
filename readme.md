@@ -16,7 +16,7 @@
 
 <p align="center">
   <sub><b>The mphinance AI trading stack</b></sub><br>
-  <sub>🧠 <b>Brain</b> · <a href="https://github.com/mphinance/alpha-skills">alpha-skills</a> — 114 analysis skills that decide <i>what</i> to trade &nbsp;•&nbsp; 🖐️ <b>Hands</b> · this list — <i>where</i> an AI can actually place the order &nbsp;•&nbsp; 📡 <b>Intelligence</b> · <a href="https://traderdaddy.pro">TraderDaddy Pro</a></sub>
+  <sub>🧠 <b>Brain</b> · <a href="https://github.com/mphinance/alpha-skills">alpha-skills</a> — 129 analysis skills that decide <i>what</i> to trade &nbsp;•&nbsp; 🖐️ <b>Hands</b> · this list — <i>where</i> an AI can actually place the order &nbsp;•&nbsp; 📡 <b>Intelligence</b> · <a href="https://tradermatrix.pro/?ref=MPHINANCE">TraderMatrix Pro</a> &nbsp;•&nbsp; 🔧 <b>Free Tools</b> · <a href="https://github.com/mphinance/momentum-mcp">momentum-mcp</a> — 73 open MCP tools, no paid feed required &nbsp;•&nbsp; 🤖 <b>Agent</b> · <a href="https://github.com/mphinance/trading-agent">Vesper</a> — a LangGraph trading agent for Webull; its vendored <code>broker-mcp-selector</code> skill is backed by this directory</sub>
 </p>
 
 ---
@@ -371,8 +371,12 @@ apart from the one that can *submit*.
 
 ---
 
-Maintained alongside [TraderDaddy Pro](https://traderdaddy.pro) — an MCP *intelligence*
-layer (screeners, options flow, technicals) that deliberately doesn't place trades. So the
-full stack: [alpha-skills](https://github.com/mphinance/alpha-skills) is the brain, the
-brokers above are the hands, TraderDaddy is the live-data intelligence feeding both. The
-[SDK](https://github.com/mphinance/traderdaddy-sdk) is open source.
+Maintained alongside [TraderMatrix Pro](https://tradermatrix.pro/?ref=MPHINANCE) — an MCP
+*intelligence* layer (screeners, options flow, technicals) that deliberately doesn't place
+trades — and its free, credential-light sibling [momentum-mcp](https://github.com/mphinance/momentum-mcp)
+(73 open MCP tools, no subscription required). So the full stack:
+[alpha-skills](https://github.com/mphinance/alpha-skills) is the brain, the brokers above
+are the hands, TraderMatrix/momentum-mcp are the live-data intelligence feeding both, and
+[Vesper](https://github.com/mphinance/trading-agent) is a live agent built on all three with
+a human-approval gate before any order. The [SDK](https://github.com/mphinance/traderdaddy-sdk)
+is open source.
