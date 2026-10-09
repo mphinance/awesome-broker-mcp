@@ -262,6 +262,10 @@ const prev = existsSync(SNAP) ? JSON.parse(readFileSync(SNAP, "utf8")) : null;
 // ---- diff ------------------------------------------------------------------
 
 const KNOWN_DEAD = [/tylerflar\/claude-fidelity-mcp/, /snaptrade\.com\/brokerages\/fidelity/, /wealthsimple\/wealthsimple-mcp-server/, /xtb-mcp-server/, /webapi\.tradezero\.com/];
+// A surface is "known" if ANY entry already had it readable in the previous snapshot. Citing an
+// already-watched site from a second entry (e.g. tradezero -> connecttrade.com) is not news.
+const knownPresent = new Set();
+for (const e of Object.values(prev?.snapshot || {})) for (const [k, v] of Object.entries(e.probes || {})) if (v.status === 200 && !v.soft404) knownPresent.add(k);
 const present = (r) => r && r.status === 200 && !r.soft404;
 // "Absent" must be definitive. A timeout, 403 or 5xx means we are blind, not that it vanished.
 const absent = (r) => r && (r.soft404 || r.status === 404 || r.status === 410);
@@ -299,7 +303,7 @@ for (const e of entries) {
     if (!prev) { if (present(r) && kind !== "page") note("baseline", e.slug, `${kind} present: ${target}`); continue; }
 
     if (present(r) && !present(o)) {
-      if (kind !== "page" && !blind(o)) note("appeared", e.slug, `NEW ${kind}: ${target}${r.version ? ` (v${r.version}, ${r.paths} paths)` : ""}`);
+      if (kind !== "page" && !blind(o) && !knownPresent.has(key)) note("appeared", e.slug, `NEW ${kind}: ${target}${r.version ? ` (v${r.version}, ${r.paths} paths)` : ""}`);
     } else if (absent(r) && present(o)) {
       note("gone", e.slug, `${kind} disappeared: ${target} (${r.status ?? r.error})`);
     } else if (blind(r) && present(o)) {

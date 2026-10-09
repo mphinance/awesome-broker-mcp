@@ -686,6 +686,11 @@
      "hash": "ab026b64f2c90a4f",
      "bytes": 10327
     },
+    "page:https://connecttrade.com/llms-full.txt": {
+     "status": 200,
+     "hash": "76ffe92f053c002d",
+     "bytes": 52847
+    },
     "llms:https://lightspeed.com/llms.txt": {
      "status": 404,
      "soft404": true
@@ -697,6 +702,24 @@
     "openapi:https://lightspeed.com/openapi.json": {
      "status": 404,
      "soft404": true
+    },
+    "llms:https://connecttrade.com/llms.txt": {
+     "status": 200,
+     "hash": "063344374eeed565",
+     "bytes": 8682
+    },
+    "llms:https://connecttrade.com/llms-full.txt": {
+     "status": 200,
+     "hash": "32ddcd166d02c21a",
+     "bytes": 54561
+    },
+    "openapi:https://connecttrade.com/openapi.json": {
+     "status": 200,
+     "hash": "cfe239f648a33e87",
+     "bytes": 189840,
+     "version": "1.0",
+     "title": "Connect Trade API",
+     "paths": 12
     }
    },
    "repos": {}
@@ -1344,6 +1367,11 @@
      "hash": "cc03d6181473e987",
      "bytes": 9366
     },
+    "page:https://connecttrade.com/llms-full.txt": {
+     "status": 200,
+     "hash": "76ffe92f053c002d",
+     "bytes": 52847
+    },
     "llms:https://developer.tradezero.com/llms.txt": {
      "status": 200,
      "hash": "8d048c5ca194b597",
@@ -1363,6 +1391,24 @@
     },
     "openapi:https://webapi.tradezero.com/openapi.json": {
      "status": 404
+    },
+    "llms:https://connecttrade.com/llms.txt": {
+     "status": 200,
+     "hash": "063344374eeed565",
+     "bytes": 8682
+    },
+    "llms:https://connecttrade.com/llms-full.txt": {
+     "status": 200,
+     "hash": "32ddcd166d02c21a",
+     "bytes": 54561
+    },
+    "openapi:https://connecttrade.com/openapi.json": {
+     "status": 200,
+     "hash": "cfe239f648a33e87",
+     "bytes": 189840,
+     "version": "1.0",
+     "title": "Connect Trade API",
+     "paths": 12
     }
    },
    "repos": {}
@@ -1370,7 +1416,7 @@
   "tradier": {
    "probes": {
     "mcp:https://docs.tradier.com/docs/tradier-mcp": {
-     "status": 200,
+     "status": 429,
      "alive": true
     },
     "mcp:https://mcp.tradier.com/mcp": {
@@ -1391,7 +1437,7 @@
      "status": 404
     },
     "openapi:https://docs.tradier.com/openapi.json": {
-     "status": 404
+     "status": 429
     },
     "llms:https://mcp.tradier.com/llms.txt": {
      "status": 404
@@ -1415,9 +1461,7 @@
      "soft404": true
     },
     "page:https://docs.tradier.com/docs/tradier-mcp": {
-     "status": 200,
-     "hash": "dd0efd748d88844e",
-     "bytes": 9495
+     "status": 429
     }
    },
    "repos": {}
@@ -1686,6 +1730,27 @@
   },
   "connecttrade": {
    "probes": {
+    "mcp:https://connecttrade.com/docs/mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://mcp.connecttrade.com/mcp": {
+     "status": 401,
+     "alive": true
+    },
+    "page:https://api.connecttrade.com/auth/tokens/user": {
+     "status": 403
+    },
+    "page:https://connecttrade.com/llms.txt": {
+     "status": 200,
+     "hash": "3e746e83d8b03dd0",
+     "bytes": 8634
+    },
+    "page:https://connecttrade.com/llms-full.txt": {
+     "status": 200,
+     "hash": "76ffe92f053c002d",
+     "bytes": 52847
+    },
     "page:https://connecttrade.com/faq": {
      "status": 200,
      "hash": "f85c07059be71b03",
@@ -1714,6 +1779,15 @@
      "title": "Connect Trade API",
      "paths": 12
     },
+    "llms:https://mcp.connecttrade.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://mcp.connecttrade.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://mcp.connecttrade.com/openapi.json": {
+     "status": 404
+    },
     "llms:https://api.connecttrade.com/llms.txt": {
      "status": 404,
      "soft404": true,
@@ -1728,6 +1802,11 @@
      "status": 404,
      "soft404": true,
      "canary": true
+    },
+    "page:https://connecttrade.com/docs/mcp": {
+     "status": 200,
+     "hash": "f79a3c73f4ebb499",
+     "bytes": 6141
     }
    },
    "repos": {}
