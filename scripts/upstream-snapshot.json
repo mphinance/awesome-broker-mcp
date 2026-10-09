@@ -315,10 +315,6 @@
   },
   "deriv": {
    "probes": {
-    "mcp:https://www.leaprate.com/technology/broker-mcp-ai-agent-trading-infrastructure-race-2026/": {
-     "status": 200,
-     "alive": true
-    },
     "page:https://fxnewsgroup.com/forex-news/retail-forex/deriv-launches-tradersview-ai-based-market-intelligence-platform/": {
      "status": 200,
      "hash": "ba3767bb63da2b7f",
@@ -334,19 +330,6 @@
     },
     "openapi:https://tradersview.deriv.com/openapi.json": {
      "status": 404
-    },
-    "llms:https://www.leaprate.com/llms.txt": {
-     "status": 200,
-     "hash": "d492f6884dc491ab",
-     "bytes": 1057348
-    },
-    "llms:https://www.leaprate.com/llms-full.txt": {
-     "status": 200,
-     "hash": "9f620b2af000eeed",
-     "bytes": 4379674
-    },
-    "openapi:https://www.leaprate.com/openapi.json": {
-     "status": 403
     },
     "llms:https://fxnewsgroup.com/llms.txt": {
      "status": 404
@@ -544,11 +527,8 @@
     },
     "page:https://www.gemini.com/blog/introducing-agentic-trading-on-gemini-the-future-of-crypto-is-autonomous": {
      "status": 200,
-     "hash": "3e324fa465dfca7b",
+     "hash": "3dbbcbaa473976c5",
      "bytes": 5558
-    },
-    "page:https://www.theblock.co/post/399001/gemini-rolls-out-agentic-trading-allowing-ai-bots-to-directly-manage-crypto-exchange-trading-accounts": {
-     "status": 403
     },
     "llms:https://developer.gemini.com/llms.txt": {
      "status": 200,
@@ -571,17 +551,6 @@
     },
     "openapi:https://www.gemini.com/openapi.json": {
      "status": 500
-    },
-    "llms:https://www.theblock.co/llms.txt": {
-     "status": 200,
-     "hash": "37b0d6251c9c8da6",
-     "bytes": 10659
-    },
-    "llms:https://www.theblock.co/llms-full.txt": {
-     "status": 403
-    },
-    "openapi:https://www.theblock.co/openapi.json": {
-     "status": 404
     }
    },
    "repos": {
@@ -635,10 +604,6 @@
      "status": 200,
      "alive": true
     },
-    "mcp:https://www.leaprate.com/technology/broker-mcp-ai-agent-trading-infrastructure-race-2026/": {
-     "status": 200,
-     "alive": true
-    },
     "llms:https://www.financemagnates.com/llms.txt": {
      "status": 404
     },
@@ -647,19 +612,6 @@
     },
     "openapi:https://www.financemagnates.com/openapi.json": {
      "status": 404
-    },
-    "llms:https://www.leaprate.com/llms.txt": {
-     "status": 200,
-     "hash": "d492f6884dc491ab",
-     "bytes": 1057348
-    },
-    "llms:https://www.leaprate.com/llms-full.txt": {
-     "status": 200,
-     "hash": "9f620b2af000eeed",
-     "bytes": 4379674
-    },
-    "openapi:https://www.leaprate.com/openapi.json": {
-     "status": 403
     },
     "page:none found": {
      "error": "ERR_INVALID_URL"
@@ -679,33 +631,6 @@
      "status": 200,
      "hash": "d2dde8774e88591b",
      "bytes": 6337
-    },
-    "page:https://www.stocktitan.net/news/IBKR/interactive-brokers-expands-ai-integration-capabilities-adding-chat-hdk4u88x136r.html": {
-     "status": 200,
-     "hash": "03ffb07a51650969",
-     "bytes": 13862
-    },
-    "llms:https://claude.com/llms.txt": {
-     "status": 200,
-     "hash": "3084d522509cfffd",
-     "bytes": 4144
-    },
-    "llms:https://claude.com/llms-full.txt": {
-     "status": 404
-    },
-    "openapi:https://claude.com/openapi.json": {
-     "status": 404
-    },
-    "llms:https://www.stocktitan.net/llms.txt": {
-     "status": 200,
-     "hash": "6517c776958e69ed",
-     "bytes": 18568
-    },
-    "llms:https://www.stocktitan.net/llms-full.txt": {
-     "status": 404
-    },
-    "openapi:https://www.stocktitan.net/openapi.json": {
-     "status": 429
     }
    },
    "repos": {
@@ -1263,10 +1188,6 @@
      "hash": "39137c73db8d7668",
      "bytes": 5690
     },
-    "mcp:https://www.leaprate.com/technology/broker-mcp-ai-agent-trading-infrastructure-race-2026/": {
-     "status": 200,
-     "alive": true
-    },
     "llms:https://www.financemagnates.com/llms.txt": {
      "status": 404
     },
@@ -1296,19 +1217,6 @@
     "openapi:https://www.universenewsnetwork.com/openapi.json": {
      "status": 404,
      "soft404": true
-    },
-    "llms:https://www.leaprate.com/llms.txt": {
-     "status": 200,
-     "hash": "d492f6884dc491ab",
-     "bytes": 1057348
-    },
-    "llms:https://www.leaprate.com/llms-full.txt": {
-     "status": 200,
-     "hash": "9f620b2af000eeed",
-     "bytes": 4379674
-    },
-    "openapi:https://www.leaprate.com/openapi.json": {
-     "status": 403
     },
     "page:none found": {
      "error": "ERR_INVALID_URL"

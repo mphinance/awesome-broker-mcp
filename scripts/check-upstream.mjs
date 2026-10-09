@@ -58,7 +58,7 @@ const urlRe = /https?:\/\/[^\s)>\]"'`]+/g;
 const clean = (u) => u.replace(/[.,;:*]+$/, "");
 
 // Origins we never probe for llms/openapi: they're hosts for other people's content.
-const SKIP_ORIGIN = /(^|\.)(github\.com|githubusercontent\.com|npmjs\.com|pypi\.org|x\.com|twitter\.com|youtube\.com|medium\.com|reddit\.com|discord\.com|discord\.gg|t\.me|linkedin\.com|wikipedia\.org|readthedocs\.io|smithery\.ai|glama\.ai|pulsemcp\.com|mcp\.so)$/;
+const SKIP_ORIGIN = /(^|\.)(github\.com|githubusercontent\.com|npmjs\.com|pypi\.org|x\.com|twitter\.com|youtube\.com|medium\.com|reddit\.com|discord\.com|discord\.gg|t\.me|linkedin\.com|wikipedia\.org|readthedocs\.io|smithery\.ai|glama\.ai|pulsemcp\.com|mcp\.so|leaprate\.com|theblock\.co|stocktitan\.net|claude\.com|anthropic\.com)$/;
 
 function targetsFor(slug, text) {
   const fm = frontmatter(text);
