@@ -84,6 +84,7 @@ jobs:
             --exclude 'mcp\.kite\.trade'
             --exclude 'webapi\.tradezero\.com'
             --exclude 'snaptrade\.com/brokerages/fidelity'
+            --exclude 'github\.com/tylerflar/claude-fidelity-mcp'
             './**/*.md'
           # --accept includes 202/401/403/405/429: many entries here are live broker
           # MCP/API endpoints that are reachable but reject lychee's unauthenticated

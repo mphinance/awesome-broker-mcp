@@ -90,6 +90,11 @@ The most useful PR you can open. If you re-checked an entry and it still holds:
 
 If something changed, update the page and the table row, and note what changed.
 
+Not sure what to re-check? `node scripts/check-upstream.mjs` diffs every broker's `/llms.txt`,
+`/openapi.json`, cited docs and repos against a snapshot and lists what moved (see the
+[readme](readme.md#-watch-for-broker-updates)). It is a lead generator: read the source it
+points at before you change an entry or bump a date.
+
 ## Style
 
 - Say what a server **does and doesn't do**. No marketing language.

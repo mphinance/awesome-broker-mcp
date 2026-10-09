@@ -8,9 +8,9 @@
 <p align="center">
   <a href="https://awesome.re"><img src="https://awesome.re/badge-flat2.svg" alt="Awesome"></a>
   <img src="https://img.shields.io/badge/entries-65-1f6feb" alt="65 entries">
-  <img src="https://img.shields.io/badge/official%20servers-27-3fb950" alt="27 official">
+  <img src="https://img.shields.io/badge/official%20servers-28-3fb950" alt="28 official">
   <img src="https://img.shields.io/badge/confirmed%20no%20route-15-f85149" alt="15 confirmed none">
-  <img src="https://img.shields.io/badge/last%20verified-2026--07--16-3fb950" alt="Last verified 2026-07-16">
+  <img src="https://img.shields.io/badge/last%20verified-2026--10--09-3fb950" alt="Last verified 2026-10-09">
   <a href="license"><img src="https://img.shields.io/badge/license-CC0--1.0-8957e5" alt="CC0-1.0"></a>
 </p>
 
@@ -53,6 +53,8 @@ corrections are [documented in place](brokers/etrade.md), not quietly edited.
 | 🇮🇳 **India** | [Zerodha](brokers/zerodha-kite-connect.md), [Upstox](brokers/upstox.md) | Both official. Zerodha trades on the self-hosted build; Upstox is read-only. |
 | 🏦 **Fidelity / Vanguard / M1 / Wealthfront** | *Nothing good* | No official route. See [confirmed no MCP route](#-confirmed-no-mcp-route). |
 
+**🔎 Ask the sources directly:** the [awesome-broker-mcp source pack](https://notebook.google.com/notebook/7764266e-a289-4224-9cca-d0b278f7b7ca) is a public NotebookLM notebook of the primary docs behind these entries (broker MCP docs, API references, server repos). Chat with it, or open its briefing, mind map, infographic and audio overview. It answers from the sources and says "unconfirmed" when none back a claim.
+
 **⚠️ Read [before you connect one to real money](#-before-you-connect-one-to-real-money) first.** Some of these place live
 orders on a tool call, and [one has no paper mode at all](brokers/public.md).
 
@@ -80,6 +82,7 @@ guardrail is whatever *you* configure client-side, not something the broker enfo
 - [❌ Confirmed no MCP route](#-confirmed-no-mcp-route)
 - [💻 Local vs. remote](#-local-vs-remote)
 - [⚠️ Before you connect one to real money](#-before-you-connect-one-to-real-money)
+- [📡 Watch for broker updates](#-watch-for-broker-updates)
 - [🤝 Contributing](#-contributing)
 - [🧠 The brain that decides what to trade](#-the-brain-that-decides-what-to-trade)
 
@@ -139,7 +142,7 @@ say something careless:
 | **Cannot execute, by design** | [IBKR](brokers/interactive-brokers.md) | The server physically can't submit. No env var turns it on. |
 | **Draft-first, prompt-enforced** | [Trade It](aggregators/trade-agent.md) | Must draft, show you, and be told to execute. A prompt rule, not a wall. |
 | **Paper / sandbox by default** | [Alpaca](brokers/alpaca.md) · [Kraken](brokers/kraken.md) · [Webull](brokers/webull.md) | Live trading is opt-in via an env var or scope. Server-side. |
-| **Live on a tool call** | [Robinhood](brokers/robinhood.md) · [Tradier](brokers/tradier.md) · most community servers | No approval step the broker enforces. Your client config is the only guardrail. |
+| **Live on a tool call** | [Robinhood](brokers/robinhood.md) · [Tradier](brokers/tradier.md) · most community servers | No approval step the broker enforces by default (Robinhood has an opt-in toggle, off for MCP accounts). Your client config is the only guardrail. |
 | **Live, and no paper mode exists** | [Public.com](brokers/public.md) | Confirm-first, but every confirmation is real money. Nothing to practise on. |
 
 **Two axes people conflate:** official/community is about *who wrote it*. local/remote
@@ -168,8 +171,9 @@ First-party. Built or hosted by the broker themselves.
 |---|---|---|---|
 | [Alpaca](brokers/alpaca.md) | ✅ Yes | Equities, ETFs, crypto, multi-leg options, fixed income, indices. 🛡️ **Paper by default** | Local (`uvx`) |
 | [Interactive Brokers](brokers/interactive-brokers.md) | 📝 Draft only | Global, multi-asset. 🛡️ The server *cannot* submit — you approve every order in IBKR's own UI | Remote |
-| [Robinhood](brokers/robinhood.md) | ✅ Yes | Stocks, options, futures. Dedicated agentic account; no server-side approval step | Remote |
+| [Robinhood](brokers/robinhood.md) | ✅ Yes | Stocks, options, crypto (futures not listed). Dedicated MCP account; trade approvals exist but are **off by default** for external agents | Remote |
 | [Tradier](brokers/tradier.md) | ✅ Yes | Equities + multi-leg options | Remote |
+| [tastytrade](brokers/tastytrade.md) | ✅ Yes | Quotes, option chains, order entry. ⚠️ **Defaults to production**; sandbox is opt-in. Dry-run-gated orders, `READ_ONLY` switch. A community server (`tasty-agent`) also exists | Local |
 | [Webull](brokers/webull.md) | 🔀 Both | Cloud MCP is read-only; `webull-openapi-mcp` (local) trades. 🛡️ **Sandbox by default** | Remote + local |
 | [TradeStation](brokers/tradestation.md) | ✅ Yes | Equities + more. Needs a paid AI tier and a $10k balance | Remote |
 | [Public.com](brokers/public.md) | ✅ Yes | Stocks, ETFs, options, crypto; brokerage + IRA. ⚠️ **No paper mode — all orders live** | Local |
@@ -210,7 +214,6 @@ effectively dead.
 
 | Broker | Trades? | What it trades | Type |
 |---|---|---|---|
-| [tastytrade](brokers/tastytrade.md) | ✅ Yes | Equities, options, futures, multi-leg | Local or Modal |
 | [Charles Schwab](brokers/schwab.md) | ✅ Yes | Equities, options, brackets/OCO. Opt-in required | Local |
 | [moomoo / Futu](brokers/moomoo.md) | ✅ Yes | `moomoo-api-mcp` — the genuine standalone MCP server. 🛡️ SIMULATE-only until you set trade creds + `unlock_trade` | Local + OpenD gateway |
 | [eToro](brokers/etoro.md) | ✅ Yes | 35 tools against your own account. The only eToro route that is both MCP *and* trading-capable | Local (`npx`) |
@@ -338,6 +341,27 @@ brokerage account. Some things worth sitting with first:
   tools out entirely, server-side.
 - **Separate the brain from the hands.** Analysis and execution don't have to be the
   same connector, and there's a real argument they shouldn't be.
+
+## 📡 Watch for broker updates
+
+Brokers ship MCP servers and APIs quietly. `scripts/check-upstream.mjs` probes every
+entry's `/llms.txt`, `/llms-full.txt`, `/openapi.json`, cited docs pages, MCP endpoints
+and GitHub repos, then diffs them against a committed snapshot.
+
+```bash
+node scripts/check-upstream.mjs            # what changed since the last snapshot
+node scripts/check-upstream.mjs robinhood  # one broker
+node scripts/check-upstream.mjs --update   # accept the new state (after reading it)
+./scripts/install-hooks.sh                 # run it automatically after every git pull
+```
+
+Output is tagged `CHANGED`, `NEW` (a broker just published an llms.txt or OpenAPI spec),
+`GONE` (surface vanished or repo archived) and `DEAD` (endpoint 404s). It ships as an
+agent skill too: [`skills/broker-upstream-check`](skills/broker-upstream-check/SKILL.md).
+
+A [weekly GitHub Action](.github/workflows/upstream.yml) runs the same check every Monday and
+opens one tracking issue with the diff. It reports; it never edits entries on its own,
+because a hash change is a lead, not a verdict.
 
 ## 🤝 Contributing
 

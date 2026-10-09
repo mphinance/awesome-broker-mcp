@@ -48,5 +48,10 @@ something Tradier enforces server-side.
 
 ## Caveats
 
+- The cited docs page contains two voices: its opening line says Tradier "is building" a custom
+  MCP server, while the body describes it as launched with `place_*` order tools. The
+  endpoint itself answers a POST `initialize` with 200 (checked 2026-10-09), so "building"
+  looks like leftover intro text. Not tested with an account.
+
 - Some LLM platforms require a paid tier to use custom MCP connectors at all — noted
   directly in Tradier's docs, not specific to Tradier.
