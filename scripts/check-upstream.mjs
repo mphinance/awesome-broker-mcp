@@ -153,7 +153,8 @@ async function probeOnce({ url, kind }) {
         try {
           const g = await fetch(url, { redirect: "follow", signal: ctl.signal, headers: { "user-agent": UA } });
           await g.body?.cancel().catch(() => {});
-          if (g.status === 200) return { status: 200, alive: true };
+          // Anything but a definitive 404/410 means the page exists (a 403/429 is a wall, not a deletion).
+          if (g.status !== 404 && g.status !== 410) return { status: g.status, alive: true };
         } catch { /* fall through */ }
       }
       return { status, alive: status !== 404 && status !== 410 && status < 500 };
