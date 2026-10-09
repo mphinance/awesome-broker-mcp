@@ -6,7 +6,10 @@
   "scripts": {
     "check": "node scripts/check-freshness.mjs",
     "check:strict": "node scripts/check-freshness.mjs --strict",
-    "lint": "npx awesome-lint"
+    "lint": "npx awesome-lint",
+    "check:upstream": "node scripts/check-upstream.mjs",
+    "check:upstream:update": "node scripts/check-upstream.mjs --update",
+    "install-hooks": "sh scripts/install-hooks.sh"
   },
   "license": "CC0-1.0"
 }

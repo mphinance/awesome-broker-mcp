@@ -1,0 +1,58 @@
+name: upstream-watch
+
+on:
+  schedule:
+    # Mondays 14:00 UTC. Brokers ship on weekdays; this catches last week's changes.
+    - cron: "0 14 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Probe brokers and diff against the committed snapshot
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/check-upstream.mjs > upstream-report.txt || true
+          cat upstream-report.txt
+          # Drive the issue from the summary line, not from grep on prose.
+          if grep -qE '^[1-9][0-9]* changed|, [1-9][0-9]* new,|, [1-9][0-9]* gone,|, [1-9][0-9]* dead' upstream-report.txt; then
+            echo "CHANGES=1" >> "$GITHUB_ENV"
+          fi
+      - name: Open or update the tracking issue
+        if: env.CHANGES == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Weekly upstream check, $(date -u +%F). Nothing here is auto-applied: read each line, fix the entry if a claim is wrong, then run \`node scripts/check-upstream.mjs --update\` and commit \`scripts/upstream-snapshot.json\`."
+            echo
+            echo "Do **not** bump \`last_verified\` from this report alone; it means a human opened the source."
+            echo
+            echo '```'
+            grep -vE '^(BASELINE)' upstream-report.txt | head -c 55000
+            echo '```'
+          } > body.md
+          gh label create upstream-changes --color BFD4F2 --description "Weekly broker upstream diff" 2>/dev/null || true
+          n=$(gh issue list --label upstream-changes --state open --json number --jq '.[0].number // empty')
+          if [ -n "$n" ]; then
+            gh issue edit "$n" --body-file body.md
+          else
+            gh issue create --title "Broker upstream changes" --label upstream-changes --body-file body.md
+          fi
+      - name: Close the issue when everything is clean
+        if: env.CHANGES != '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          n=$(gh issue list --label upstream-changes --state open --json number --jq '.[0].number // empty')
+          [ -n "$n" ] && gh issue close "$n" --comment "Clean run on $(date -u +%F)." || true

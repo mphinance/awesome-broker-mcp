@@ -1,0 +1,8 @@
+#!/bin/sh
+# Runs after `git pull` (merge). Report-only: never updates the snapshot, never blocks.
+# Opt out for one pull: SKIP_UPSTREAM_CHECK=1 git pull
+[ -n "$SKIP_UPSTREAM_CHECK" ] && exit 0
+ROOT=$(git rev-parse --show-toplevel) || exit 0
+echo "-- broker upstream check (SKIP_UPSTREAM_CHECK=1 to skip) --"
+node "$ROOT/scripts/check-upstream.mjs" 2>/dev/null | grep -vE '^BASELINE' || true
+exit 0
