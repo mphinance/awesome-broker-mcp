@@ -225,7 +225,7 @@ effectively dead.
 | [Polymarket](brokers/polymarket.md) | ✅ Yes | Outcome tokens — market + limit orders | Local |
 | [Binance](brokers/binance.md) | ✅ Yes | ⚠️ Varies by repo — no single canonical server | Local |
 | [Hyperliquid](brokers/hyperliquid.md) | ✅ Yes | Perpetuals and spot on the Hyperliquid DEX | Local |
-| [Fidelity](brokers/fidelity.md) | ✅ Yes | ⚠️ Drives Fidelity's website with Playwright — your password + 2FA. `dry_run` defaults true | Local |
+| [Fidelity](brokers/fidelity.md) | ✅ Yes | ⚠️ Drives Fidelity's website with Playwright — your password + 2FA. `dry_run` defaults true on orders, but `fidelity_transfer` moves cash with no guard. ⚠️ Original repo deleted; a copy survives | Local |
 | [Trading 212](brokers/trading212.md) | ✅ Yes | Market/limit/stop + cancel, on the official beta API. ⚠️ Quickstart config hardcodes `live` | Local |
 | [XTB](brokers/xtb.md) | 💀 Dead | **Upstream repo is deleted.** Survives only as mirrors and an unaudited npm republish | Local |
 | [Interactive Brokers](brokers/interactive-brokers.md) | ⚠️ Varies | Superseded by the official connector — use that instead | Local |
