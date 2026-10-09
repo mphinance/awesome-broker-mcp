@@ -294,19 +294,6 @@
   },
   "degiro": {
    "probes": {
-    "mcp:https://www.openbankingtracker.com/agentic-banking-and-mcp": {
-     "status": 429,
-     "alive": true
-    },
-    "llms:https://www.openbankingtracker.com/llms.txt": {
-     "status": 429
-    },
-    "llms:https://www.openbankingtracker.com/llms-full.txt": {
-     "status": 429
-    },
-    "openapi:https://www.openbankingtracker.com/openapi.json": {
-     "status": 429
-    },
     "page:none found": {
      "error": "ERR_INVALID_URL"
     }
@@ -342,8 +329,8 @@
     },
     "page:https://tradersview.deriv.com/": {
      "status": 200,
-     "hash": "b95feb80a57a9d8a",
-     "bytes": 5022
+     "hash": "7bc0d85926b6a985",
+     "bytes": 5056
     }
    },
    "repos": {
@@ -478,19 +465,6 @@
   },
   "fineco": {
    "probes": {
-    "mcp:https://www.openbankingtracker.com/agentic-banking-and-mcp": {
-     "status": 429,
-     "alive": true
-    },
-    "llms:https://www.openbankingtracker.com/llms.txt": {
-     "status": 429
-    },
-    "llms:https://www.openbankingtracker.com/llms-full.txt": {
-     "status": 429
-    },
-    "openapi:https://www.openbankingtracker.com/openapi.json": {
-     "status": 429
-    },
     "page:https://github.com/morettimarco/fineco-mcp": {
      "status": 200,
      "hash": "e5d1051c04b0f7e4",
@@ -563,19 +537,6 @@
   },
   "hargreaves-lansdown": {
    "probes": {
-    "mcp:https://www.openbankingtracker.com/agentic-banking-and-mcp": {
-     "status": 429,
-     "alive": true
-    },
-    "llms:https://www.openbankingtracker.com/llms.txt": {
-     "status": 429
-    },
-    "llms:https://www.openbankingtracker.com/llms-full.txt": {
-     "status": 429
-    },
-    "openapi:https://www.openbankingtracker.com/openapi.json": {
-     "status": 429
-    },
     "page:none found": {
      "error": "ERR_INVALID_URL"
     }
@@ -600,9 +561,25 @@
   },
   "ig": {
    "probes": {
+    "page:https://www.ig.com/au/trading-platforms/ai-assistant": {
+     "status": 200,
+     "hash": "255f79a23cb3d8dd",
+     "bytes": 15308
+    },
     "mcp:https://www.financemagnates.com/forex/ig-australia-launches-mcp-server-opens-its-trading-platform-to-chatgpt/": {
      "status": 200,
      "alive": true
+    },
+    "llms:https://www.ig.com/llms.txt": {
+     "status": 200,
+     "hash": "93338f4c0211b1a0",
+     "bytes": 14737
+    },
+    "llms:https://www.ig.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://www.ig.com/openapi.json": {
+     "status": 404
     },
     "llms:https://www.financemagnates.com/llms.txt": {
      "status": 404
@@ -612,9 +589,6 @@
     },
     "openapi:https://www.financemagnates.com/openapi.json": {
      "status": 404
-    },
-    "page:none found": {
-     "error": "ERR_INVALID_URL"
     }
    },
    "repos": {
@@ -629,8 +603,8 @@
    "probes": {
     "page:https://claude.com/connectors/interactive-brokers": {
      "status": 200,
-     "hash": "d2dde8774e88591b",
-     "bytes": 6337
+     "hash": "145317ac601b2f89",
+     "bytes": 6388
     }
    },
    "repos": {
@@ -1058,10 +1032,14 @@
      "bytes": 23454
     },
     "llms:https://robinhood.com/llms.txt": {
-     "status": 403
+     "status": 404,
+     "soft404": true,
+     "canary": true
     },
     "llms:https://robinhood.com/llms-full.txt": {
-     "status": 403
+     "status": 404,
+     "soft404": true,
+     "canary": true
     },
     "openapi:https://robinhood.com/openapi.json": {
      "status": 404,
@@ -1081,10 +1059,6 @@
   },
   "saxo-bank": {
    "probes": {
-    "mcp:https://www.openbankingtracker.com/agentic-banking-and-mcp": {
-     "status": 429,
-     "alive": true
-    },
     "llms:https://www.developer.saxo/llms.txt": {
      "status": 404
     },
@@ -1093,15 +1067,6 @@
     },
     "openapi:https://www.developer.saxo/openapi.json": {
      "status": 404
-    },
-    "llms:https://www.openbankingtracker.com/llms.txt": {
-     "status": 429
-    },
-    "llms:https://www.openbankingtracker.com/llms-full.txt": {
-     "status": 429
-    },
-    "openapi:https://www.openbankingtracker.com/openapi.json": {
-     "status": 429
     },
     "page:https://www.developer.saxo/": {
      "status": 200,
@@ -1175,6 +1140,18 @@
   },
   "thinkmarkets": {
    "probes": {
+    "page:https://www.thinkmarkets.com/en/ai-trading/chelsea-ai/": {
+     "status": 403
+    },
+    "page:https://www.thinkmarkets.com/uk/announcements/chelseaai-trade-through-your-ai-assistant/": {
+     "status": 403
+    },
+    "page:https://www.thinkmarkets.com/uk/help-centre/ai-trading/": {
+     "status": 403
+    },
+    "page:https://www.thinkmarkets.com/en/trading-academy/ai-trading/ai-account-permissions/": {
+     "status": 403
+    },
     "mcp:https://www.financemagnates.com/forex/exclusive-thinkmarkets-launches-mcp-server-ai-can-execute-traders-but-not-access-funds/": {
      "status": 200,
      "alive": true
@@ -1187,6 +1164,21 @@
      "status": 200,
      "hash": "39137c73db8d7668",
      "bytes": 5690
+    },
+    "llms:https://www.thinkmarkets.com/llms.txt": {
+     "status": 404,
+     "soft404": true,
+     "canary": true
+    },
+    "llms:https://www.thinkmarkets.com/llms-full.txt": {
+     "status": 404,
+     "soft404": true,
+     "canary": true
+    },
+    "openapi:https://www.thinkmarkets.com/openapi.json": {
+     "status": 404,
+     "soft404": true,
+     "canary": true
     },
     "llms:https://www.financemagnates.com/llms.txt": {
      "status": 404
@@ -1217,19 +1209,31 @@
     "openapi:https://www.universenewsnetwork.com/openapi.json": {
      "status": 404,
      "soft404": true
-    },
-    "page:none found": {
-     "error": "ERR_INVALID_URL"
     }
    },
    "repos": {}
   },
   "tiger-brokers": {
    "probes": {
-    "page:https://github.com/tigerfintech/openapi-python-sdk": {
+    "mcp:https://docs.itigerup.com/docs/mcp": {
      "status": 200,
-     "hash": "c9f21494c70e23ff",
-     "bytes": 19535
+     "alive": true
+    },
+    "llms:https://docs.itigerup.com/llms.txt": {
+     "status": 200,
+     "hash": "3f518b832b938c3b",
+     "bytes": 14093
+    },
+    "llms:https://docs.itigerup.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://docs.itigerup.com/openapi.json": {
+     "status": 404
+    },
+    "page:https://docs.itigerup.com/docs/mcp": {
+     "status": 200,
+     "hash": "ea948117e05441ba",
+     "bytes": 4152
     }
    },
    "repos": {
@@ -1242,19 +1246,6 @@
   },
   "trade-republic": {
    "probes": {
-    "mcp:https://www.openbankingtracker.com/agentic-banking-and-mcp": {
-     "status": 429,
-     "alive": true
-    },
-    "llms:https://www.openbankingtracker.com/llms.txt": {
-     "status": 429
-    },
-    "llms:https://www.openbankingtracker.com/llms-full.txt": {
-     "status": 429
-    },
-    "openapi:https://www.openbankingtracker.com/openapi.json": {
-     "status": 429
-    },
     "page:https://github.com/visusnet/trade-republic-mcp-server": {
      "status": 200,
      "hash": "8d91fad21fe57824",
@@ -1506,7 +1497,9 @@
      "bytes": 18004
     },
     "llms:https://upstox.com/llms-full.txt": {
-     "status": 403
+     "status": 404,
+     "soft404": true,
+     "canary": true
     },
     "openapi:https://upstox.com/openapi.json": {
      "status": 404
@@ -1722,13 +1715,19 @@
      "paths": 12
     },
     "llms:https://api.connecttrade.com/llms.txt": {
-     "status": 403
+     "status": 404,
+     "soft404": true,
+     "canary": true
     },
     "llms:https://api.connecttrade.com/llms-full.txt": {
-     "status": 403
+     "status": 404,
+     "soft404": true,
+     "canary": true
     },
     "openapi:https://api.connecttrade.com/openapi.json": {
-     "status": 403
+     "status": 404,
+     "soft404": true,
+     "canary": true
     }
    },
    "repos": {}
@@ -1934,6 +1933,46 @@
     }
    },
    "repos": {}
+  },
+  "parlay": {
+   "probes": {
+    "mcp:https://mcp.parlay.run/mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://mcp.parlay.run/llms.txt": {
+     "status": 404
+    },
+    "llms:https://mcp.parlay.run/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://mcp.parlay.run/openapi.json": {
+     "status": 404
+    },
+    "llms:https://parlay.run/llms.txt": {
+     "status": 200,
+     "hash": "9371d42c6fdf04ae",
+     "bytes": 915
+    },
+    "llms:https://parlay.run/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://parlay.run/openapi.json": {
+     "status": 404
+    },
+    "page:https://github.com/parlay-run/parlay-mcp": {
+     "status": 200,
+     "hash": "3eedb92a7c8b4881",
+     "bytes": 9446
+    }
+   },
+   "repos": {
+    "parlay-run/parlay-mcp": {
+     "pushed": "2026-05-26",
+     "archived": false,
+     "tag": "v0.1.2"
+    }
+   }
   }
  }
 }

@@ -17,8 +17,17 @@ node scripts/check-upstream.mjs --strict       # exit 1 on any change (CI)
 ```
 
 Takes ~90s for all entries (8 parallel probes, 12s timeout, one retry on transient failure, browser UA).
-The last line, `coverage:`, says how many llms/openapi surfaces are readable vs blocked by bot walls (403/429).
-Blocked ones (Robinhood's `/llms.txt`, for one) **cannot be monitored**; watch those entries' cited support pages instead.
+The last line, `coverage:`, says how many llms/openapi surfaces are readable, blocked, or absent.
+
+A 403 is ambiguous: bot wall, or "no such file" (S3/CloudFront and API gateways 403 every missing
+path; robinhood.com, upstox.com and api.connecttrade.com do). So each 403 origin is asked about a
+path that cannot exist; if that canary also gets 403, the surface is **absent**, not blocked.
+"Blocked" means a real wall (e.g. thinkmarkets.com serves a Cloudflare challenge).
+
+**Walled sites** cannot be watched by the script. Read the page by hand in a real desktop
+browser (Claude in Chrome passes Cloudflare where curl and headless Chromium do not), note it
+in the entry's caveats, and only then bump `last_verified`. Wayback availability is a weak
+fallback: it lags and rate-limits.
 
 ## Reading the output
 

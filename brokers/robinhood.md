@@ -82,7 +82,8 @@ order history.
   "Agent Loops" (scheduled continuous trading) is marked "Coming soon."
 - The tools list on the support page is collapsed, so exact tool names and parameters
   were not read. Not tested with a live account.
-- `robinhood.com/llms.txt` returns 403 to automated fetches, so the upstream check
-  cannot watch it. Watch the support articles instead:
+- Robinhood publishes **no `llms.txt` or `openapi.json`**. Those paths return an S3/CloudFront
+  `AccessDenied` 403, but so does any made-up path (checked 2026-10-09), so it is "absent",
+  not a bot wall. Watch the support articles instead:
   [onboarding](https://robinhood.com/us/en/support/articles/onboarding-an-external-agent/),
   [trading with your agent](https://robinhood.com/us/en/support/articles/trading-with-your-agent/).
