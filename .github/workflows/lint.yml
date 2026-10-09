@@ -40,6 +40,10 @@ jobs:
         # Non-strict on PRs: an old entry shouldn't block an unrelated fix.
         # The scheduled run is what nags.
         run: node scripts/check-freshness.mjs
+      - name: Readme numbers match the entries
+        # Badge/header counts are derived from entry frontmatter; this fails if they drift.
+        # Fix locally with: node scripts/check-readme-stats.mjs --fix
+        run: node scripts/check-readme-stats.mjs
 
   chart:
     runs-on: ubuntu-latest

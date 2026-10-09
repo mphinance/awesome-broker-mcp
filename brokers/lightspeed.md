@@ -1,8 +1,8 @@
 ---
 name: Lightspeed
 region: US
-status: none
-trading: false
+status: aggregator-only
+trading: true
 server_type: n/a
 source_url: https://lightspeed.com/trading/api-trading
 last_verified: 2026-07-16
@@ -20,13 +20,22 @@ Trading page makes no mention of MCP, AI agents or Claude. Lightspeed does offer
 exchanges with multiple routing options and a certification environment for paper
 trading — a DIY-wrapper candidate, but not an MCP server.
 
+## Update 2026-10-09: reachable through ConnectTrade
+
+ConnectTrade's own capability matrix (<https://connecttrade.com/llms-full.txt>) lists
+Lightspeed with equities and options trading. ConnectTrade has a [documented, production MCP
+server](../aggregators/connecttrade.md) with a mandatory two-step trade confirmation, but it
+needs ConnectTrade platform credentials and is aimed at fintech platforms, not individuals.
+So there is still no MCP from Lightspeed itself; the only MCP route is via that aggregator.
+This was read from ConnectTrade's docs, not tested with credentials.
+
 ## How to connect
 
-Nothing to connect. See Overview — no MCP route was found.
+No broker-run MCP exists. The only route is the ConnectTrade aggregator (see the update above).
 
 ## Trading scope
 
-None.
+None directly. Via ConnectTrade only: equities and options per its capability matrix.
 
 ## Caveats
 
