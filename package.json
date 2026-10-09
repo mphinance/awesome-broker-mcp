@@ -9,7 +9,8 @@
     "lint": "npx awesome-lint",
     "check:upstream": "node scripts/check-upstream.mjs",
     "check:upstream:update": "node scripts/check-upstream.mjs --update",
-    "install-hooks": "sh scripts/install-hooks.sh"
+    "install-hooks": "sh scripts/install-hooks.sh",
+    "check:stats": "node scripts/check-readme-stats.mjs"
   },
   "license": "CC0-1.0"
 }

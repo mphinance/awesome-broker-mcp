@@ -2,14 +2,14 @@
 
 <p align="center">
   <b>Which brokers can an AI actually trade through?</b><br>
-  <sub>65 brokers checked at the source. Including the ones with nothing.</sub>
+  <sub>66 brokers checked at the source. Including the ones with nothing.</sub>
 </p>
 
 <p align="center">
   <a href="https://awesome.re"><img src="https://awesome.re/badge-flat2.svg" alt="Awesome"></a>
-  <img src="https://img.shields.io/badge/entries-65-1f6feb" alt="65 entries">
-  <img src="https://img.shields.io/badge/official%20servers-28-3fb950" alt="28 official">
-  <img src="https://img.shields.io/badge/confirmed%20no%20route-15-f85149" alt="15 confirmed none">
+  <img src="https://img.shields.io/badge/entries-66-1f6feb" alt="66 entries">
+  <img src="https://img.shields.io/badge/official%20servers-30-3fb950" alt="30 official">
+  <img src="https://img.shields.io/badge/confirmed%20no%20route-13-f85149" alt="13 confirmed none">
   <img src="https://img.shields.io/badge/last%20verified-2026--10--09-3fb950" alt="Last verified 2026-10-09">
   <a href="license"><img src="https://img.shields.io/badge/license-CC0--1.0-8957e5" alt="CC0-1.0"></a>
 </p>
@@ -106,7 +106,7 @@ place an order*.
 - **Official** — first-party, built or hosted by the broker.
 - **Community** — a third-party repo. Not endorsed by the broker. Some are excellent.
   You are still handing broker credentials to a stranger's code.
-- **Aggregator-only** — no direct server; reachable only through SnapTrade, Truthifi, etc.
+- **Aggregator-only** — no direct server; reachable only through an aggregator such as SnapTrade, Truthifi or ConnectTrade.
 - **None** — checked, confirmed nothing exists.
 
 **"Has an MCP server" and "can trade" are different claims**, and the gap between them is
@@ -140,9 +140,9 @@ say something careless:
 | Posture | Who | What it means |
 |---|---|---|
 | **Cannot execute, by design** | [IBKR](brokers/interactive-brokers.md) | The server physically can't submit. No env var turns it on. |
-| **Draft-first, prompt-enforced** | [Trade It](aggregators/trade-agent.md) | Must draft, show you, and be told to execute. A prompt rule, not a wall. |
+| **Draft-first, tool-flow enforced** | [Trade It](aggregators/trade-agent.md) · [ConnectTrade](aggregators/connecttrade.md) | Must draft, show you, then a second tool call executes (ConnectTrade adds a 2-minute expiry and read/trade token scopes). A server-side step, but the confirm is still a tool call the assistant makes, so it is only as strong as your client's human-in-the-loop. |
 | **Paper / sandbox by default** | [Alpaca](brokers/alpaca.md) · [Kraken](brokers/kraken.md) · [Webull](brokers/webull.md) | Live trading is opt-in via an env var or scope. Server-side. |
-| **Live on a tool call** | [Robinhood](brokers/robinhood.md) · [Tradier](brokers/tradier.md) · most community servers | No approval step the broker enforces by default (Robinhood has an opt-in toggle, off for MCP accounts). Your client config is the only guardrail. |
+| **Live on a tool call** | [Robinhood](brokers/robinhood.md) · [Tradier](brokers/tradier.md) · [tastytrade](brokers/tastytrade.md) (defaults to **production**) · most community servers | No approval step the broker enforces by default (Robinhood has an opt-in toggle, off for MCP accounts). Your client config is the only guardrail. |
 | **Live, and no paper mode exists** | [Public.com](brokers/public.md) | Confirm-first, but every confirmation is real money. Nothing to practise on. |
 
 **Two axes people conflate:** official/community is about *who wrote it*. local/remote
@@ -179,14 +179,14 @@ First-party. Built or hosted by the broker themselves.
 | [Public.com](brokers/public.md) | ✅ Yes | Stocks, ETFs, options, crypto; brokerage + IRA. ⚠️ **No paper mode — all orders live** | Local |
 | [eToro](brokers/etoro.md) | ⚠️ See page | The official MCP server is **docs-only and can't trade**. Agent Portfolios trades but is **REST, not MCP** | Remote |
 | [Longbridge](brokers/longbridge.md) | ✅ Yes | US + HK equities, options, warrants. ~148 tools, OAuth 2.1 | Remote |
-| [Tiger Brokers](brokers/tiger-brokers.md) | ✅ Yes | Stocks, options, futures across US/HK/CN/SG | Local (`uvx`) |
+| [Tiger Brokers](brokers/tiger-brokers.md) | ✅ Yes | Stocks, options, futures across US/HK/CN/SG. Only guardrail is the `TIGERMCP_READONLY` env var | Local (`uvx`) |
 | [moomoo / Futu](brokers/moomoo.md) | ✅ Yes | Full trading + data across HK/US/CN/SG/JP. ⚠️ Official route ships as **Agent Skills** (MCP-compatible tools), not a standalone MCP server | Local + OpenD |
 | [Zerodha](brokers/zerodha-kite-connect.md) | ✅ Yes | Indian equities, F&O, currency, commodities. Order placement only on the self-hosted build | Remote + local |
 | [Upstox](brokers/upstox.md) | 👁️ No | Read-only by design | Remote |
 
 ### ₿ Crypto
 
-*Crypto is years ahead of traditional brokerage here — four official servers that all trade.*
+*Crypto is years ahead of traditional brokerage here — five official servers that trade (Coinbase with a caveat).*
 
 | Exchange | Trades? | What it trades | Type |
 |---|---|---|---|
@@ -202,9 +202,9 @@ First-party. Built or hosted by the broker themselves.
 | Broker | Trades? | What it trades | Type |
 |---|---|---|---|
 | [cTrader (Spotware)](brokers/ctrader-spotware.md) | ✅ Yes | Whatever your cTrader broker offers — FX, indices, commodities, crypto CFDs | Remote + local |
-| [ThinkMarkets](brokers/thinkmarkets.md) | ✅ Yes | CFDs on ThinkTrader — place, modify, close | Remote |
+| [ThinkMarkets](brokers/thinkmarkets.md) | ✅ Yes | CFDs on ThinkTrader — place, modify, close. Read-only or full-access scope, demo accounts, 7-day connections. Claude is the only confirmed client | Remote (per-user URL) |
 | [TraderEvolution](brokers/traderevolution.md) | ✅ Yes | 31 tools per the vendor: market/limit/stop + complex orders | Unknown |
-| [IG](brokers/ig.md) | 👁️ No | Strictly read-only: prices, positions, P&L, margin | Remote |
+| [IG](brokers/ig.md) | 👁️ No | Strictly read-only: prices, positions, P&L, margin. ⚠️ **ChatGPT app only (AU)**; Claude is "coming soon" | Remote |
 
 ## 👥 Community servers
 
@@ -239,13 +239,13 @@ effectively dead.
 
 ## 🔗 Aggregators
 
-One endpoint, many brokers. **Almost all are read-only** — good for "what do I hold
+One endpoint, many brokers. **Most are read-only** — good for "what do I hold
 everywhere," not a substitute for a broker's own trading server.
 
 | Aggregator | Trades? | Covers |
 |---|---|---|
 | [Trade It](aggregators/trade-agent.md) *(was Trade Agent)* | ✅ Yes — 🛡️ draft-first, explicit confirm | Robinhood, Schwab, E*TRADE, Webull, Public, tastytrade, Coinbase, Kraken |
-| [ConnectTrade](aggregators/connecttrade.md) | ✅ Yes — early access. ⚠️ Guardrails undocumented | 20+ brokers incl. Alpaca, Lightspeed, TradeZero, Webull, TradeStation |
+| [ConnectTrade](aggregators/connecttrade.md) | ✅ Yes — 🛡️ mandatory two-step confirm, scoped tokens. B2B: needs platform credentials | 21 brokers; 11 trade (Alpaca, IBKR, Lightspeed, moomoo, Public, tastytrade, TradeStation, Tradier, TradeZero, Webull, Sterling), 10 read-only (Schwab, Fidelity, 8 banks) |
 | [SnapTrade](aggregators/snaptrade.md) | 👁️ No — read-only, stated outright | Robinhood, Schwab, Fidelity, Vanguard, E*TRADE, Alpaca, Tradier, Trading 212 |
 | [Truthifi](aggregators/truthifi.md) | 👁️ No — reads only; 2 non-financial write tools | 18,000+ institutions |
 | [Plaid](aggregators/plaid.md) | 👁️ No | Official, read-only account data |
@@ -264,6 +264,8 @@ No direct server, official or community.
 | Broker | Route | Trading |
 |---|---|---|
 | [Vanguard](brokers/vanguard.md) | SnapTrade / Truthifi | ❌ None |
+| [TradeZero](brokers/tradezero.md) | ConnectTrade MCP (platform credentials) | ✅ Yes, via ConnectTrade |
+| [Lightspeed](brokers/lightspeed.md) | ConnectTrade MCP (platform credentials) | ✅ Yes, via ConnectTrade |
 
 > Fidelity and Trading 212 used to sit here. Both were wrong — each has a direct
 > community server that places real orders. They're in
@@ -275,7 +277,7 @@ Checked and found nothing. Not "unknown" — **confirmed negative**, which is th
 point of writing them down. If your broker is here, you've saved an afternoon.
 
 <details>
-<summary><b>15 brokers with no MCP route</b> — click to expand</summary>
+<summary><b>13 brokers with no MCP route</b> — click to expand</summary>
 
 <br>
 
@@ -291,8 +293,6 @@ point of writing them down. If your broker is here, you've saved an afternoon.
 | [Stash](brokers/stash.md) | Nothing. |
 | [DEGIRO](brokers/degiro.md) | Nothing usable. |
 | [Hargreaves Lansdown](brokers/hargreaves-lansdown.md) | Nothing. |
-| [TradeZero](brokers/tradezero.md) | Nothing — despite ConnectTrade covering it via REST. |
-| [Lightspeed](brokers/lightspeed.md) | Nothing — same. |
 | [AMP Futures / Rithmic](brokers/amp-futures-rithmic.md) | Nothing for AMP or for Rithmic. |
 | [FOREX.com (StoneX)](brokers/forex-com-stonex.md) | REST + FIX APIs, but no MCP. |
 | [MX](aggregators/mx.md) | Nothing. |
@@ -306,7 +306,7 @@ official/community** — Alpaca and Kraken are both official *and* local.
 
 - **Remote / hosted** — paste a URL or add the connector, done. IBKR, Robinhood,
   Tradier, Webull Cloud (read-only), eToro Agent Portfolios, Longbridge, Upstox, IG,
-  ThinkMarkets, Crypto.com, SnapTrade, Trade Agent, Truthifi, Plaid.
+  ThinkMarkets, Crypto.com, SnapTrade, Trade It, ConnectTrade, Parlay, Truthifi, Plaid.
 - **Local** — a process runs on your machine. Alpaca (`uvx`), Kraken, OKX, Bybit,
   Gemini, TradeStation, Public.com, Coinbase (stdio), Tiger, community eToro (`npx`),
   moomoo (needs OpenD — two processes), tastytrade, E*TRADE, Schwab, Saxo, NinjaTrader
@@ -322,8 +322,8 @@ brokerage account. Some things worth sitting with first:
   a Discord message, that text can carry instructions. When the same agent holds a
   trading tool, a hostile string is one hop from an order. The blast radius of a
   jailbreak stops being "wrong answer" and starts being "wrong position."
-- **Prefer draft-first.** IBKR's official connector and Trade Agent both build an order
-  and require an explicit human confirm. That pattern exists because the vendors
+- **Prefer draft-first.** IBKR's official connector, Trade It and ConnectTrade all build an
+  order and require a separate confirm step. That pattern exists because the vendors
   thought about this. It's the shape you want.
 - **Prefer paper-by-default.** Alpaca (`ALPACA_PAPER_TRADE=true`) and Kraken (paper
   scope on, trade scope off) both ship safe defaults. That's a real signal about how
