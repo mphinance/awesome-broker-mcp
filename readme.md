@@ -250,6 +250,7 @@ everywhere," not a substitute for a broker's own trading server.
 | [Truthifi](aggregators/truthifi.md) | 👁️ No — reads only; 2 non-financial write tools | 18,000+ institutions |
 | [Plaid](aggregators/plaid.md) | 👁️ No | Official, read-only account data |
 | [Teller](aggregators/teller.md) | 👁️ No | Community, read-only |
+| [Parlay](aggregators/parlay.md) | 👁️ No — read-only prediction-market data | Polymarket, Kalshi, Limitless, Manifold. Research only, not a broker route |
 
 Read-only is the norm for a reason. An aggregator already holds delegated credentials
 to every account you've linked; giving an LLM write access *through* that layer stacks
@@ -355,6 +356,7 @@ node scripts/check-upstream.mjs --update   # accept the new state (after reading
 ./scripts/install-hooks.sh                 # run it automatically after every git pull
 ```
 
+A 403 is checked against a canary path so "no such file" is not mistaken for a bot wall.
 Output is tagged `CHANGED`, `NEW` (a broker just published an llms.txt or OpenAPI spec),
 `GONE` (surface vanished or repo archived) and `DEAD` (endpoint 404s). It ships as an
 agent skill too: [`skills/broker-upstream-check`](skills/broker-upstream-check/SKILL.md).

@@ -58,7 +58,7 @@ const urlRe = /https?:\/\/[^\s)>\]"'`]+/g;
 const clean = (u) => u.replace(/[.,;:*]+$/, "");
 
 // Origins we never probe for llms/openapi: they're hosts for other people's content.
-const SKIP_ORIGIN = /(^|\.)(github\.com|githubusercontent\.com|npmjs\.com|pypi\.org|x\.com|twitter\.com|youtube\.com|medium\.com|reddit\.com|discord\.com|discord\.gg|t\.me|linkedin\.com|wikipedia\.org|readthedocs\.io|smithery\.ai|glama\.ai|pulsemcp\.com|mcp\.so|leaprate\.com|theblock\.co|stocktitan\.net|claude\.com|anthropic\.com)$/;
+const SKIP_ORIGIN = /(^|\.)(github\.com|githubusercontent\.com|npmjs\.com|pypi\.org|x\.com|twitter\.com|youtube\.com|medium\.com|reddit\.com|discord\.com|discord\.gg|t\.me|linkedin\.com|wikipedia\.org|readthedocs\.io|smithery\.ai|glama\.ai|pulsemcp\.com|mcp\.so|openbankingtracker\.com|leaprate\.com|theblock\.co|stocktitan\.net|claude\.com|anthropic\.com)$/;
 
 function targetsFor(slug, text) {
   const fm = frontmatter(text);
@@ -236,6 +236,20 @@ if (unknown.length) {
 const jobs = entries.flatMap((e) => e.probes.map((p) => ({ slug: e.slug, ...p })));
 console.error(`probing ${jobs.length} URLs across ${entries.length} entries...`);
 const results = await pool(jobs, CONCURRENCY, async (j) => ({ ...j, r: await probe(j) }));
+
+// A 403 is ambiguous: bot wall, or "no such file" (S3/CloudFront and API gateways answer 403 for
+// every missing path, e.g. robinhood.com, upstox.com, api.connecttrade.com). Ask each origin about
+// a path that cannot exist; if the canary gets the same 403, the 403 means absent, not blocked.
+const canaryCache = new Map();
+async function canary(origin) {
+  if (!canaryCache.has(origin)) {
+    canaryCache.set(origin, probeOnce({ url: `${origin}/__upstream_canary_${Date.now().toString(36)}.txt`, kind: "page" }).then((r) => r.status));
+  }
+  return canaryCache.get(origin);
+}
+await pool(results.filter((j) => j.r.status === 403 && (j.kind === "llms" || j.kind === "openapi")), CONCURRENCY, async (j) => {
+  if ((await canary(new URL(j.url).origin)) === 403) j.r = { status: 404, soft404: true, canary: true };
+});
 
 const now = {};
 for (const e of entries) now[e.slug] = { probes: {}, repos: {} };
