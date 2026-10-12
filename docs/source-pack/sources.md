@@ -20,7 +20,7 @@ Sources in the public NotebookLM notebook. Titles and URLs only; full text lives
 | Model context protocol (MCP) - OpenAI Agents SDK - GitHub Pages | https://openai.github.io/openai-agents-python/mcp/ |
 | Onboarding an external agent / Robinhood | https://robinhood.com/us/en/support/articles/onboarding-an-external-agent/ |
 | Polymarket MCP Server - GitHub | https://github.com/guangxiangdebizi/polymarket-mcp |
-| README.md - tasty-agent: A TastyTrade MCP Server - GitHub | https://github.com/ferdousbhai/tasty-agent/blob/main/README.md |
+| README.md - tasty-agent: A TastyTrade MCP Server - GitHub | https://raw.githubusercontent.com/ferdousbhai/tasty-agent/main/README.md |
 | Robinhood Agents / Build Your AI Trading Agent | https://robinhood.com/us/en/agents/ |
 | Trading with your agent / Robinhood | https://robinhood.com/us/en/support/articles/trading-with-your-agent/ |
 | TradingGoose/TradingGoose-Studio: Build your own AI investment system - GitHub | https://github.com/TradingGoose/TradingGoose-Studio |
