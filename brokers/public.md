@@ -3,9 +3,9 @@ name: Public.com
 region: US
 status: official
 trading: true
-server_type: local
-source_url: https://public.com/learn/trade-stocks-options-crypto-using-claude
-last_verified: 2026-07-16
+server_type: remote
+source_url: https://public.com/api/docs/templates/hosted-mcp
+last_verified: 2026-10-12
 confidence: high
 ---
 
@@ -13,72 +13,131 @@ confidence: high
 
 ## Overview
 
-Official local MCP server for Claude Desktop. Notable for IRA support — most brokers
-in this list only cover taxable brokerage accounts.
+Official **hosted** MCP server at `https://mcp.public.com/mcp`, plus an Apache-2.0
+**local** server ([`publicdotcom-mcp-server`](https://github.com/PublicDotCom/publicdotcom-mcp-server),
+v0.8.0, 2026-10-09) for people who would rather run it themselves. The hosted server
+launched 2026-06-25 and is now the headline path: Public lists Claude, Claude Code,
+ChatGPT, Codex, Perplexity, Grok and Meta Muse as supported clients.
+
+Notable for IRA support (most brokers here only cover taxable accounts) and for letting
+you open **separate brokerage accounts for AI agents** (multi-account support shipped
+2026-05-20).
 
 > ### ⚠️ There is no paper trading mode
 >
-> Public's own docs are unambiguous: *"All orders are live. There is no paper trading
-> mode. Every order you confirm through Claude Desktop is a real order placed in your
-> live brokerage account. Review all preflight details before confirming."*
->
-> Several servers in this directory default to paper or sandbox ([Alpaca](alpaca.md),
-> [Kraken](kraken.md), [Webull](webull.md)). **This one has no such mode to fall back
-> on.** There is no safe way to "just try it."
+> Public's docs are unambiguous: *"Placing a trade through any MCP client is a real
+> order using real money in your Public account. Review all preflight details carefully
+> before confirming."* Nothing here defaults to a sandbox. There is no safe way to
+> "just try it" on your main account. If you want a sandbox, open a dedicated account
+> and fund it with what you can afford to lose.
 
 ## How to connect
 
-Local Python server — you need [`uv`](https://docs.astral.sh/uv/) installed. Configure
-via `claude_desktop_config.json`:
+**Hosted (recommended), OAuth.** Claude on web, desktop or iOS: Settings → Connectors →
+Add custom connector → paste `https://mcp.public.com/mcp` → Connect and authorize in the
+browser. For Claude Code, add the connector in claude.ai first, sign in as the same
+account, then run `/mcp` and select Public (authenticate there if it shows as not
+authenticated).
 
 ```bash
-PUBLIC_COM_SECRET=<your API secret>
-PUBLIC_COM_ACCOUNT_ID=<your account id>
+codex mcp add public --url https://mcp.public.com/mcp   # Codex; then: codex mcp login public
 ```
 
-Generate the secret from your Public.com API settings page. Credentials stay local —
-the MCP server reads them and calls the Public API directly; nothing passes through a
-third-party server.
+Verified live 2026-10-12: the endpoint answers `401` with a `WWW-Authenticate` header
+pointing at OAuth protected-resource metadata, which advertises scopes `trading.read`,
+`trading.write`, `marketdata` and `openid`. Bearer tokens only, in the header.
 
-Requires fully quitting and relaunching Claude Desktop after editing the config
-(Cmd+Q on macOS, tray-icon quit on Windows — a background-process gotcha worth knowing
-before you assume the config didn't take).
+Per-client auth differs: ChatGPT/Codex, Claude, Perplexity and Grok use **OAuth**;
+**Meta Muse uses a Public API key** as the Bearer token (and Grok has an alternate Agent
+Skill path that also takes a key). API keys are generated in Account Settings →
+Security → API and are open to all Public members, no approval needed.
 
-For IRA access specifically: set `PUBLIC_COM_ACCOUNT_ID` to your IRA account ID.
+**Local server (still supported).** Python, `uv` or `pip install publicdotcom-mcp-server`,
+configured with `PUBLIC_COM_SECRET` and `PUBLIC_COM_ACCOUNT_ID` in
+`claude_desktop_config.json`. Needs a full quit and relaunch of Claude Desktop after
+editing. It can also run as an HTTP server (`POST /mcp`, per-request Bearer key).
+Credentials stay on your machine and calls go straight to Public's API. For an IRA, set
+the account ID to the IRA's.
 
 ## Trading scope
 
-Stocks, ETFs, options (including cash-settled index options — SPX, NDX), crypto,
-fractional shares, extended-hours trading, margin accounts. Multi-leg options orders.
-Both brokerage and IRA account types.
+Stocks, ETFs, options (single-leg, multi-leg, cash-settled index options such as SPX and
+NDX), crypto, corporate bonds and Treasuries, fractional shares, short selling, 24/5 and
+extended-hours equity sessions, margin (with an optional cash-only flag per order).
+Order types: market, limit, stop, stop-limit, plus OCO, OTO and bracket orders (equities
+and options). Tax-lot selection when closing positions. Brokerage, IRA and business
+accounts. US markets only.
+
+The local server exposes about 40 tools: roughly 30 read-only (quotes, chains, Greeks,
+history, tax lots, bond search, preflights) and 10 write tools (`place_order`,
+`place_multileg_order`, four vertical-spread helpers, `place_short_order`,
+`flatten_and_go_short`, `cancel_order`, `cancel_and_replace_order`). Read tools carry
+`readOnlyHint: true`; write tools do not.
+
+**Prediction markets / event contracts are read-only over MCP.** You can browse
+categories, events, YES/NO prices and bars (`get_event_*`), but the server does not place
+event-contract orders. Public's prediction-markets product is a separate surface.
 
 ## Safety / guardrails
 
-**Confirm-first, with a real human gate — but every confirmation spends real money.**
+**Confirm-first, with a human gate that lives in your client, not in Public's server.**
 
-Per Public's docs: *"Claude runs a preflight check first — showing estimated fill cost,
-total buying power impact, and order type. After you confirm, Claude submits the
-order."*
+Public's docs describe a preflight step (estimated fill cost, buying-power impact, order
+type) before submission. The preflight tools are separate from the placement tools, and
+nothing found in Public's docs shows the server refusing a `place_order` call that skipped
+the preflight. The gate is your client's per-tool approval. ChatGPT, for instance,
+requires extra approval for write actions by default and you can loosen that, so check
+yours before you hand an agent a live account.
 
-So the shape is good: you see the cost, the buying-power impact and the order type
-before anything happens, and Claude does not submit until you say so. The gap is that
-the gate is the *only* thing between a tool call and a live fill. Compare
-[IBKR](interactive-brokers.md), where the server cannot submit at all and you press the
-button in the broker's own UI.
+What you do get, server-side:
+
+- **OAuth scopes** (`trading.read` / `trading.write` / `marketdata`) on the hosted server,
+  so read-only access is at least expressible in the protocol. Whether the consent screen
+  lets you grant read without write was **not verified**: it needs a live Public login.
+- **Dedicated accounts.** Public's own safeguard story is to put automation in a separate
+  brokerage account so a bad agent can only touch what you funded it with. This is the
+  strongest guardrail on offer and it is on you to use it.
+- Real-time trade confirmations and full order history.
+- Options strategies still require your account's approval level.
+
+Compare [IBKR](interactive-brokers.md), where the server cannot submit at all, and
+[Alpaca](alpaca.md), which defaults to paper.
 
 ## Caveats
 
-- **No paper mode.** Repeated here because it is the single most important fact on this
-  page and it was missing from earlier versions of this entry.
-- The preflight summary is what you are approving. If you are in the habit of
-  fast-confirming an agent's proposals, that habit places live orders here.
-- Commission-free for individual brokerage and IRA accounts, per Public's own
-  positioning — not independently verified against a pricing page.
+- **No paper mode.** Still the single most important fact on this page.
+- **Hosted means your account data leaves Public.** Public's disclosure is blunt: once
+  data is shared with your AI provider it is governed by that provider's terms; Public
+  does not supervise or audit the agent; you assume all risk for trades it places and
+  trades are "deemed authorized by you". The local server keeps orders off Anthropic's
+  and others' infrastructure, though the model still sees whatever the tools return.
+- The disclosure also says trades "may be executed by your AI agent without your direct
+  input on each transaction". That is the operating model, not a bug.
+- Treat API keys like passwords. The Muse path asks you to paste one into a chat.
+- Public's current page for the local server (updated 2026-08-20) and the hosted docs
+  describe different setups; a few older Public pages still say Claude Desktop only.
+- Commission-free for individual brokerage and IRA accounts and the API; options carry
+  regulatory fees. Public pays an options rebate (up to $0.10 per stock/ETF contract;
+  API flow earns $0.06, or $0.10 at 10,000+ contracts a month). Per Public's own pricing
+  page, not independently verified.
+- Public says the individual API is for personal, non-commercial use. Builders who want
+  to offer a product on top of it go through Public's partnership program, which is
+  distinct from you connecting your own account.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-10-12:
 
-- <https://public.com/learn/trade-stocks-options-crypto-using-claude>
-- <https://public.com/api/docs/templates/claude-desktop-mcp> (returns 403 to automated
-  fetch; the `/learn` page above is the fetchable first-party source)
+- <https://public.com/llms.txt> (lists `/mcp-trading`, `/api`, prediction markets, and
+  a Meta Muse guide; no `llms-full.txt` or `openapi.json`)
+- <https://public.com/mcp-trading>
+- <https://public.com/api/docs/templates/hosted-mcp> and its `claude`, `chatgpt`,
+  `grok`, `meta-muse` pages
+- <https://public.com/api/docs/changelog>
+- <https://public.com/learn/trade-stocks-options-crypto-using-claude> (local server)
+- <https://public.com/learn/how-to-trade-stocks-options-crypto-using-meta-muse>
+- <https://github.com/PublicDotCom/publicdotcom-mcp-server>
+- `https://mcp.public.com/.well-known/oauth-protected-resource` (live probe)
+
+`public.com/api/docs/templates/claude-desktop-mcp` still returns 403 to automated fetch;
+the pages above are the fetchable first-party sources.

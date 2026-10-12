@@ -143,7 +143,7 @@ say something careless:
 | **Draft-first, tool-flow enforced** | [Trade It](aggregators/trade-agent.md) · [ConnectTrade](aggregators/connecttrade.md) | Must draft, show you, then a second tool call executes (ConnectTrade adds a 2-minute expiry and read/trade token scopes). A server-side step, but the confirm is still a tool call the assistant makes, so it is only as strong as your client's human-in-the-loop. |
 | **Paper / sandbox by default** | [Alpaca](brokers/alpaca.md) · [Kraken](brokers/kraken.md) · [Webull](brokers/webull.md) | Live trading is opt-in via an env var or scope. Server-side. |
 | **Live on a tool call** | [Robinhood](brokers/robinhood.md) · [Tradier](brokers/tradier.md) · [tastytrade](brokers/tastytrade.md) (defaults to **production**) · most community servers | No approval step the broker enforces by default (Robinhood has an opt-in toggle, off for MCP accounts). Your client config is the only guardrail. |
-| **Live, and no paper mode exists** | [Public.com](brokers/public.md) | Confirm-first, but every confirmation is real money. Nothing to practise on. |
+| **Live, and no paper mode exists** | [Public.com](brokers/public.md) | Preflight tools plus your client's approval prompt, OAuth scopes on the hosted server, and dedicated accounts as the real safeguard. Every confirmation is real money. Nothing to practise on. |
 
 **Two axes people conflate:** official/community is about *who wrote it*. local/remote
 is about *where it runs*. They're independent — Alpaca and Kraken are official **and**
@@ -176,7 +176,7 @@ First-party. Built or hosted by the broker themselves.
 | [tastytrade](brokers/tastytrade.md) | ✅ Yes | Quotes, option chains, order entry. ⚠️ **Defaults to production**; sandbox is opt-in. Dry-run-gated orders, `READ_ONLY` switch. A community server (`tasty-agent`) also exists | Local |
 | [Webull](brokers/webull.md) | 🔀 Both | Cloud MCP is read-only; `webull-openapi-mcp` (local) trades. 🛡️ **Sandbox by default** | Remote + local |
 | [TradeStation](brokers/tradestation.md) | ✅ Yes | Equities + more. Needs a paid AI tier and a $10k balance | Remote |
-| [Public.com](brokers/public.md) | ✅ Yes | Stocks, ETFs, options, crypto; brokerage + IRA. ⚠️ **No paper mode — all orders live** | Local |
+| [Public.com](brokers/public.md) | ✅ Yes | Stocks, ETFs, options, crypto, bonds; brokerage + IRA + business. Hosted OAuth server at `mcp.public.com/mcp`; prediction markets read-only. ⚠️ **No paper mode, all orders live** | Remote + local |
 | [eToro](brokers/etoro.md) | ⚠️ See page | The official MCP server is **docs-only and can't trade**. Agent Portfolios trades but is **REST, not MCP** | Remote |
 | [Longbridge](brokers/longbridge.md) | ✅ Yes | US + HK equities, options, warrants. ~148 tools, OAuth 2.1 | Remote |
 | [Tiger Brokers](brokers/tiger-brokers.md) | ✅ Yes | Stocks, options, futures across US/HK/CN/SG. Only guardrail is the `TIGERMCP_READONLY` env var | Local (`uvx`) |
