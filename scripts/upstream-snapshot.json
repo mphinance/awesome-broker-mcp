@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-09",
+ "generated": "2026-10-12",
  "snapshot": {
   "alpaca": {
    "probes": {
@@ -975,18 +975,40 @@
   },
   "public": {
    "probes": {
+    "mcp:https://public.com/api/docs/templates/hosted-mcp": {
+     "status": 403,
+     "alive": true
+    },
+    "mcp:https://mcp.public.com/mcp": {
+     "status": 401,
+     "alive": true
+    },
+    "page:https://public.com/llms.txt": {
+     "status": 200,
+     "hash": "118f7e92679e7a27",
+     "bytes": 2123
+    },
+    "mcp:https://public.com/mcp-trading": {
+     "status": 200,
+     "alive": true
+    },
+    "page:https://public.com/api/docs/changelog": {
+     "status": 200,
+     "hash": "86a343452e4f047e",
+     "bytes": 10605
+    },
     "page:https://public.com/learn/trade-stocks-options-crypto-using-claude": {
      "status": 200,
      "hash": "912004713509beef",
      "bytes": 34193
     },
-    "page:https://docs.astral.sh/uv/": {
+    "page:https://public.com/learn/how-to-trade-stocks-options-crypto-using-meta-muse": {
      "status": 200,
-     "hash": "23fc7b82522aceb7",
-     "bytes": 6804
+     "hash": "2d10174c32f82808",
+     "bytes": 30945
     },
-    "mcp:https://public.com/api/docs/templates/claude-desktop-mcp": {
-     "status": 403,
+    "mcp:https://mcp.public.com/.well-known/oauth-protected-resource": {
+     "status": 200,
      "alive": true
     },
     "llms:https://public.com/llms.txt": {
@@ -1000,17 +1022,28 @@
     "openapi:https://public.com/openapi.json": {
      "status": 404
     },
-    "llms:https://docs.astral.sh/llms.txt": {
+    "llms:https://mcp.public.com/llms.txt": {
      "status": 404
     },
-    "llms:https://docs.astral.sh/llms-full.txt": {
+    "llms:https://mcp.public.com/llms-full.txt": {
      "status": 404
     },
-    "openapi:https://docs.astral.sh/openapi.json": {
+    "openapi:https://mcp.public.com/openapi.json": {
      "status": 404
+    },
+    "page:https://public.com/api/docs/templates/hosted-mcp": {
+     "status": 200,
+     "hash": "8c3b6997a3d66bc0",
+     "bytes": 2297
     }
    },
-   "repos": {}
+   "repos": {
+    "PublicDotCom/publicdotcom-mcp-server": {
+     "pushed": "2026-10-09",
+     "archived": false,
+     "tag": "v0.8.0"
+    }
+   }
   },
   "questrade": {
    "probes": {
