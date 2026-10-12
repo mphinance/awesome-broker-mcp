@@ -66,8 +66,9 @@ drift from them — regenerate it whenever an entry changes.</sub>
 **The pattern worth noticing:** the official integrations trend conservative — hosted
 plus draft-approval ([IBKR](brokers/interactive-brokers.md),
 [Trade It](aggregators/trade-agent.md)), or hosted with genuinely no execution path at
-all ([SnapTrade](aggregators/snaptrade.md), [Truthifi](aggregators/truthifi.md),
-[Webull](brokers/webull.md)'s Cloud MCP). The brokers with the most compliance exposure
+all ([SnapTrade](aggregators/snaptrade.md), [Truthifi](aggregators/truthifi.md)), or
+hosted where an order is only a queued instruction a human confirms in the broker's own app
+([Webull](brokers/webull.md)'s Cloud MCP). The brokers with the most compliance exposure
 chose the most cautious posture, and that isn't an accident. Community servers mostly
 skip straight to direct execution with no platform-level approval step; there, the
 guardrail is whatever *you* configure client-side, not something the broker enforces.
@@ -110,10 +111,10 @@ place an order*.
 - **None** — checked, confirmed nothing exists.
 
 **"Has an MCP server" and "can trade" are different claims**, and the gap between them is
-where most of the confusion lives. [Webull](brokers/webull.md) ships two servers and only
-one trades. [IG](brokers/ig.md), [Upstox](brokers/upstox.md) and
+where most of the confusion lives. [Webull](brokers/webull.md) ships two servers; the cloud one can only queue
+instructions that you confirm in the Webull app. [IG](brokers/ig.md), [Upstox](brokers/upstox.md) and
 [Crypto.com](brokers/crypto-com.md) are official but deliberately read-only.
-[eToro](brokers/etoro.md)'s official server only reads API docs.
+[eToro](brokers/etoro.md)'s official server used to be docs-only and now trades, through signed two-step prepare/place tokens.
 
 ### Three traps worth knowing before you read the tables
 
@@ -169,16 +170,16 @@ First-party. Built or hosted by the broker themselves.
 
 | Broker | Trades? | What it trades | Type |
 |---|---|---|---|
-| [Alpaca](brokers/alpaca.md) | ✅ Yes | Equities, ETFs, crypto, multi-leg options, fixed income, indices. 🛡️ **Paper by default** | Local (`uvx`) |
+| [Alpaca](brokers/alpaca.md) | ✅ Yes | Equities, ETFs, crypto, multi-leg options; fixed income quotes only. 🛡️ **Paper by default** | Local (`uvx`) |
 | [Interactive Brokers](brokers/interactive-brokers.md) | 📝 Draft only | Global, multi-asset. 🛡️ The server *cannot* submit — you approve every order in IBKR's own UI | Remote |
 | [Robinhood](brokers/robinhood.md) | ✅ Yes | Stocks, options, crypto (futures not listed). Dedicated MCP account; trade approvals exist but are **off by default** for external agents | Remote |
 | [Tradier](brokers/tradier.md) | ✅ Yes | Equities + multi-leg options | Remote |
 | [tastytrade](brokers/tastytrade.md) | ✅ Yes | Quotes, option chains, order entry. ⚠️ **Defaults to production**; sandbox is opt-in. Dry-run-gated orders, `READ_ONLY` switch. A community server (`tasty-agent`) also exists | Local |
-| [Webull](brokers/webull.md) | 🔀 Both | Cloud MCP is read-only; `webull-openapi-mcp` (local) trades. 🛡️ **Sandbox by default** | Remote + local |
+| [Webull](brokers/webull.md) | 🔀 Both | Cloud MCP queues order instructions you confirm in the Webull app; `webull-openapi-mcp` (local) places orders directly. 🛡️ **Sandbox by default** | Remote + local |
 | [TradeStation](brokers/tradestation.md) | ✅ Yes | Equities + more. Needs a paid AI tier and a $10k balance | Remote |
 | [Public.com](brokers/public.md) | ✅ Yes | Stocks, ETFs, options, crypto, bonds; brokerage + IRA + business. Hosted OAuth server at `mcp.public.com/mcp`; prediction markets read-only. ⚠️ **No paper mode, all orders live** | Remote + local |
-| [eToro](brokers/etoro.md) | ⚠️ See page | The official MCP server is **docs-only and can't trade**. Agent Portfolios trades but is **REST, not MCP** | Remote |
-| [Longbridge](brokers/longbridge.md) | ✅ Yes | US + HK equities, options, warrants. ~148 tools, OAuth 2.1 | Remote |
+| [eToro](brokers/etoro.md) | ✅ Yes | Official MCP opens and closes positions via two-step `prepare-*` / `place-*` tokens (about 2 min expiry), demo or real account chosen explicitly. Generic `execute-write` has no server-side confirm. Agent Portfolios is still **REST, not MCP** | Remote |
+| [Longbridge](brokers/longbridge.md) | ✅ Yes | US + HK equities, options, warrants. ~164 tools, OAuth 2.1. Most order writes are dry-run until you pass back a confirmation code (a mistake guard, not human approval); multi-leg appears ungated | Remote |
 | [Tiger Brokers](brokers/tiger-brokers.md) | ✅ Yes | Stocks, options, futures across US/HK/CN/SG. Only guardrail is the `TIGERMCP_READONLY` env var | Local (`uvx`) |
 | [moomoo / Futu](brokers/moomoo.md) | ✅ Yes | Full trading + data across HK/US/CN/SG/JP. ⚠️ Official route ships as **Agent Skills** (MCP-compatible tools), not a standalone MCP server | Local + OpenD |
 | [Zerodha](brokers/zerodha-kite-connect.md) | ✅ Yes | Indian equities, F&O, currency, commodities. Order placement only on the self-hosted build | Remote + local |
@@ -186,15 +187,15 @@ First-party. Built or hosted by the broker themselves.
 
 ### ₿ Crypto
 
-*Crypto is years ahead of traditional brokerage here — five official servers that trade (Coinbase with a caveat).*
+*Crypto is years ahead of traditional brokerage here: five official servers that trade.*
 
 | Exchange | Trades? | What it trades | Type |
 |---|---|---|---|
-| [Kraken](brokers/kraken.md) | ✅ Yes | Spot (1,400+ pairs), futures, tokenized stocks, forex. 🛡️ **Paper built in**; live is opt-in per scope | Local |
+| [Kraken](brokers/kraken.md) | ✅ Yes | Spot (1,400+ pairs), futures, tokenized stocks (xStocks not in the USA), forex. 🛡️ **Paper built in**; live is opt-in per scope | Local |
 | [OKX](brokers/okx.md) | ✅ Yes | Spot, swap, futures, options, grid bots | Local |
 | [Bybit](brokers/bybit.md) | ✅ Yes | Spot, derivatives, positions | Local |
 | [Gemini](brokers/gemini.md) | ✅ Yes | Full Gemini trading API surface | Local |
-| [Coinbase](brokers/coinbase.md) | ✅ Yes | ⚠️ Onchain wallets and token swaps — *not* classic spot trading | Local |
+| [Coinbase](brokers/coinbase.md) | ✅ Yes | Coinbase for Agents (hosted, OAuth): spot crypto, US equities and futures on your real account via Advanced Trade. Portfolio scoping and OAuth scopes, no forced confirm. Plus the onchain `cdp mcp` wallet server | Remote + local |
 | [Crypto.com](brokers/crypto-com.md) | 👁️ No | Market data only | Remote |
 
 ### 💱 Forex / CFD
@@ -216,7 +217,7 @@ effectively dead.
 |---|---|---|---|
 | [Charles Schwab](brokers/schwab.md) | ✅ Yes | Equities, options, brackets/OCO. Opt-in required | Local |
 | [moomoo / Futu](brokers/moomoo.md) | ✅ Yes | `moomoo-api-mcp` — the genuine standalone MCP server. 🛡️ SIMULATE-only until you set trade creds + `unlock_trade` | Local + OpenD gateway |
-| [eToro](brokers/etoro.md) | ✅ Yes | 35 tools against your own account. The only eToro route that is both MCP *and* trading-capable | Local (`npx`) |
+| [eToro](brokers/etoro.md) | ✅ Yes | 35 tools against your own account. Defaults to `demo`. Community alternative to the official server | Local (`npx`) |
 | [Saxo Bank](brokers/saxo-bank.md) | ✅ Yes | Equities, FX, CFDs, futures, options. 🛡️ Writes are triple-gated, SIM by default | Local |
 | [Angel One](brokers/angel-one.md) | ✅ Yes | Indian equities + F&O via SmartAPI | Local |
 | [NinjaTrader](brokers/ninjatrader.md) | ✅ Yes | Futures, via a connected NT8 desktop install | Local (bridges to NT8) |
@@ -226,7 +227,7 @@ effectively dead.
 | [Binance](brokers/binance.md) | ✅ Yes | ⚠️ Varies by repo — no single canonical server | Local |
 | [Hyperliquid](brokers/hyperliquid.md) | ✅ Yes | Perpetuals and spot on the Hyperliquid DEX | Local |
 | [Fidelity](brokers/fidelity.md) | ✅ Yes | ⚠️ Drives Fidelity's website with Playwright — your password + 2FA. `dry_run` defaults true on orders, but `fidelity_transfer` moves cash with no guard. ⚠️ Original repo deleted; a copy survives | Local |
-| [Trading 212](brokers/trading212.md) | ✅ Yes | Market/limit/stop + cancel, on the official beta API. ⚠️ Quickstart config hardcodes `live` | Local |
+| [Trading 212](brokers/trading212.md) | ✅ Yes | Market/limit/stop + cancel, on the official beta API. ⚠️ KyuRish server's quickstart config hardcodes `live` (Rohan's defaults to `demo`) | Local |
 | [XTB](brokers/xtb.md) | 💀 Dead | **Upstream repo is deleted.** Survives only as mirrors and an unaudited npm republish | Local |
 | [Interactive Brokers](brokers/interactive-brokers.md) | ⚠️ Varies | Superseded by the official connector — use that instead | Local |
 | [E*TRADE](brokers/etrade.md) | 👁️ No | The client library has `place_order`; the **MCP surface never registers it**. Cannot trade | Local |
@@ -248,7 +249,7 @@ everywhere," not a substitute for a broker's own trading server.
 | [ConnectTrade](aggregators/connecttrade.md) | ✅ Yes — 🛡️ mandatory two-step confirm, scoped tokens. B2B: needs platform credentials | 21 brokers; 11 trade (Alpaca, IBKR, Lightspeed, moomoo, Public, tastytrade, TradeStation, Tradier, TradeZero, Webull, Sterling), 10 read-only (Schwab, Fidelity, 8 banks) |
 | [SnapTrade](aggregators/snaptrade.md) | 👁️ No — read-only, stated outright | Robinhood, Schwab, Fidelity, Vanguard, E*TRADE, Alpaca, Tradier, Trading 212 |
 | [Truthifi](aggregators/truthifi.md) | 👁️ No — reads only; 2 non-financial write tools | 18,000+ institutions |
-| [Plaid](aggregators/plaid.md) | 👁️ No | Official, read-only account data |
+| [Plaid](aggregators/plaid.md) | 👁️ No | Official, but developer diagnostics and Sandbox only, no account data |
 | [Teller](aggregators/teller.md) | 👁️ No | Community, read-only |
 | [Parlay](aggregators/parlay.md) | 👁️ No — read-only prediction-market data | Polymarket, Kalshi, Limitless, Manifold. Research only, not a broker route |
 
@@ -305,13 +306,14 @@ Decides what you have to keep running. **This is not the same axis as
 official/community** — Alpaca and Kraken are both official *and* local.
 
 - **Remote / hosted** — paste a URL or add the connector, done. IBKR, Robinhood,
-  Tradier, Webull Cloud (read-only), eToro Agent Portfolios, Longbridge, Upstox, IG,
-  ThinkMarkets, Crypto.com, SnapTrade, Trade It, ConnectTrade, Parlay, Truthifi, Plaid.
+  Tradier, Webull Cloud (in-app-confirmed orders), eToro MCP, Longbridge, Upstox, IG,
+  ThinkMarkets, Crypto.com, Public.com (`mcp.public.com/mcp`), Coinbase for Agents, SnapTrade,
+  Trade It, ConnectTrade, Parlay, Truthifi, Plaid.
 - **Local** — a process runs on your machine. Alpaca (`uvx`), Kraken, OKX, Bybit,
-  Gemini, TradeStation, Public.com, Coinbase (stdio), Tiger, community eToro (`npx`),
+  Gemini, TradeStation, Public.com (also hosted), Coinbase (`cdp mcp`, also hosted), Tiger, community eToro (`npx`),
   moomoo (needs OpenD — two processes), tastytrade, E*TRADE, Schwab, Saxo, NinjaTrader
   (bridges to an NT8 desktop install), Tradovate, Kalshi, Polymarket, and Webull's
-  trading-capable `webull-openapi-mcp`.
+  `webull-openapi-mcp` (direct execution).
 
 ## ⚠️ Before you connect one to real money
 

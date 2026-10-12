@@ -5,7 +5,7 @@ status: community
 trading: true
 server_type: local
 source_url: https://github.com/tylerflar/claude-fidelity-mcp
-last_verified: 2026-10-09
+last_verified: 2026-10-12
 confidence: medium
 ---
 
@@ -80,12 +80,22 @@ you can set once that prevents it.
   whenever they change their front-end. Treat it as fragile by construction.
 - Small and young: MIT, TypeScript, created 2026-04-01, last push 2026-04-13, 4 stars,
   12 commits at the time of the copy (pre-deletion figures). Not battle-tested.
+- **Other community servers appeared (found 2026-10-12, not audited):**
+  `jaketuring999/fidelity-mcp` (created 2026-10-07, 0 stars) is explicitly read-only: six
+  tools for accounts, balances, positions, tax lots and performance via your existing Chrome
+  session; its README says orders and transfers are out of scope. `koreyboone/fidelity-mcp`
+  (0 stars, created 2026-04-21) drives the Fidelity Trader+ desktop app over WebView2 CDP
+  and has chart order tools (`fidelity_chart_place_order`, `fidelity_trade_from_chart`); its
+  README says `fidelity_trade_from_chart` only opens the native order panel for manual
+  confirmation, and `fidelity_chart_place_order` was not examined. Neither is official.
 - The dry-run default is genuinely thoughtful design. It is still one boolean away from
   a live order.
 
 ## Sources
 
-Checked directly on 2026-07-16 (repo cloned, `src/index.ts` read):
+Checked directly on 2026-07-16 (repo cloned, `src/index.ts` read); re-checked 2026-10-12 (original repo still 404, naelmohammad copy unchanged since 2026-04-13, GitHub search for other Fidelity MCPs, SnapTrade llms.txt re-fetched):
 
 - <https://github.com/tylerflar/claude-fidelity-mcp>
 - <https://snaptrade.com/brokerages/fidelity>
+- <https://github.com/jaketuring999/fidelity-mcp>
+- <https://github.com/koreyboone/fidelity-mcp>

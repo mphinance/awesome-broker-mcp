@@ -5,7 +5,7 @@ status: official
 trading: false
 server_type: remote
 source_url: https://plaid.com/docs/resources/mcp/
-last_verified: 2026-07-16
+last_verified: 2026-10-12
 confidence: high
 ---
 
@@ -44,12 +44,20 @@ None.
 - A community server (mcp-server-plaid on PyPI, arjabbar/plaidmcp) also appeared in
   results and is distinct from the official ones. I did not verify it; do not conflate
   it with Plaid's first-party offering.
-- Repo URL is derived from the docs' cited path
-  (github.com/plaid/ai-coding-toolkit/tree/main/sandbox); I read it in Plaid's own
-  docs but did not fetch the repo itself.
+- The toolkit repo (github.com/plaid/ai-coding-toolkit, MIT, 31 stars, last push
+  2026-09-11) was fetched on 2026-10-12: its `/sandbox` directory holds the local MCP
+  server (mock data, Sandbox access tokens, webhook simulation). Its README also links
+  a Plaid CLI for reading your own financial data from a terminal; that CLI was not
+  checked here and is not an MCP server.
+- Plaid's llms.txt (2026-10-12) lists end-user AI partnerships (e.g. Meta's Muse
+  assistant, Fin, Sierra, Decagon) as Plaid Link/data integrations inside those
+  vendors' products. None is a Plaid-published MCP server, and the Investments data
+  involved is read-only.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-10-12 (docs page re-read: still exactly two servers, Dashboard tools unchanged at the five listed, scope `mcp:dashboard`; plaid.com/llms.txt scanned for MCP/agent entries, nothing new that is an MCP server):
 
 - <https://plaid.com/docs/resources/mcp/>
+- <https://plaid.com/llms.txt>
+- <https://github.com/plaid/ai-coding-toolkit>

@@ -5,7 +5,7 @@ status: none
 trading: false
 server_type: n/a
 source_url: none found
-last_verified: 2026-07-16
+last_verified: 2026-10-12
 confidence: high
 ---
 
@@ -45,7 +45,7 @@ None.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-10-12 (BankSync M1 page re-read: still generic, read-only data scopes incl. trade history, explicit non-affiliation disclaimer; GitHub repo searches for M1 Finance MCP still return 0; Truthifi hub still lists M1):
 
 - <https://github.com/search?q=%22m1+finance%22+mcp&type=repositories>
 - <https://banksync.io/agent/m1-finance-with-cline>
