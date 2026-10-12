@@ -5,7 +5,7 @@ status: community
 trading: false
 server_type: local
 source_url: https://github.com/visusnet/trade-republic-mcp-server
-last_verified: 2026-07-16
+last_verified: 2026-10-12
 confidence: medium
 ---
 
@@ -14,8 +14,8 @@ confidence: medium
 ## Overview
 
 No official MCP server and no official public API. Two community MCP servers exist and
-were verified: visusnet/trade-republic-mcp-server (7 stars, portfolio, market data,
-order books, asset search) and j0nl1/trade-republic-mcp (3 stars, Rust,
+were verified: visusnet/trade-republic-mcp-server (15 stars, portfolio, market data,
+order books, asset search) and j0nl1/trade-republic-mcp (6 stars, Rust,
 portfolio/market data/search/bond analytics). Neither can currently place orders. Both
 authenticate with a real Trade Republic phone number + PIN + SMS/app 2FA and work by
 reverse-engineering Trade Republic's internal WebSocket API, which the visusnet README
@@ -45,11 +45,11 @@ as 'coming soon'; j0nl1 exposes no order tools at all.
   using it may violate ToS and risk account action.
 - Requires handing full account credentials (phone + PIN) and live 2FA to a
   third-party binary. Sessions cached at ~/.trade-republic-mcp/session.json.
-- Both repos are very low-traction (7 and 3 stars).
+- Both repos are low-traction (15 and 6 stars as of 2026-10-12; the visusnet repo's last push was 2026-02-03 and j0nl1's 2026-02-18, so neither has moved in ~8 months).
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-10-12 (visusnet README re-read: orders still 'coming soon', the 'Autonomous Trading Agent' still 'Coming Soon', your-username install artifact still present; j0nl1 README shows no order tools; stars and push dates re-pulled via GitHub API):
 
 - <https://github.com/visusnet/trade-republic-mcp-server>
 - <https://github.com/j0nl1/trade-republic-mcp>

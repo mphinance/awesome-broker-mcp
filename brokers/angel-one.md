@@ -5,7 +5,7 @@ status: community
 trading: true
 server_type: local (stdio, self-run Python)
 source_url: https://github.com/bhavesh0009/angel-one-mcp-server
-last_verified: 2026-07-16
+last_verified: 2026-10-12
 confidence: medium
 ---
 
@@ -42,7 +42,13 @@ wrappers only, no official server
   materially worse security posture than Zerodha/Upstox/Longbridge OAuth.
 - Major blocker: per Angel One, effective 2026-04-01, SmartAPI order execution is only
   accepted from your registered primary static IP (NSE retail algo rules). This breaks
-  hosted/cloud/roaming MCP setups for order placement.
+  hosted/cloud/roaming MCP setups for order placement. Angel One's FAQ narrows the
+  mandate to "tech-savvy" clients placing orders through self-coded algos whose logic
+  runs at the client's end, which is what a self-run MCP server is.
+- The same page says market orders and IOC orders are now prohibited for algorithmic
+  trading and sets an order-per-second threshold (10 OPS). The community server
+  advertises market orders, so expect those to be rejected for API-originated flow.
+  Whether the wrapper itself handles this was not tested.
 - Other community repos were referenced in search results (ameernoufil, RohanDoshi21,
   deepjyotk) but were NOT individually verified — do not treat those as confirmed to
   exist.
@@ -50,7 +56,7 @@ wrappers only, no official server
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-10-12 (repo stars/commits/PyPI 'Coming Soon' status and the SmartAPI notice re-read; the notice's byte-level change did not touch the static-IP rules):
 
 - <https://github.com/bhavesh0009/angel-one-mcp-server>
 - <https://www.angelone.in/news/market-updates/what-s-changing-in-angel-one-s-smartapi-access-from-april-1-2026>

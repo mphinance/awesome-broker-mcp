@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: local (stdio, uvx)
 source_url: https://docs.itigerup.com/docs/mcp
-last_verified: 2026-10-09
+last_verified: 2026-10-12
 confidence: high
 ---
 
@@ -14,7 +14,7 @@ confidence: high
 ## Overview
 
 Tiger Brokers ships an official MCP server called tigermcp, documented on Tiger's own docs
-site ([docs.itigerup.com/docs/mcp](https://docs.itigerup.com/docs/mcp), updated 2026-09-24)
+site ([docs.itigerup.com/docs/mcp](https://docs.itigerup.com/docs/mcp), markdown source `updatedAt` 2026-08-11, page footer "Updated 2 months ago")
 and in their first-party openapi-python-sdk repo, and published to PyPI under TigerBrokers
 authorship (openapi@itiger.com). It runs locally via uvx tigermcp and supports trading
 operations against Tiger Open API, with an opt-in read-only mode via
@@ -28,7 +28,17 @@ uvx tigermcp — with env vars TIGEROPEN_TIGER_ID, TIGEROPEN_PRIVATE_KEY, TIGERO
 
 ## Trading scope
 
-Stocks, options and futures across US, HK, CN and SG markets via Tiger Open API
+Stocks, options and futures across US, HK, CN and SG markets via Tiger Open API.
+
+Tool surface (read from `server.py` on the SDK repo's main branch, 2026-10-12): about 23
+registered tools. Market data (quotes, depth, ticks, K-lines, intraday, capital flow,
+option expirations/chains, market status), account (positions, assets, asset analysis),
+contract lookup, and order tools: `preview_order`, `place_order`, `cancel_order`,
+get orders, get order detail, get transactions. Order types handled in code: MKT, LMT,
+STP, STP_LMT, TRAIL, TWAP, VWAP, with optional time-in-force and outside-RTH flags.
+There is **no modify/replace-order tool**. The repo is ahead of the PyPI release in
+time (main last pushed 2026-09-17, PyPI still 0.1.7), so the published package may differ
+slightly from the source read here.
 
 ## Caveats
 
@@ -41,8 +51,10 @@ Stocks, options and futures across US, HK, CN and SG markets via Tiger Open API
 - Officiality is stated on Tiger's own docs site and the package is authored by
   TigerBrokers (openapi@itiger.com). The server code lives inside the SDK package; there
   is no dedicated MCP repo in the `tigerfintech` org.
-- **Guardrails are thin.** The only control is `TIGERMCP_READONLY=true`, which disables
-  `place_order` and `cancel_order`. Tiger's example config ships it set to `true`, but with
+- **Guardrails are thin.** The only control is `TIGERMCP_READONLY=true` (also accepts `1`
+  or `yes`), which disables `place_order` and `cancel_order`; confirmed in source, where
+  those two are the only functions that check the flag and return an error. It defaults to
+  off, so trading is enabled unless you set it. Tiger's example config ships it set to `true`, but with
   it unset or `false` there is no draft or confirm step (`preview_order` exists, nothing
   forces it) and no per-order limits are documented.
 - **Paper account support for the MCP: unconfirmed.** Tiger OpenAPI has paper accounts, but
@@ -56,6 +68,12 @@ Stocks, options and futures across US, HK, CN and SG markets via Tiger Open API
   community repo luxiaolei/tiger-mcp.
 
 ## Sources
+
+Checked directly on 2026-10-12:
+
+- <https://docs.itigerup.com/docs/mcp> and its `.md` export (config JSON, TIGERMCP_READONLY wording, env vars)
+- `tigeropen/examples/ai/mcp_server/tigermcp/server.py` in <https://github.com/tigerfintech/openapi-python-sdk> (tool list, read-only gating, order types)
+- <https://pypi.org/pypi/tigermcp/json> (still 0.1.7, 2026-03-03)
 
 Checked directly on 2026-10-09:
 

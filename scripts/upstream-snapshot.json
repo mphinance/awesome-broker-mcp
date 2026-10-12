@@ -29,9 +29,9 @@
    },
    "repos": {
     "alpacahq/alpaca-mcp-server": {
-     "pushed": "2026-09-25",
+     "pushed": "2026-10-12",
      "archived": false,
-     "tag": "v2.3.2"
+     "tag": "v2.4.0"
     }
    }
   },
@@ -47,8 +47,8 @@
    "probes": {
     "page:https://www.angelone.in/news/market-updates/what-s-changing-in-angel-one-s-smartapi-access-from-april-1-2026": {
      "status": 200,
-     "hash": "61ba0c1b5b967291",
-     "bytes": 16815
+     "hash": "96de1e79b1c15756",
+     "bytes": 16796
     },
     "llms:https://www.angelone.in/llms.txt": {
      "status": 200,
@@ -145,8 +145,12 @@
   },
   "coinbase": {
    "probes": {
-    "mcp:https://docs.cdp.coinbase.com/get-started/tools/cdp-cli-mcp": {
+    "mcp:https://docs.cdp.coinbase.com/ai-agents/coinbase-for-agents/coinbase-mcp": {
      "status": 200,
+     "alive": true
+    },
+    "mcp:https://agents.coinbase.com/mcp": {
+     "status": 401,
      "alive": true
     },
     "page:https://docs.cdp.coinbase.com/cdp-cli/skill.md": {
@@ -154,23 +158,51 @@
      "hash": "a76ec5c8a2264323",
      "bytes": 3685
     },
+    "page:https://docs.cdp.coinbase.com/coinbase-for-agents/skill.md": {
+     "status": 200,
+     "hash": "31121612134563be",
+     "bytes": 42905
+    },
+    "mcp:https://docs.cdp.coinbase.com/get-started/tools/cdp-cli-mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "page:https://docs.cdp.coinbase.com/llms.txt": {
+     "status": 200,
+     "hash": "e9e987f6a135b992",
+     "bytes": 59018
+    },
+    "page:https://agents.coinbase.com/.well-known/oauth-protected-resource": {
+     "status": 200,
+     "hash": "fe97deb3a592353c",
+     "bytes": 390
+    },
     "llms:https://docs.cdp.coinbase.com/llms.txt": {
      "status": 200,
-     "hash": "afb2b0ed31e5b1b1",
-     "bytes": 59260
+     "hash": "5598f156fc75dd00",
+     "bytes": 59278
     },
     "llms:https://docs.cdp.coinbase.com/llms-full.txt": {
      "status": 200,
-     "hash": "5a81f180661fa312",
-     "bytes": 11559712
+     "hash": "db22b59b363d79e4",
+     "bytes": 11562649
     },
     "openapi:https://docs.cdp.coinbase.com/openapi.json": {
      "status": 404
     },
-    "page:https://docs.cdp.coinbase.com/get-started/tools/cdp-cli-mcp": {
+    "llms:https://agents.coinbase.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://agents.coinbase.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://agents.coinbase.com/openapi.json": {
+     "status": 404
+    },
+    "page:https://docs.cdp.coinbase.com/ai-agents/coinbase-for-agents/coinbase-mcp": {
      "status": 200,
-     "hash": "91d471f7ad80ae1c",
-     "bytes": 17366
+     "hash": "2d3ca58f9d1f4f8d",
+     "bytes": 22818
     }
    },
    "repos": {}
@@ -304,8 +336,8 @@
    "probes": {
     "page:https://fxnewsgroup.com/forex-news/retail-forex/deriv-launches-tradersview-ai-based-market-intelligence-platform/": {
      "status": 200,
-     "hash": "ba3767bb63da2b7f",
-     "bytes": 7511
+     "hash": "f82b62cfca13e6d0",
+     "bytes": 7885
     },
     "llms:https://tradersview.deriv.com/llms.txt": {
      "status": 200,
@@ -329,8 +361,8 @@
     },
     "page:https://tradersview.deriv.com/": {
      "status": 200,
-     "hash": "7bc0d85926b6a985",
-     "bytes": 5056
+     "hash": "3dfe2259a84bda8e",
+     "bytes": 5058
     }
    },
    "repos": {
@@ -347,9 +379,23 @@
      "status": 200,
      "alive": true
     },
+    "mcp:https://mcp.public-api.etoro.com/skill": {
+     "status": 401,
+     "alive": true
+    },
     "mcp:https://mcp.public-api.etoro.com": {
      "status": 401,
      "alive": true
+    },
+    "page:https://builders.etoro.com/openapi.json": {
+     "status": 200,
+     "hash": "e369cabcfc714fb6",
+     "bytes": 1139319
+    },
+    "page:https://builders.etoro.com/products/agent-portfolios": {
+     "status": 200,
+     "hash": "6d11fbbb79c2fa57",
+     "bytes": 8291
     },
     "page:https://www.etoro.com/news-and-analysis/etoro-updates/agent-portfolios-let-your-ai-agent-trade-for-you/": {
      "status": 200,
@@ -368,9 +414,9 @@
     },
     "openapi:https://builders.etoro.com/openapi.json": {
      "status": 200,
-     "hash": "f7b5018d9756a005",
+     "hash": "c5ab95c68e014a25",
      "bytes": 1825125,
-     "version": "v1.387.0",
+     "version": "v1.390.0",
      "title": "eToro Api",
      "paths": 148
     },
@@ -382,19 +428,6 @@
     },
     "openapi:https://mcp.public-api.etoro.com/openapi.json": {
      "status": 405
-    },
-    "llms:https://api-portal.etoro.com/llms.txt": {
-     "status": 200,
-     "hash": "ae469fd94a291205",
-     "bytes": 98781
-    },
-    "llms:https://api-portal.etoro.com/llms-full.txt": {
-     "status": 200,
-     "hash": "9b8ca6ac5134c2f8",
-     "bytes": 346674
-    },
-    "openapi:https://api-portal.etoro.com/openapi.json": {
-     "status": 404
     },
     "llms:https://www.etoro.com/llms.txt": {
      "status": 404
@@ -442,13 +475,13 @@
     },
     "llms:https://snaptrade.com/llms.txt": {
      "status": 200,
-     "hash": "37e5847e99089624",
-     "bytes": 11033
+     "hash": "3113606b3532ecae",
+     "bytes": 11042
     },
     "llms:https://snaptrade.com/llms-full.txt": {
      "status": 200,
-     "hash": "c2d9d2aba0fc1f8d",
-     "bytes": 7176
+     "hash": "ce4bd6ff658e7184",
+     "bytes": 7185
     },
     "openapi:https://snaptrade.com/openapi.json": {
      "status": 404
@@ -460,6 +493,16 @@
    "repos": {
     "tylerflar/claude-fidelity-mcp": {
      "error": "not found / no access"
+    },
+    "jaketuring999/fidelity-mcp": {
+     "pushed": "2026-10-11",
+     "archived": false,
+     "tag": "v0.0.1"
+    },
+    "koreyboone/fidelity-mcp": {
+     "pushed": "2026-04-21",
+     "archived": false,
+     "tag": null
     }
    }
   },
@@ -501,7 +544,7 @@
     },
     "page:https://www.gemini.com/blog/introducing-agentic-trading-on-gemini-the-future-of-crypto-is-autonomous": {
      "status": 200,
-     "hash": "3dbbcbaa473976c5",
+     "hash": "3e324fa465dfca7b",
      "bytes": 5558
     },
     "llms:https://developer.gemini.com/llms.txt": {
@@ -601,10 +644,23 @@
   },
   "interactive-brokers": {
    "probes": {
+    "mcp:https://api.ibkr.com/v1/api/mcp": {
+     "status": 401,
+     "alive": true
+    },
+    "llms:https://api.ibkr.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://api.ibkr.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://api.ibkr.com/openapi.json": {
+     "status": 404
+    },
     "page:https://claude.com/connectors/interactive-brokers": {
      "status": 200,
-     "hash": "145317ac601b2f89",
-     "bytes": 6388
+     "hash": "ecef3c3cb4307083",
+     "bytes": 6370
     }
    },
    "repos": {
@@ -659,8 +715,8 @@
     },
     "llms:https://docs.kraken.com/llms-full.txt": {
      "status": 200,
-     "hash": "2aeba7a119d999ca",
-     "bytes": 1117350
+     "hash": "96b3dd63f079b740",
+     "bytes": 1117917
     },
     "openapi:https://docs.kraken.com/openapi.json": {
      "status": 404
@@ -738,15 +794,23 @@
      "status": 401,
      "alive": true
     },
+    "mcp:https://mcp.longbridge.com/agent": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://mcp.longbridge.com/.well-known/oauth-protected-resource": {
+     "status": 200,
+     "alive": true
+    },
     "llms:https://open.longbridge.com/llms.txt": {
      "status": 200,
-     "hash": "9d149b1b80f6d193",
-     "bytes": 26125
+     "hash": "986828b29dfd42b7",
+     "bytes": 26775
     },
     "llms:https://open.longbridge.com/llms-full.txt": {
      "status": 200,
-     "hash": "a0f9536167ab57fd",
-     "bytes": 1920530
+     "hash": "f3b7b6376f437301",
+     "bytes": 1922638
     },
     "openapi:https://open.longbridge.com/openapi.json": {
      "status": 404
@@ -771,15 +835,15 @@
     },
     "page:https://open.longbridge.com/docs/mcp": {
      "status": 200,
-     "hash": "3a274f7e4fb59c65",
-     "bytes": 144190
+     "hash": "5c33ec5b6475d0bb",
+     "bytes": 167959
     }
    },
    "repos": {
     "longbridge/longbridge-mcp": {
-     "pushed": "2026-10-09",
+     "pushed": "2026-10-12",
      "archived": false,
-     "tag": "v0.13.1"
+     "tag": "v0.13.2"
     }
    }
   },
@@ -787,8 +851,8 @@
    "probes": {
     "page:https://banksync.io/agent/m1-finance-with-cline": {
      "status": 200,
-     "hash": "1d8dd22bddd5afdd",
-     "bytes": 4797
+     "hash": "e17ccb25bb629b94",
+     "bytes": 4754
     },
     "page:https://truthifi.com/connect-hubs/claude-finance": {
      "status": 200,
@@ -1218,8 +1282,8 @@
     },
     "page:https://www.universenewsnetwork.com/2026/06/02/thinkmarkets-pairs-chelseaai-with-claude-to-bring-cfd-trading-to-ai-chats/": {
      "status": 200,
-     "hash": "39137c73db8d7668",
-     "bytes": 5690
+     "hash": "8481743f870c65bd",
+     "bytes": 5680
     },
     "llms:https://www.thinkmarkets.com/llms.txt": {
      "status": 404,
@@ -1288,8 +1352,8 @@
     },
     "page:https://docs.itigerup.com/docs/mcp": {
      "status": 200,
-     "hash": "ea948117e05441ba",
-     "bytes": 4152
+     "hash": "e8aaf0df9dd5967a",
+     "bytes": 4146
     }
    },
    "repos": {
@@ -1304,8 +1368,8 @@
    "probes": {
     "page:https://github.com/visusnet/trade-republic-mcp-server": {
      "status": 200,
-     "hash": "8d91fad21fe57824",
-     "bytes": 8474
+     "hash": "0f655612eaf787b5",
+     "bytes": 8476
     }
    },
    "repos": {
@@ -1449,7 +1513,7 @@
   "tradier": {
    "probes": {
     "mcp:https://docs.tradier.com/docs/tradier-mcp": {
-     "status": 429,
+     "status": 200,
      "alive": true
     },
     "mcp:https://mcp.tradier.com/mcp": {
@@ -1470,7 +1534,7 @@
      "status": 404
     },
     "openapi:https://docs.tradier.com/openapi.json": {
-     "status": 429
+     "status": 404
     },
     "llms:https://mcp.tradier.com/llms.txt": {
      "status": 404
@@ -1501,9 +1565,44 @@
   },
   "trading212": {
    "probes": {
+    "page:https://demo.trading212.com/api/v0": {
+     "status": 404
+    },
+    "page:https://live.trading212.com/api/v0": {
+     "status": 404
+    },
     "mcp:https://docs.snaptrade.com/docs/mcp-server": {
      "status": 200,
      "alive": true
+    },
+    "page:https://docs.trading212.com/api": {
+     "status": 200,
+     "hash": "c298f5369c960d22",
+     "bytes": 8573
+    },
+    "llms:https://demo.trading212.com/llms.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "llms:https://demo.trading212.com/llms-full.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "openapi:https://demo.trading212.com/openapi.json": {
+     "status": 404,
+     "soft404": true
+    },
+    "llms:https://live.trading212.com/llms.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "llms:https://live.trading212.com/llms-full.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "openapi:https://live.trading212.com/openapi.json": {
+     "status": 404,
+     "soft404": true
     },
     "llms:https://docs.snaptrade.com/llms.txt": {
      "status": 200,
@@ -1518,15 +1617,26 @@
     "openapi:https://docs.snaptrade.com/openapi.json": {
      "status": 404
     },
+    "llms:https://docs.trading212.com/llms.txt": {
+     "status": 200,
+     "hash": "967f900fb96e3e50",
+     "bytes": 9048
+    },
+    "llms:https://docs.trading212.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://docs.trading212.com/openapi.json": {
+     "status": 404
+    },
     "page:https://github.com/RohanAnandPandit/trading212-mcp-server": {
      "status": 200,
-     "hash": "0af85f65e42f05ee",
-     "bytes": 15300
+     "hash": "4592e72f6248f74e",
+     "bytes": 15306
     }
    },
    "repos": {
     "RohanAnandPandit/trading212-mcp-server": {
-     "pushed": "2026-10-03",
+     "pushed": "2026-10-10",
      "archived": false,
      "tag": null
     },
@@ -1694,11 +1804,27 @@
     },
     "page:https://github.com/webull-inc": {
      "status": 200,
-     "hash": "9c9aaf0c41dfde17",
-     "bytes": 5363
+     "hash": "8d54c3d02631aeaf",
+     "bytes": 5800
     }
    },
-   "repos": {}
+   "repos": {
+    "webull-inc/webull-openapi-mcp": {
+     "pushed": "2026-09-12",
+     "archived": false,
+     "tag": "1.2.4"
+    },
+    "webull-inc/webull-openapi-skills": {
+     "pushed": "2026-09-12",
+     "archived": false,
+     "tag": "1.2.1"
+    },
+    "webull-inc/webull-openapi-cli": {
+     "pushed": "2026-09-12",
+     "archived": false,
+     "tag": "v1.0.4"
+    }
+   }
   },
   "xtb": {
    "probes": {
@@ -1862,10 +1988,15 @@
      "status": 401,
      "alive": true
     },
+    "page:https://plaid.com/llms.txt": {
+     "status": 200,
+     "hash": "3fe78f2d07c59c00",
+     "bytes": 354159
+    },
     "llms:https://plaid.com/llms.txt": {
      "status": 200,
-     "hash": "2482fa6cc96dc839",
-     "bytes": 356812
+     "hash": "d7cd5395cdebcaa8",
+     "bytes": 357098
     },
     "llms:https://plaid.com/llms-full.txt": {
      "status": 404
