@@ -2,13 +2,13 @@
 
 <p align="center">
   <b>Which brokers can an AI actually trade through?</b><br>
-  <sub>66 brokers checked at the source. Including the ones with nothing.</sub>
+  <sub>67 brokers checked at the source. Including the ones with nothing.</sub>
 </p>
 
 <p align="center">
   <a href="https://awesome.re"><img src="https://awesome.re/badge-flat2.svg" alt="Awesome"></a>
-  <img src="https://img.shields.io/badge/entries-66-1f6feb" alt="66 entries">
-  <img src="https://img.shields.io/badge/official%20servers-30-3fb950" alt="30 official">
+  <img src="https://img.shields.io/badge/entries-67-1f6feb" alt="67 entries">
+  <img src="https://img.shields.io/badge/official%20servers-31-3fb950" alt="31 official">
   <img src="https://img.shields.io/badge/confirmed%20no%20route-13-f85149" alt="13 confirmed none">
   <img src="https://img.shields.io/badge/last%20verified-2026--10--09-3fb950" alt="Last verified 2026-10-09">
   <a href="license"><img src="https://img.shields.io/badge/license-CC0--1.0-8957e5" alt="CC0-1.0"></a>
@@ -178,6 +178,7 @@ First-party. Built or hosted by the broker themselves.
 | [Webull](brokers/webull.md) | 🔀 Both | Cloud MCP queues order instructions you confirm in the Webull app; `webull-openapi-mcp` (local) places orders directly. 🛡️ **Sandbox by default** | Remote + local |
 | [TradeStation](brokers/tradestation.md) | ✅ Yes | Equities + more. Needs a paid AI tier and a $10k balance | Remote |
 | [Public.com](brokers/public.md) | ✅ Yes | Stocks, ETFs, options, crypto, bonds; brokerage + IRA + business. Hosted OAuth server at `mcp.public.com/mcp`; prediction markets read-only. ⚠️ **No paper mode, all orders live** | Remote + local |
+| [Scalable Capital](brokers/scalable-capital.md) | ✅ Yes | EU stocks, ETFs and savings plans on your real account. 🛡️ Orders only on "Full access", and each one needs your **separate explicit confirmation** after a preview with costs. Payments never exposed | Remote |
 | [eToro](brokers/etoro.md) | ✅ Yes | Official MCP opens and closes positions via two-step `prepare-*` / `place-*` tokens (about 2 min expiry), demo or real account chosen explicitly. Generic `execute-write` has no server-side confirm. Agent Portfolios is still **REST, not MCP** | Remote |
 | [Longbridge](brokers/longbridge.md) | ✅ Yes | US + HK equities, options, warrants. ~164 tools, OAuth 2.1. Most order writes are dry-run until you pass back a confirmation code (a mistake guard, not human approval); multi-leg appears ungated | Remote |
 | [Tiger Brokers](brokers/tiger-brokers.md) | ✅ Yes | Stocks, options, futures across US/HK/CN/SG. Only guardrail is the `TIGERMCP_READONLY` env var | Local (`uvx`) |
