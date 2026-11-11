@@ -112,6 +112,19 @@ Local-process alternatives that predate the official connector, listed for refer
 - A TWS-API-based server (e.g. `haymant/tws-mcp`) — requires TWS/IB Gateway running
   locally. Not independently verified.
 
+## Other community repos (READMEs read 2026-11-11)
+
+Not first-party; GitHub detects no license file in either. Tool lists are README claims.
+
+- [`patrickpxp/ibkr-mcp-server`](https://github.com/patrickpxp/ibkr-mcp-server): Docker,
+  talks to a local TWS or IB Gateway; account, positions, orders, executions, contracts,
+  market data snapshots and Flex trade confirmations. Trading is off unless
+  `IBKR_ENABLE_TRADING=true` (README default false). The search listing says a skill is
+  included. 9 stars, last push 2026-05-08, not archived.
+- [`jluzny/ibkr-mcp-rs`](https://github.com/jluzny/ibkr-mcp-rs): Rust, stdio or HTTP; quotes,
+  account info, positions, health checks, and an "order manager" described only as
+  infrastructure. Defaults to paper gateway. 0 stars, last push 2026-11-10, not archived.
+
 ## Sources
 
 Re-read 2026-11-11: <https://claude.com/connectors/interactive-brokers> (same 10 tools, same
@@ -129,3 +142,4 @@ Checked directly on 2026-07-16:
 - <https://www.stocktitan.net/news/IBKR/interactive-brokers-expands-ai-integration-capabilities-adding-chat-hdk4u88x136r.html>
 - <https://github.com/ArjunDivecha/ibkr-mcp-server>
 - <https://raw.githubusercontent.com/ArjunDivecha/ibkr-mcp-server/main/README.md>
+- <https://github.com/patrickpxp/ibkr-mcp-server> and <https://github.com/jluzny/ibkr-mcp-rs> (READMEs and metadata, 2026-11-11; `gh repo list InteractiveBrokers` shows only the 2018 tws-api-public SDK, no MCP or skills repo)

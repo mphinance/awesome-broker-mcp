@@ -1,0 +1,1319 @@
+# Public.com official agent skills (PublicDotCom/publicdotcom-agent-skill and siblings)
+
+| | |
+|---|---|
+| Skills repo (primary) | https://github.com/PublicDotCom/publicdotcom-agent-skill |
+| Commit | `88d394cb77635c431c7e965446fc145df76ca344` (committed 2026-10-29), skill version 1.4 |
+| License | `license: Apache-2.0` in the SKILL.md frontmatter. **No LICENSE file** in the repo and the GitHub API reports none. The sibling MCP server repo `publicdotcom-mcp-server` is Apache-2.0 per the API. |
+| Date scraped | 2026-11-11 |
+| Install | No `npx skills` or marketplace command documented. README covers prerequisites only: Python 3.9+, a Public account, an API key from https://public.com/settings/v2/api, and `export PUBLIC_COM_SECRET=...` (optionally `PUBLIC_COM_ACCOUNT_ID`). SDK `publicdotcom-py==0.1.28` is auto-installed by `scripts/config.py` on first run (see flags). |
+| Sibling skill repos | https://github.com/PublicDotCom/claw-skill-public-dot-com (commit `6ffbf85bc1c345fcdf14373641a8c734bd410e90`, 2026-05-22, v1.0, 42 stars, 32 KB SKILL.md, `env:` frontmatter for OpenClaw) and https://github.com/PublicDotCom/publicdotcom-perplexity-skill (commit `d0078084756fccb2c754a58c501aecbb74cfe11c`, 2026-05-22, v1.0, 32 KB, for Perplexity Computer). Both Apache-2.0 in frontmatter, no LICENSE file, and visibly older forks of the same script set (27 script files versus 40 in the primary). Not embedded. |
+| Provenance | The `PublicDotCom` GitHub org also hosts `publicdotcom-mcp-server`, which the directory entry `brokers/public.md` already cites as Public's official local MCP server. Frontmatter `metadata.author` is `PublicDotCom` and each skill's `source` field points at its own repo. The org profile is not GitHub-verified (`is_verified: false`), so treat "official" as high-likelihood, not proven. |
+
+Method: shallow clones read as plain files. No script, installer or CLI from any repo was executed (the `scripts/*.py` files were only grepped).
+
+## Structure
+
+One skill, `publicdotcom-agent-skill`, with a 63 KB root `SKILL.md`, a 61 KB `options-automation-library.md` (35+ options strategies with "where this strategy breaks" sections and SDK code), a README, `requirements.txt` and 40 Python scripts in `scripts/`. The agent drives the scripts with `python3 scripts/<name>.py ...`; the scripts call the Public API through the `publicdotcom-py` SDK. This skill is separate from the hosted or local MCP server and works without it.
+
+## Summary table
+
+| Skill | What it does | Tools / CLI called | Capability | Guardrail text |
+|---|---|---|---|---|
+| `publicdotcom-agent-skill` | View accounts, portfolio, orders (30-day search), history, tax lots; quotes, bars, streaming prices; option chains, expirations, Greeks; bonds hub; event contracts (prediction markets incl. 15-minute Up/Down windows); preflight and place equity, crypto and option orders (limit, market, stop, stop-limit, on-close, bracket, OCO, OTO, tax-lot sells); verticals and 2 to 6 leg strategies; shorts; flatten-and-go-short; cancel, cancel-and-replace; wait for fill or settlement | `scripts/get_*.py`, `search_*.py`, `preflight*.py`, `place_order.py`, `place_spread.py`, `place_multileg.py`, `place_short.py`, `flatten_and_short.py`, `cancel_order.py`, `cancel_and_replace.py`, `wait_for_fill.py`, `watch_prices.py` | read and live write; no paper or sandbox mode described | "Confirm the order details with the user before executing"; disclaimer to run isolated and test on a new account |
+
+## Guardrails: what is model-enforced and what is code-enforced
+
+Everything with respect to trading approval is **model-enforced**. Scripts validate arguments (for example `--limit-price` is required for LIMIT, STOP_LIMIT and LIMIT_ON_CLOSE and rejected for other types; bracket flags need `--order-class BRACKET`, OCO or OTO) but a grep of `scripts/*.py` finds no confirmation prompt, `input()`, dry-run flag, notional cap or preflight-required check. `place_order.py` will submit as soon as it is called with valid arguments.
+
+Guardrail text in `SKILL.md`, verbatim or near-verbatim:
+
+- Top of file: "We recommend running this skill in as isolated of an instance as possible. If possible, test the integration on a new Public account as well." This is advice to the human; no mechanism.
+- Place Order workflow: "2. Confirm the order details with the user before executing." Bracket orders: "confirm the exit prices explicitly".
+- Cancel Order: "Confirm with the user which order they want to cancel."
+- Spreads: "Confirm all spread details with the user before executing", adding that multi-leg orders are not easily reversible. Shorts: "Confirm short-sale details with the user", adding that shorting carries unlimited theoretical risk. Cancel-and-replace and flatten-and-short: "Confirm the new parameters with the user" and "Confirm with the user."
+- Event contracts: confirm contract, quantity, limit price and cost; for 15-minute windows, "Do not place an order with less time left than it takes to confirm" and re-check the next window instead.
+- Error recovery: "Never silently retry the same failing command more than once."
+- Options strategy guidance: when recommending a strategy, always include the "Where This Strategy Breaks" context.
+
+Flags:
+
+- **Preflight is optional.** The skill offers `preflight*.py` (estimated cost and buying-power impact) but the Place Order workflow does not require it first. Preflight does not cover bracket exit legs (the skill says "the API does not preflight take-profit / stop-loss exit legs").
+- **No simulation mode in the skill.** The orders are real.
+- **Confirmation is a single model step** with no binding between what was confirmed and what is sent. Nothing stops an agent from skipping step 2.
+- **Auto-install and auto-upgrade of a pip package at runtime.** `scripts/config.py` calls `pip install publicdotcom-py==0.1.28` (pinned, but no hash) when the SDK is missing or older, on first run, without a prompt.
+- **Secret handling.** The skill asks the agent to prompt the user for `PUBLIC_COM_SECRET` in chat if unset, then tell the user to export it. The secret is therefore likely to pass through the conversation.
+- No position-size, notional or daily-loss caps anywhere in the skill text.
+- The OpenClaw and Perplexity sibling repos are older (2026-05-22) with fewer scripts (no event-contract, tax-lot or `wait_for_settlement` scripts in the listing) and lag the primary by about five months.
+
+## Skill (full SKILL.md, Apache-2.0 per frontmatter)
+
+### publicdotcom-agent-skill
+
+Path: `SKILL.md` (63 KB). The 61 KB `options-automation-library.md` and the scripts are not embedded.
+
+````markdown
+---
+name: publicdotcom-agent-skill
+description: Interact with your Public.com brokerage account using the Public.com API. Able to view portfolio, get stock quotes, place trades, and get account updates. To create a Public.com account head to public.com/signup.
+license: Apache-2.0
+metadata:
+  author: PublicDotCom
+  source: https://github.com/PublicDotCom/publicdotcom-agent-skill
+  category: "Finance"
+  tags: ["investing", "stocks", "crypto", "options", "public", "finance"]
+  version: "1.4"
+---
+
+# Public.com Account Manager
+> **Disclaimer:** For illustrative and informational purposes only. Not investment advice or recommendations.
+>
+> We recommend running this skill in as isolated of an instance as possible. If possible, test the integration on a new Public account as well.
+
+This skill allows users to interact with their Public.com brokerage account.
+
+## Prerequisites
+- **Python 3.9+** and **pip** — Required to run this skill.
+- **Public.com account** — Create one at https://public.com/signup
+- **Public.com API key** — Get one at https://public.com/settings/v2/api
+
+The `publicdotcom-py` SDK is required, pinned to **0.1.28** (`scripts/config.py`). It will be **auto-installed** on first run — and auto-upgraded if an older version is present — or you can install manually:
+```bash
+pip install publicdotcom-py==0.1.28
+```
+
+## Configuration
+
+This skill uses two environment variables: `PUBLIC_COM_SECRET` (required) and `PUBLIC_COM_ACCOUNT_ID` (optional). Each is resolved from the environment:
+
+- **Environment variable** — `PUBLIC_COM_SECRET` / `PUBLIC_COM_ACCOUNT_ID`
+
+### API Secret (Required)
+If `PUBLIC_COM_SECRET` is not set:
+- Tell the user: "I need your Public.com API Secret. You can find this in your Public.com developer settings at https://public.com/settings/v2/api."
+- Once provided, instruct them to set it as an environment variable: `export PUBLIC_COM_SECRET=[VALUE]`
+
+### Default Account ID (Optional)
+If the user wants to set a default account for all requests:
+- Instruct them to set: `export PUBLIC_COM_ACCOUNT_ID=[VALUE]`
+- This eliminates the need to specify `--account-id` on each command.
+
+## Error Recovery
+
+If any command exits with an error, follow these steps before giving up:
+
+- **`PUBLIC_COM_SECRET` not set** — Ask the user for their API secret and instruct them to run `export PUBLIC_COM_SECRET=[VALUE]`, then retry.
+- **`No account ID provided`** — Run `python3 scripts/get_accounts.py` to retrieve the account ID, then retry the original command with `--account-id [ID]`.
+- **Authentication / 401 error** — Tell the user their API key may be expired or invalid, and direct them to https://public.com/settings/v2/api to generate a new one.
+- **Network / connection error** — Ask the user to check their internet connection and retry.
+- **Any other unexpected error** — Show the error message to the user and ask them how they'd like to proceed.
+
+Never silently retry the same failing command more than once.
+
+## Available Commands
+
+### Check Setup
+Run this automatically the **first time** the user interacts with this skill, or whenever they ask "is everything configured?", "check my setup", or "verify my API key":
+1. Execute `python3 scripts/check_setup.py`
+2. If it exits successfully, proceed normally.
+3. If it fails, follow the printed instructions to resolve the issue before continuing.
+
+### Get Accounts
+When the user asks to "get my accounts", "list accounts", or "show my Public.com accounts":
+1. Execute `python3 scripts/get_accounts.py`
+2. Report the account IDs and types back to the user.
+3. Remember the account IDs returned — use them automatically for any subsequent commands in the same session that require `--account-id`.
+
+### Get Portfolio
+When the user asks to "get my portfolio", "show my holdings", or "what's in my account":
+1. If `PUBLIC_COM_ACCOUNT_ID` is set, execute `python3 scripts/get_portfolio.py` (no arguments needed).
+2. If not set and you don't know the user's account ID, first run `get_accounts.py` to retrieve it.
+3. Execute `python3 scripts/get_portfolio.py --account-id [ACCOUNT_ID]`
+4. Report the portfolio summary (equity, buying power, cash and available-to-withdraw when present, positions) back to the user. Buying power includes cash-only, options and, when the API reports it, **day-trade buying power** (equal to buying power when the account is not enabled for day-trade buying power). Use it when the user asks "how much can I day trade" or "what's my day-trade buying power". Positions are grouped as equities, options, crypto, event contracts, and other (bonds etc.).
+
+### Get Orders
+When the user asks to "get my orders", "show my orders", "active orders", or "pending orders":
+1. If `PUBLIC_COM_ACCOUNT_ID` is set, execute `python3 scripts/get_orders.py` (no arguments needed).
+2. If not set and you don't know the user's account ID, first run `get_accounts.py` to retrieve it.
+3. Execute `python3 scripts/get_orders.py --account-id [ACCOUNT_ID]`
+4. Report the active orders with their details (symbol, side, type, status, quantity, prices) back to the user.
+5. This lists only orders that are currently **working** (taken from the portfolio snapshot). For filled, cancelled, rejected or otherwise completed orders — or any question about *past* orders — use **Search Orders** below.
+
+### Search Orders
+When the user asks for "order history", "show my filled orders last week", "what did I buy this month", "list my cancelled orders", "all my AAPL orders", "did my sell go through yesterday", or anything about orders that are no longer active:
+
+**Scope:** searches every order created in the **last 30 days** (any status), returning at most **500**. Older orders are not searchable; for a live view of only the currently working orders use `get_orders.py`.
+
+**All filters are optional — combine them to narrow results:**
+- `--status`: NEW, PARTIALLY_FILLED, FILLED, CANCELLED, QUEUED_CANCELLED, REJECTED, PENDING_REPLACE, PENDING_CANCEL, EXPIRED, REPLACED
+- `--side`: BUY or SELL
+- `--symbol SYMBOL[:TYPE]`: one instrument; repeat the flag for several. TYPE defaults to EQUITY (e.g. `AAPL`, `BTC:CRYPTO`, `AAPL260918C00200000:OPTION`)
+- `--security-type`: EQUITY, OPTION, MULTI_LEG_INSTRUMENT, CRYPTO, ALT, TREASURY, BOND, INDEX, EVENTCONTRACT
+- `--open-close`: OPEN or CLOSE (options and short sales)
+- `--created-after` / `--created-before`: `YYYY-MM-DD` or an ISO 8601 timestamp (`2026-09-01T00:00:00Z`); bare dates and times without an offset are treated as UTC
+
+**Examples:**
+
+```bash
+python3 scripts/search_orders.py
+python3 scripts/search_orders.py --status FILLED --side BUY --symbol AAPL --created-after 2026-09-01
+python3 scripts/search_orders.py --status CANCELLED --security-type OPTION --created-after 2026-09-08T00:00:00Z --created-before 2026-09-15T00:00:00Z
+python3 scripts/search_orders.py --symbol AAPL --symbol BTC:CRYPTO
+```
+
+**Workflow:**
+1. Translate the user's request into filters. Relative phrases ("last week", "this month") become `--created-after` / `--created-before` timestamps; "filled" / "cancelled" become `--status`.
+2. Execute `python3 scripts/search_orders.py [FILTERS]` and summarize the matches (symbol, side, type, status, quantity or notional, filled quantity and average price, created / filled time, bracket ID, and the number of fills with their execution venues).
+3. If the output warns that the result was capped at 500, tighten the window or add filters and run again.
+4. For the individual fills (trades, each with its execution venue), market session and fill / replace timestamps of one order, follow up with `get_order.py --order-id [ID]` (see **Get Order Status**).
+
+### Get History
+When the user asks to "get my history", "show my transactions", "transaction history", "trade history", or wants to see past account activity:
+
+**Optional parameters:**
+- `--type`: Filter by transaction type (TRADE, MONEY_MOVEMENT, POSITION_ADJUSTMENT)
+- `--limit`: Limit the number of transactions returned
+
+**Examples:**
+
+Get all transaction history:
+```bash
+python3 scripts/get_history.py
+```
+
+Get only trades:
+```bash
+python3 scripts/get_history.py --type TRADE
+```
+
+Get only money movements (deposits, withdrawals, dividends, fees):
+```bash
+python3 scripts/get_history.py --type MONEY_MOVEMENT
+```
+
+Get last 10 transactions:
+```bash
+python3 scripts/get_history.py --limit 10
+```
+
+With explicit account ID:
+```bash
+python3 scripts/get_history.py --account-id YOUR_ACCOUNT_ID
+```
+
+**Workflow:**
+1. If `PUBLIC_COM_ACCOUNT_ID` is not set and you don't know the user's account ID, first run `get_accounts.py` to retrieve it.
+2. Execute: `python3 scripts/get_history.py [OPTIONS]`
+3. Report the transaction history grouped by type (Trades, Money Movements, Position Adjustments).
+4. Include relevant details like symbol, quantity, net amount, fees, and timestamps.
+
+**Transaction Types:**
+- **TRADE**: Buy/sell transactions for equities, options, and crypto
+- **MONEY_MOVEMENT**: Deposits, withdrawals, dividends, fees, and cash adjustments
+- **POSITION_ADJUSTMENT**: Stock splits, mergers, and other position changes
+
+### Get Tax Lots
+When the user asks about "tax lots", "cost basis by lot", "unrealized gains", "short-term vs long-term gains", "which lots should I sell", or wants a tax-lot export:
+
+**Modes (pick one):**
+- No arguments: account-wide summary grouped by symbol, with short-term / long-term / 60-40 / total P&L
+- `--symbol SYMBOL`: every open lot for that symbol (open date, term, cost, gain/loss, wash-sale flag, **Lot Selection ID**)
+- `--symbol SYMBOL --price PRICE`: same, but valued at a hypothetical price
+- `--csv [--out FILE]`: export every lot as CSV (`--out -` prints to stdout)
+
+**Examples:**
+
+```bash
+python3 scripts/get_tax_lots.py
+python3 scripts/get_tax_lots.py --symbol AAPL
+python3 scripts/get_tax_lots.py --symbol AAPL --price 250.00
+python3 scripts/get_tax_lots.py --csv --out my_lots.csv
+```
+
+**Workflow:**
+1. Start with the summary, then drill into `--symbol` for the holding the user cares about.
+2. Report gain/loss per lot and the holding term; call out wash-sale lots and any "out of date" status (an open order or trade today means the lot data may be stale).
+3. To sell specific lots, take each lot's **Lot Selection ID** and pass it to `place_order.py` as `--tax-lot LOT_ID:QUANTITY` (see Place Order). Lots without an ID cannot be selected.
+4. These endpoints need an API key with the `trading.read` scope; if the call is rejected, tell the user to check the key's scopes at https://public.com/settings/v2/api.
+
+### Get Quotes
+When the user asks to "get a quote", "what's the price of", "check the price", or wants stock/crypto prices:
+
+**Format:** `SYMBOL` or `SYMBOL:TYPE` (TYPE = EQUITY, OPTION, CRYPTO, BOND or EVENTCONTRACT; defaults to EQUITY)
+
+**Examples:**
+
+Single equity quote (uses default account):
+```bash
+python3 scripts/get_quotes.py AAPL
+```
+
+Multiple equity quotes:
+```bash
+python3 scripts/get_quotes.py AAPL GOOGL MSFT
+```
+
+Mixed instrument types:
+```bash
+python3 scripts/get_quotes.py AAPL:EQUITY BTC:CRYPTO
+```
+
+Option quote:
+```bash
+python3 scripts/get_quotes.py AAPL260320C00280000:OPTION
+```
+
+Bond quote (symbol from `search_bonds.py`; includes markup, minimum sizes and suggested buy/sell prices):
+```bash
+python3 scripts/get_quotes.py 912810TM0-BOND:BOND
+```
+
+With explicit account ID:
+```bash
+python3 scripts/get_quotes.py AAPL --account-id YOUR_ACCOUNT_ID
+```
+
+**Workflow:**
+1. If `PUBLIC_COM_ACCOUNT_ID` is not set and you don't know the user's account ID, first run `get_accounts.py` to retrieve it.
+2. Parse the user's request for symbol(s) and type(s).
+3. Execute: `python3 scripts/get_quotes.py [SYMBOLS...] [--account-id ACCOUNT_ID]`
+4. Report the quote information (last price, bid, ask, volume, etc.) back to the user.
+
+### Get Instruments
+When the user asks to "list instruments", "what can I trade", "show available stocks", or wants to see tradeable instruments:
+
+**Optional parameters:**
+- `--type`: Instrument types to filter (EQUITY, OPTION, CRYPTO, EVENTCONTRACT). Defaults to EQUITY.
+- `--trading`: Trading status filter (BUY_AND_SELL, BUY_ONLY, SELL_ONLY, NOT_TRADABLE)
+- `--search`: Search by symbol or name
+- `--limit`: Limit number of results
+
+**Examples:**
+
+List all equities (default):
+```bash
+python3 scripts/get_instruments.py
+```
+
+List equities and crypto:
+```bash
+python3 scripts/get_instruments.py --type EQUITY CRYPTO
+```
+
+List only tradeable instruments:
+```bash
+python3 scripts/get_instruments.py --type EQUITY --trading BUY_AND_SELL
+```
+
+Search for specific instruments:
+```bash
+python3 scripts/get_instruments.py --search AAPL
+```
+
+Limit results:
+```bash
+python3 scripts/get_instruments.py --limit 50
+```
+
+**Workflow:**
+1. Parse the user's request for any filters (type, trading status, search term).
+2. Execute: `python3 scripts/get_instruments.py [OPTIONS]`
+3. Report the available instruments with their trading status back to the user.
+
+### Get Instrument
+When the user asks to "get instrument details", "show instrument info", "what are the details for AAPL", or wants to see details for a specific instrument:
+
+**Required parameters:**
+- `--symbol`: The ticker symbol (e.g., AAPL, BTC)
+
+**Optional parameters:**
+- `--type`: Instrument type (EQUITY, OPTION, CRYPTO, BOND, EVENTCONTRACT). Defaults to EQUITY.
+
+**Examples:**
+
+Get equity instrument details:
+```bash
+python3 scripts/get_instrument.py --symbol AAPL
+```
+
+Get crypto instrument details:
+```bash
+python3 scripts/get_instrument.py --symbol BTC --type CRYPTO
+```
+
+**Workflow:**
+1. Parse the user's request for the symbol and optional type.
+2. Execute: `python3 scripts/get_instrument.py --symbol [SYMBOL] [--type TYPE]`
+3. Report the instrument details (trading status, listing exchange, fractional trading, option trading) back to the user.
+
+### Search Bonds
+When the user asks to "find bonds", "search treasuries", "show me corporate bonds yielding X", "what bonds does Apple have", or wants fixed income ideas:
+
+**All filters are optional — combine them to narrow results:**
+- `--type`: AGENCY, CD, CORPORATE, GOVERNMENT, MUNICIPAL, TREASURY (one or more)
+- `--treasury-subtype`: BOND, BILL, NOTE, STRIPS, TIPS, FLOATING
+- `--rating` (e.g. `AAA AA+`) or `--rating-category` (INVESTMENT_GRADE / SPECULATIVE_GRADE)
+- `--min-yield` / `--max-yield`, `--min-coupon` / `--max-coupon` (percent)
+- `--min-maturity` / `--max-maturity` (YYYY-MM-DD; server default excludes bonds maturing within 14 days)
+- `--issuer NAME`, `--issuer-symbol AAPL`, `--status OUTSTANDING`, `--coupon-frequency`, `--liquidity 3 4 5`
+- `--callable` / `--not-callable`, `--perpetual` / `--not-perpetual`
+- `--sort maturityDate --sort-dir ASC`, `--page N`, `--page-size N`
+
+**Examples:**
+
+```bash
+python3 scripts/search_bonds.py --type CORPORATE --rating-category INVESTMENT_GRADE --min-yield 5
+python3 scripts/search_bonds.py --type TREASURY --treasury-subtype NOTE --min-maturity 2028-01-01 --max-maturity 2028-12-31 --sort maturityDate --sort-dir ASC
+python3 scripts/search_bonds.py --issuer-symbol AAPL --status OUTSTANDING
+```
+
+**Workflow:**
+1. Translate the user's criteria into filters; start broad and tighten if there are too many results.
+2. Execute `python3 scripts/search_bonds.py [FILTERS]` and summarize the matches (symbol, issuer, coupon, maturity, yield, rating, callable).
+3. Offer `get_bond_details.py --symbol <SYMBOL>` for the full record, or `get_quotes.py <SYMBOL>:BOND` for a live bid/ask with markup.
+4. Bond symbols are usually `CUSIP-BOND` (e.g. `912810TM0-BOND`).
+
+### Get Bond Details
+When the user asks for "details on this bond", "when does it mature", "is it callable", "what's the coupon", or picks a result from a bond search:
+
+**Required parameters:**
+- `--symbol`: Bond symbol, usually `CUSIP-BOND`
+
+**Example:**
+```bash
+python3 scripts/get_bond_details.py --symbol 912810TM0-BOND
+```
+
+**Workflow:**
+1. Execute `python3 scripts/get_bond_details.py --symbol [SYMBOL]`.
+2. Report identity (issuer, type, status), pricing (price, yield, par, accrued interest, minimum order size), coupon schedule, maturity and call terms, and S&P rating / outlook.
+3. For a tradeable quote with markup and minimum sizes, follow up with `get_quotes.py [SYMBOL]:BOND`.
+
+### Get Option Expirations
+**This skill CAN list all available option expiration dates for any symbol.**
+
+When the user asks to "get option expirations", "list expirations", "show expiration dates", "when do options expire", or wants to know what option expiration dates are available for a stock:
+1. Execute `python3 scripts/get_option_expirations.py [SYMBOL]`
+2. Report the available expiration dates to the user.
+
+Common user phrasings:
+- "get option expirations for AAPL"
+- "what are the option expiration dates for Google"
+- "when do TSLA options expire"
+- "show me expiration dates for SPY options"
+- "list available expirations for MSFT"
+- "can you get the options expirations for Apple"
+- "what options dates are available for NVDA"
+
+**Required parameters:**
+- `symbol`: The underlying symbol (e.g., AAPL, GOOGL, TSLA, SPY). Convert company names to ticker symbols.
+
+**Examples:**
+
+```bash
+python3 scripts/get_option_expirations.py AAPL
+python3 scripts/get_option_expirations.py GOOGL
+python3 scripts/get_option_expirations.py TSLA
+python3 scripts/get_option_expirations.py SPY
+```
+
+**Common company name to symbol mappings:**
+- Apple = AAPL
+- Google/Alphabet = GOOGL
+- Tesla = TSLA
+- Microsoft = MSFT
+- Amazon = AMZN
+- Nvidia = NVDA
+- Meta/Facebook = META
+
+**Workflow:**
+1. Extract the symbol from the user's request. Convert company names to ticker symbols.
+2. Execute: `python3 scripts/get_option_expirations.py [SYMBOL]`
+3. Report the available expiration dates to the user.
+4. If they want to see the option chain next, use the expiration date with `get_option_chain.py`.
+
+### Get Option Greeks
+When the user asks for "option greeks", "delta", "gamma", "theta", "vega", or wants to analyze options:
+
+**Required parameters:**
+- One or more OSI option symbols (e.g., AAPL260116C00270000)
+
+**OSI Symbol Format:**
+```
+AAPL260116C00270000
+^^^^------^--------
+|   |     |  Strike price ($270.00)
+|   |     Call (C) or Put (P)
+|   Expiration (Jan 16, 2026 = 260116)
+Underlying symbol
+```
+
+**Examples:**
+
+Single option:
+```bash
+python3 scripts/get_option_greeks.py AAPL260116C00270000
+```
+
+Multiple options (e.g., call and put at same strike):
+```bash
+python3 scripts/get_option_greeks.py AAPL260116C00270000 AAPL260116P00270000
+```
+
+**Workflow:**
+1. Help the user construct the OSI symbol if they provide expiration, strike, and call/put separately.
+2. Execute: `python3 scripts/get_option_greeks.py [OSI_SYMBOLS...]`
+3. Report the greeks (Delta, Gamma, Theta, Vega, Rho, IV) back to the user with explanations if needed.
+
+### Get Option Chain
+When the user asks for "option chain", "options for AAPL", "show me calls and puts", or wants to see available options:
+
+**Required parameters:**
+- `symbol`: The underlying symbol (e.g., AAPL)
+
+**Optional parameters:**
+- `--expiration`: Expiration date (YYYY-MM-DD). If not provided, uses the nearest expiration.
+- `--list-expirations`: List available expiration dates instead of fetching the chain.
+
+**Examples:**
+
+List available expirations:
+```bash
+python3 scripts/get_option_chain.py AAPL --list-expirations
+```
+
+Get option chain for nearest expiration:
+```bash
+python3 scripts/get_option_chain.py AAPL
+```
+
+Get option chain for specific expiration:
+```bash
+python3 scripts/get_option_chain.py AAPL --expiration 2026-03-20
+```
+
+**Workflow:**
+1. If the user doesn't specify an expiration, first run with `--list-expirations` to show available dates.
+2. Execute: `python3 scripts/get_option_chain.py [SYMBOL] [--expiration DATE]`
+3. Report the calls and puts with strike prices, bid/ask, last price, volume, and open interest.
+
+### Get Strategy Quote
+When the user wants to "quote a spread", "what would this iron condor cost", "price this strategy", or wants the net credit/debit of a multi-leg options position **before** preflighting or placing it:
+
+**Required parameters:**
+- `--leg`: Repeat 1-6 times. Format `SYMBOL:TYPE:SIDE[:OPEN_CLOSE][:RATIO]` — **identical to `preflight_multileg.py` / `place_multileg.py`**, so the same legs can be quoted and then traded.
+  - `TYPE` = OPTION (at least one) | EQUITY (at most one, e.g. the stock leg of a covered call)
+  - `SIDE` = BUY | SELL
+  - `OPEN_CLOSE` = OPEN | CLOSE (required for OPTION legs)
+  - `RATIO` = optional integer ratio (default 1)
+
+**Optional parameters:**
+- `--base-symbol`: Underlying ticker. Inferred from the option symbols when omitted.
+
+**Examples:**
+
+Put credit spread on SPY:
+```bash
+python3 scripts/get_strategy_quote.py \
+  --leg SPY260313P00670000:OPTION:SELL:OPEN \
+  --leg SPY260313P00665000:OPTION:BUY:OPEN
+```
+
+Covered call (stock leg + short call):
+```bash
+python3 scripts/get_strategy_quote.py --base-symbol AAPL \
+  --leg AAPL:EQUITY:BUY:100 \
+  --leg AAPL251219C00200000:OPTION:SELL:OPEN
+```
+
+**Workflow:**
+1. Pick legs with `get_option_expirations.py` / `get_option_chain.py`.
+2. Execute `get_strategy_quote.py` and report the strategy name, DEBIT/CREDIT, net price, bid/ask/mark, and each leg's quote (flag any leg with a wide spread, low open interest, or a trading halt).
+3. This is a **quote only** — nothing is preflighted or placed. To trade it, pass the same `--leg` arguments to `preflight_multileg.py` and then `place_multileg.py` (or `preflight_spread.py` / `place_spread.py` for a plain vertical).
+
+### Set Default Account
+When the user asks to "set my default account" or "use account X as default":
+1. Instruct the user to set: `export PUBLIC_COM_ACCOUNT_ID=[ACCOUNT_ID]`
+2. Confirm to the user that future requests will use this account by default.
+
+### Preflight Calculation
+When the user asks to "estimate order cost", "preflight an order", "what would it cost to buy", "check buying power impact", "what would a market-on-close order cost", or wants to see the estimated cost and account impact before placing an order:
+
+**Required parameters:**
+- `--symbol`: The ticker symbol (e.g., AAPL, BTC, or option symbol like NVDA260213P00177500)
+- `--type`: EQUITY, OPTION, or CRYPTO
+- `--side`: BUY or SELL
+- `--order-type`: LIMIT, MARKET, STOP, STOP_LIMIT, MARKET_ON_CLOSE, or LIMIT_ON_CLOSE (the on-close types execute at the market close)
+- `--quantity` OR `--amount`: Number of shares/contracts OR notional dollar amount
+
+**Conditional parameters:**
+- `--limit-price`: Required for LIMIT, STOP_LIMIT and LIMIT_ON_CLOSE orders; rejected for every other type (including MARKET_ON_CLOSE)
+- `--stop-price`: Required for STOP and STOP_LIMIT orders; rejected for every other type
+- `--session`: CORE (default) or EXTENDED for equity orders
+- `--open-close`: OPEN or CLOSE for options orders (OPEN to open a new position, CLOSE to close existing)
+- `--time-in-force`: DAY (default) or GTD (Good Till Date — requires `--expiration-time YYYY-MM-DD`, max 90 days out)
+
+**Examples:**
+
+Equity limit buy preflight:
+```bash
+python3 scripts/preflight.py --symbol AAPL --type EQUITY --side BUY --order-type LIMIT --quantity 10 --limit-price 227.50
+```
+
+Equity market sell preflight:
+```bash
+python3 scripts/preflight.py --symbol AAPL --type EQUITY --side SELL --order-type MARKET --quantity 10
+```
+
+Limit-on-close buy preflight:
+```bash
+python3 scripts/preflight.py --symbol AAPL --type EQUITY --side BUY --order-type LIMIT_ON_CLOSE --quantity 10 --limit-price 227.50
+```
+
+Crypto buy by amount preflight:
+```bash
+python3 scripts/preflight.py --symbol BTC --type CRYPTO --side BUY --order-type MARKET --amount 100
+```
+
+Option contract buy preflight (opening a new position):
+```bash
+python3 scripts/preflight.py --symbol NVDA260213P00177500 --type OPTION --side BUY --order-type LIMIT --quantity 1 --limit-price 4.00 --open-close OPEN
+```
+
+Option contract sell preflight (closing a position):
+```bash
+python3 scripts/preflight.py --symbol NVDA260213P00177500 --type OPTION --side SELL --order-type LIMIT --quantity 1 --limit-price 5.00 --open-close CLOSE
+```
+
+**Workflow:**
+1. Gather the order parameters from the user (symbol, type, side, order type, quantity/amount, prices if needed).
+2. Execute: `python3 scripts/preflight.py [OPTIONS]`
+3. Report the order value, estimated cost (or proceeds for a sell), buying power requirement, commission and fees (execution, index-option and regulatory) to the user. Only the fields the API returns are printed.
+4. If the user wants to proceed, use the `place_order.py` script with the same parameters.
+5. For a bracket order, preflight the **entry** order only — the API does not preflight take-profit / stop-loss exit legs, so `preflight.py` has no bracket flags.
+
+### Place Order
+When the user asks to "buy", "sell", "place an order", "trade", or to "buy at the close" / "sell at the close" (a market-on-close or limit-on-close order):
+
+**Required parameters:**
+- `--symbol`: The ticker symbol (e.g., AAPL, BTC)
+- `--type`: EQUITY, OPTION, or CRYPTO
+- `--side`: BUY or SELL
+- `--order-type`: LIMIT, MARKET, STOP, STOP_LIMIT, MARKET_ON_CLOSE, or LIMIT_ON_CLOSE
+- `--quantity` OR `--amount`: Number of shares OR notional dollar amount
+
+**Conditional parameters:**
+- `--limit-price`: Required for LIMIT, STOP_LIMIT and LIMIT_ON_CLOSE orders; rejected for every other type (including MARKET_ON_CLOSE)
+- `--stop-price`: Required for STOP and STOP_LIMIT orders; rejected for every other type
+- `--session`: CORE (default) or EXTENDED for equity orders
+- `--open-close`: OPEN or CLOSE for options orders
+- `--time-in-force`: DAY (default) or GTD (Good Till Date — requires `--expiration-time YYYY-MM-DD`, max 90 days out)
+
+**On-close orders:** MARKET_ON_CLOSE and LIMIT_ON_CLOSE orders execute at the market close. LIMIT_ON_CLOSE needs `--limit-price`; MARKET_ON_CLOSE takes no price. The API decides which instruments, sessions and times of day accept them, so a rejection comes back as an API error.
+
+**Bracket orders (optional):** attach exit legs that are submitted automatically once the entry fills.
+- `--order-class`: SIMPLE (default) or BRACKET / OCO / OTO
+- `--take-profit-limit`: limit price of the take-profit leg (placed on the opposite side of the entry)
+- `--stop-loss-stop`: stop price of the stop-loss leg (a STOP order, or STOP_LIMIT when `--stop-loss-limit` is also given)
+- `--stop-loss-limit`: optional limit price for the stop-loss leg (requires `--stop-loss-stop`)
+- Rules: a bracket class needs **at least one** exit leg (both is typical); EQUITY or OPTION only; whole-share `--quantity` (no `--amount`); CORE session; entry `--order-type` LIMIT or MARKET (LIMIT only for OCO; the on-close types can't be bracket entries). Every leg, entry included, reports the entry's order ID as its **Bracket ID**, which `get_orders.py` / `get_order.py` show.
+
+**Sell specific tax lots (optional):**
+- `--tax-lot LOT_ID:QUANTITY`: repeat up to 8 times. Only for an EQUITY **SELL** with `--open-close CLOSE`, MARKET or good-for-day LIMIT; the lot quantities must sum to `--quantity`; all lots must belong to the order's symbol. Get **Lot Selection IDs** from `get_tax_lots.py --symbol SYMBOL`. The broker does not guarantee the instructions are applied exactly.
+
+**Examples:**
+
+Buy 10 shares of AAPL at limit price $227.50:
+```bash
+python3 scripts/place_order.py --symbol AAPL --type EQUITY --side BUY --order-type LIMIT --quantity 10 --limit-price 227.50
+```
+
+Sell $500 worth of AAPL at market price:
+```bash
+python3 scripts/place_order.py --symbol AAPL --type EQUITY --side SELL --order-type MARKET --amount 500
+```
+
+Buy 10 shares of AAPL at the close, only if the closing price is $227.50 or lower (limit-on-close):
+```bash
+python3 scripts/place_order.py --symbol AAPL --type EQUITY --side BUY --order-type LIMIT_ON_CLOSE --quantity 10 --limit-price 227.50
+```
+
+Sell 10 shares of AAPL at the close (market-on-close):
+```bash
+python3 scripts/place_order.py --symbol AAPL --type EQUITY --side SELL --order-type MARKET_ON_CLOSE --quantity 10
+```
+
+Buy crypto with extended hours:
+```bash
+python3 scripts/place_order.py --symbol BTC --type CRYPTO --side BUY --order-type MARKET --amount 100
+```
+
+Buy with a Good-Till-Date (GTD) order (cancels automatically on the given date if not filled):
+```bash
+python3 scripts/place_order.py --symbol AAPL --type EQUITY --side BUY --order-type LIMIT --quantity 10 --limit-price 220.00 --time-in-force GTD --expiration-time 2026-07-01
+```
+
+Bracket order — buy 10 AAPL at $227.50, take profit at $240, stop out at $220:
+```bash
+python3 scripts/place_order.py --symbol AAPL --type EQUITY --side BUY --order-type LIMIT --quantity 10 --limit-price 227.50 \
+  --order-class BRACKET --take-profit-limit 240.00 --stop-loss-stop 220.00
+```
+
+Bracket with a stop-limit exit only:
+```bash
+python3 scripts/place_order.py --symbol AAPL --type EQUITY --side BUY --order-type MARKET --quantity 10 \
+  --order-class BRACKET --stop-loss-stop 220.00 --stop-loss-limit 219.50
+```
+
+Sell 10 AAPL from two specific tax lots (IDs from `get_tax_lots.py --symbol AAPL`):
+```bash
+python3 scripts/place_order.py --symbol AAPL --type EQUITY --side SELL --order-type MARKET --quantity 10 --open-close CLOSE \
+  --tax-lot LOT_ID_A:6 --tax-lot LOT_ID_B:4
+```
+
+**Workflow:**
+1. Gather all required information from the user (symbol, side, order type, quantity/amount, prices if needed).
+2. Confirm the order details with the user before executing.
+3. Execute: `python3 scripts/place_order.py [OPTIONS]`
+4. Report the order ID and confirmation back to the user.
+5. Remind user that order placement is asynchronous. To check status later, use `get_order.py --order-id <id>`. To block until the order fills (or reaches another terminal status), use `wait_for_fill.py --order-id <id>`.
+6. For a bracket order, confirm the exit prices explicitly (take-profit above the entry for a BUY, stop-loss below, and vice versa for a SELL). After the entry fills, `get_orders.py` shows the exit legs grouped under the same Bracket ID; cancelling one exit leg does not cancel the other unless the class is OCO.
+
+### Cancel Order
+When the user asks to "cancel order", "cancel my order", or wants to cancel a specific order:
+
+**Required parameters:**
+- `--order-id`: The order ID to cancel
+
+**Example:**
+```bash
+python3 scripts/cancel_order.py --order-id 345d3e58-5ba3-401a-ac89-1b756332cc94
+```
+
+With explicit account ID:
+```bash
+python3 scripts/cancel_order.py --order-id 345d3e58-5ba3-401a-ac89-1b756332cc94 --account-id YOUR_ACCOUNT_ID
+```
+
+**Workflow:**
+1. If the user doesn't provide an order ID, first run `get_orders.py` to show them their active orders.
+2. Confirm with the user which order they want to cancel.
+3. Execute: `python3 scripts/cancel_order.py --order-id [ORDER_ID]`
+4. Inform the user that cancellation is asynchronous - confirm by running `get_order.py --order-id <id>`.
+
+### Get Historical Bars
+When the user asks for "historical prices", "price history", "candles", "OHLC", "bars", or "what did AAPL do last week/month/year":
+
+**Required parameters:**
+- `--symbol`: Ticker symbol (e.g., AAPL, BTC, or an OSI option symbol)
+- `--period`: One of DAY, WEEK, MONTH, QUARTER, HALF_YEAR, YEAR, FIVE_YEARS, TEN_YEARS, ALL, YTD, SINCE_PURCHASE
+
+**Optional parameters:**
+- `--type`: EQUITY (default), CRYPTO, OPTION, INDEX, or EVENTCONTRACT. For several contracts of one prediction-market event at once, use **Get Event Contract Bars** instead.
+- `--aggregation`: Bar size override (ONE_MINUTE, FIVE_MINUTES, TEN_MINUTES, FIFTEEN_MINUTES, THIRTY_MINUTES, ONE_HOUR, ONE_DAY, ONE_WEEK, ONE_MONTH, THREE_MONTHS, SIX_MONTHS, ONE_YEAR). If omitted, the server picks a sensible default for the period.
+- `--purchase-date`: Required when `--period SINCE_PURCHASE`. Format YYYY-MM-DD.
+- `--session-toggle`: DAY equity charts only. REGULAR_HOURS (9:30-16:00 ET), REGULAR_AND_EXTENDED_HOURS (4:00-20:00 ET, server default) or ALL_SESSIONS (midnight-to-midnight; adds the overnight 00:00-04:00 and 20:00-24:00 buckets).
+- `--ipo-date`: The asset's IPO / first-trade date (YYYY-MM-DD). For an asset younger than the period the server returns finer bars over the available history plus a **leading fill** (a flat lead-in from the period start to the first real bar) so the chart isn't a straight diagonal.
+
+**Examples:**
+
+One year of daily bars for AAPL:
+```bash
+python3 scripts/get_bars.py --symbol AAPL --period YEAR
+```
+
+One month of one-day bars:
+```bash
+python3 scripts/get_bars.py --symbol AAPL --period MONTH --aggregation ONE_DAY
+```
+
+One week of BTC bars:
+```bash
+python3 scripts/get_bars.py --symbol BTC --type CRYPTO --period WEEK
+```
+
+Bars since purchase:
+```bash
+python3 scripts/get_bars.py --symbol AAPL --period SINCE_PURCHASE --purchase-date 2024-01-15
+```
+
+Today's bars including the overnight sessions:
+```bash
+python3 scripts/get_bars.py --symbol AAPL --period DAY --session-toggle ALL_SESSIONS
+```
+
+A recent IPO over a full year (returns finer bars plus a leading-fill summary):
+```bash
+python3 scripts/get_bars.py --symbol NEWCO --period YEAR --ipo-date 2026-03-15
+```
+
+**Workflow:**
+1. Parse the user's request for symbol, time window, and optional bar size.
+2. Execute: `python3 scripts/get_bars.py [OPTIONS]`
+3. Report the pre-market, regular-market, and after-hours bars (plus the overnight buckets when `ALL_SESSIONS` was used) along with the previous close and total gain/loss summary. If a leading fill is reported, tell the user the asset is younger than the requested period and how many flat bars precede the real data.
+
+### Event Contracts (Prediction Markets) — overview
+Event contracts are YES/NO contracts on real-world outcomes (e.g. "Will the Fed balance sheet be above $6.6T?"). Five read-only scripts cover discovery and charts and do not need an account ID; three more preflight, buy, and follow a contract to settlement (**Preflight Event Contract**, **Buy Event Contract**, **Wait For Settlement**).
+
+Typical flow: **Get Event Categories** → **Get Event Summary** (pick an event) → **Get Event Details** (outcomes and YES/NO prices) → **Get Event Contract Bars** (price history). For a recurring market such as a 15-minute "Up or Down" window, start from **Get Current Event** instead — see **Trade a 15-Minute Market**.
+
+**Two different identifiers — do not mix them up:**
+- **Event symbol** (e.g. `KALSHI.KXBALANCESHEET-EO26`): returned by `get_event_summary.py`, taken by `get_event_details.py --event-symbol` and `get_event_summary.py --event-symbol`.
+- **Event id** (e.g. `KALSHI.KXBALANCESHEET-EO26-EVENT`): the `-EVENT` grouping id taken by `get_event_contract_bars.py --event-id`. It is the event symbol with `-EVENT` appended.
+- Contract symbols in `get_event_details.py` output look like `KALSHI.KXBALANCESHEET-EO26-6.6.Y` (`.Y` = YES, `.N` = NO); the bars script takes them with an `-EVENTCONTRACT` suffix, orders take them without it.
+- **Outcome ids** (e.g. `KXBALANCESHEET-EO26-6.6`) carry **no** exchange prefix.
+- **Series** (e.g. `KXBTC15M`): the ticker between the exchange prefix and the first `-` of an event symbol. Every window of a recurring market shares it; `get_current_event.py --series` takes it.
+- The "Related" symbols on an event in `get_event_summary.py` are related instruments (e.g. `BTC-CRYPTO`), **not** the event's contracts — those come from **Get Event Details**.
+
+Prices are dollars from 0.00 to 1.00 and equal the implied probability (0.62 = 62%). A NO contract's price is roughly 1 minus the YES price. A winning contract pays $1.00.
+
+### Get Event Categories
+When the user asks "what prediction markets are there", "what event contracts can I trade", "list event categories", or wants to browse event contracts:
+
+**Example:**
+```bash
+python3 scripts/get_event_categories.py
+```
+
+**Workflow:**
+1. Execute `python3 scripts/get_event_categories.py`.
+2. Report the categories with their subcategories (and frequency filters, when shown).
+3. Pass a category to **Get Event Summary** with `--category`.
+
+### Get Event Summary
+When the user asks "what are the most popular prediction markets", "show event contracts about the economy", "which events resolve this week", "new event contracts", or wants to find events:
+
+**All parameters are optional:**
+- `--sort`: VOLUME (default), EXPIRATION, or RECENTLY_ADDED
+- `--category` / `--subcategory`: from **Get Event Categories**
+- `--event-symbol`: only these events; repeat or comma-separate
+- `--frequency`: ALL, ONCE, FIFTEEN_MINUTES, ONE_HOUR, ONE_DAY, ONE_WEEK, ONE_MONTH, ONE_YEAR; repeat for several
+- `--resolution-start` / `--resolution-end`: only events resolving in this window (`YYYY-MM-DD` or ISO 8601; naive = UTC)
+- `--include-resolved` / `--no-include-resolved`: include or exclude already-resolved events (server default when omitted)
+- `--created-within-days N`: only events created in the last N days
+- `--next-token`: fetch the next page (the output prints the token when more results exist)
+
+Up to 100 events per page.
+
+**Examples:**
+```bash
+python3 scripts/get_event_summary.py
+python3 scripts/get_event_summary.py --sort RECENTLY_ADDED --category Economics
+python3 scripts/get_event_summary.py --frequency ONE_DAY --resolution-end 2026-12-31
+python3 scripts/get_event_summary.py --event-symbol KALSHI.KXBALANCESHEET-EO26
+python3 scripts/get_event_summary.py --next-token <TOKEN>
+```
+
+**Workflow:**
+1. Translate the request into filters ("most traded" → default VOLUME sort, "ending soon" → `--sort EXPIRATION`, "new" → `--sort RECENTLY_ADDED`).
+2. Execute `python3 scripts/get_event_summary.py [OPTIONS]`.
+3. Report each event's title, event symbol, series, category, volume, resolution time and RESOLVED / HALTED flags.
+4. If the user wants more, re-run with the same flags plus `--next-token`.
+5. For outcomes and prices, follow up with **Get Event Details**.
+
+### Get Event Details
+When the user asks "what are the odds on X", "show the outcomes for this event", "how much is the YES contract", "what are the rules for this market", or wants detail on one event:
+
+**Required parameters:**
+- `--event-symbol`: the event symbol from **Get Event Summary** (e.g. `KALSHI.KXBALANCESHEET-EO26`) — not the `-EVENT` id
+
+**Optional parameters:**
+- `--no-all-outcomes`: return only a short list of up to 8 outcomes (default is every outcome). The header always shows the total outcome count.
+
+**Example:**
+```bash
+python3 scripts/get_event_details.py --event-symbol KALSHI.KXBALANCESHEET-EO26
+```
+
+**Workflow:**
+1. Execute `python3 scripts/get_event_details.py --event-symbol [EVENT_SYMBOL]`.
+2. Report the event (title, series, category, exchange, status, volume) and, per outcome: title, floor strike (when the outcome has one, e.g. `6.6` for "above $6.6 trillion"), state, trading mode, whether it is tradable right now and the time left until close, settlement and the winning contract once settled, the YES/NO contracts with bid / ask / last (shown as dollars and implied %), and the rules.
+3. Mention the CFTC contract terms link and resolution sources when the user asks how the market settles.
+4. An unknown event symbol returns a validation error (code 7004) — re-check the symbol with **Get Event Summary**.
+5. "Tradable" needs state OPEN, trading BUY_AND_SELL and a close time still in the future — an outcome can report STATE_OPEN after it has closed, so go by "Tradable", not the state.
+
+### Get Event Contract Bars
+When the user asks for "the price history of this prediction market", "chart the odds over the last week", "how have the odds moved", or wants historical prices for event contracts:
+
+**Required parameters:**
+- `--event-id`: the `-EVENT` grouping id (event symbol + `-EVENT`, e.g. `KALSHI.KXBALANCESHEET-EO26-EVENT`)
+- `--period`: DAY, WEEK, MONTH, or ALL (measured back from now, or from the event's close once it has stopped trading)
+- `--symbol`: an `-EVENTCONTRACT` symbol of the event (e.g. `KALSHI.KXBALANCESHEET-EO26-6.6.Y-EVENTCONTRACT`); repeat or comma-separate, up to 8
+
+**Examples:**
+```bash
+python3 scripts/get_event_contract_bars.py --event-id KALSHI.KXBALANCESHEET-EO26-EVENT --period WEEK \
+  --symbol KALSHI.KXBALANCESHEET-EO26-6.6.Y-EVENTCONTRACT
+python3 scripts/get_event_contract_bars.py --event-id KALSHI.KXBALANCESHEET-EO26-EVENT --period ALL \
+  --symbol KALSHI.KXBALANCESHEET-EO26-6.6.Y-EVENTCONTRACT,KALSHI.KXBALANCESHEET-EO26-6.6.N-EVENTCONTRACT
+```
+
+**Workflow:**
+1. Get the contract symbols from **Get Event Details** (append `-EVENTCONTRACT`) and the event id (append `-EVENT` to the event symbol).
+2. Execute `python3 scripts/get_event_contract_bars.py --event-id [EVENT_ID] --period [PERIOD] --symbol [SYMBOL]...`.
+3. Report each contract's current price, previous close and change over the period (as implied %), and summarize the bars. Charts can start at different times — compare them by timestamp, not position.
+4. Symbols with no data are listed at the end; they are unknown, have no candles, or had no price in the period.
+
+### Get Current Event
+When the user asks "what's the current 15-minute Bitcoin market", "find the open BTC up-or-down window", "what's trading right now in KXBTC15M", or names a recurring prediction-market series:
+
+**Required parameters:**
+- `--series`: the series ticker, e.g. `KXBTC15M` (shown as "Series" by **Get Event Summary** / **Get Event Details**)
+
+**Optional parameters:**
+- `--frequency`: how often the series recurs — FIFTEEN_MINUTES (default), ONE_HOUR, ONE_DAY, ONE_WEEK, ONE_MONTH, ONE_YEAR, ONCE, ALL
+- `--category` / `--subcategory`: narrow the search (e.g. `Crypto` / `BTC`)
+- `--wait`: poll until the series has an open event instead of exiting when it has none (between windows the next one is listed a minute or two after the previous closes)
+- `--timeout`: with `--wait`, max seconds to wait (default 900)
+- `--poll-seconds`: with `--wait`, seconds between checks (default 30)
+- `--no-details`: skip fetching the event's outcomes and YES/NO prices
+
+**Exit codes:** 0 = found, 1 = no open event (without `--wait`) or error, 2 = `--wait` timed out.
+
+**Examples:**
+```bash
+python3 scripts/get_current_event.py --series KXBTC15M
+python3 scripts/get_current_event.py --series KXBTC15M --wait --timeout 300
+```
+
+**Workflow:**
+1. If the user names a market but not its series, find an event with **Get Event Summary** (e.g. `--frequency FIFTEEN_MINUTES --category Crypto`) and read its Series line.
+2. Execute `python3 scripts/get_current_event.py --series [SERIES]`.
+3. Report the event symbol, when it resolves and how long is left, and the YES/NO bid/ask (plus each outcome's floor strike when it has one). The window picked is the open one that closes soonest; windows already past their close (which the API still lists for a few minutes) are skipped.
+
+### Preflight Event Contract
+When the user asks "what would it cost to buy YES on this market", "preflight a prediction market buy", or wants the cost of an event-contract buy before placing it:
+
+**Choose the contract one of two ways:**
+- `--event-symbol` + `--contract YES|NO` (+ `--outcome-id` for an event with more than one outcome): the script looks up the contract and, unless `--limit-price` is given, prices the order at its current **ask rounded up to a whole cent**.
+- `--symbol`: a contract symbol ending in `.Y` / `.N` (e.g. `KALSHI.KXBTC15M-26OCT201200-00.Y`). **`--limit-price` is then required.**
+
+**Optional parameters:**
+- `--quantity`: number of contracts (default 1; at most 2 decimal places)
+- `--limit-price`: most to pay per contract, whole cents from 0.01 to 0.99
+- `--account-id`: uses `PUBLIC_COM_ACCOUNT_ID` if omitted
+
+The order is always a **BUY**, **LIMIT**, **DAY**.
+
+**Examples:**
+```bash
+python3 scripts/preflight_event_contract.py --event-symbol KALSHI.KXBTC15M-26OCT201200 --contract YES
+python3 scripts/preflight_event_contract.py --event-symbol KALSHI.KXBALANCESHEET-EO26 --outcome-id KXBALANCESHEET-EO26-6.6 --contract NO --quantity 5
+python3 scripts/preflight_event_contract.py --symbol KALSHI.KXBTC15M-26OCT201200-00.Y --limit-price 0.55
+```
+
+**Workflow:**
+1. Execute `python3 scripts/preflight_event_contract.py [OPTIONS]`.
+2. Report the limit price (and implied %), the estimated cost (includes commission and exchange fee), the buying-power requirement, and the payout if it wins ($1.00 per contract).
+3. If the output warns the outcome is not tradable, tell the user before going further.
+4. If the user wants to proceed, run **Buy Event Contract** with the same flags.
+
+### Buy Event Contract
+When the user asks to "buy YES", "buy NO", "bet on this market", "buy the up side of the 15-minute window", or otherwise to buy an event contract:
+
+**Parameters:** the same as **Preflight Event Contract** (`--event-symbol` + `--contract` [+ `--outcome-id`], or `--symbol` + `--limit-price`; `--quantity`, `--limit-price`, `--account-id`).
+
+With `--event-symbol` the script refuses to place the order when the outcome is not tradable (closed, halted, or past its close time).
+
+**Examples:**
+```bash
+python3 scripts/buy_event_contract.py --event-symbol KALSHI.KXBTC15M-26OCT201200 --contract YES
+python3 scripts/buy_event_contract.py --event-symbol KALSHI.KXBTC15M-26OCT201200 --contract NO --quantity 3 --limit-price 0.40
+python3 scripts/buy_event_contract.py --symbol KALSHI.KXBTC15M-26OCT201200-00.Y --limit-price 0.55
+```
+
+**Workflow:**
+1. Gather the event, side (YES/NO), quantity and — if the user has one in mind — the limit price. Preflight first with **Preflight Event Contract**.
+2. Confirm the order details with the user before executing (contract, quantity, limit price, cost). For a 15-minute window also mention the time left until close.
+3. Execute: `python3 scripts/buy_event_contract.py [OPTIONS]`
+4. Report the order ID. Placement is asynchronous: use `wait_for_fill.py --order-id <id>` to follow the fill, and **Wait For Settlement** to learn whether it paid out.
+5. The script only buys; the skill has no script to sell an event contract before it settles. A DAY limit that has not filled can be cancelled with **Cancel Order**.
+
+### Wait For Settlement
+When the user asks "did my prediction market win", "wait until the window settles", "tell me the result of this market", or wants to block until an event contract outcome settles:
+
+**Required parameters:**
+- `--event-symbol`: the event, e.g. `KALSHI.KXBTC15M-26OCT201200`
+
+**Optional parameters:**
+- `--outcome-id`: the outcome to watch; may be omitted for a single-outcome event (such as a 15-minute window)
+- `--contract`: a contract symbol the user holds (e.g. `...-00.Y`); the script then reports WON or LOST
+- `--timeout`: max seconds to wait (default 1800)
+- `--poll-seconds`: polling interval (default 20)
+
+**Exit codes:** 0 = settled, 1 = error (e.g. a multi-outcome event without `--outcome-id`), 2 = timed out.
+
+**Examples:**
+```bash
+python3 scripts/wait_for_settlement.py --event-symbol KALSHI.KXBTC15M-26OCT201200 --contract KALSHI.KXBTC15M-26OCT201200-00.Y
+python3 scripts/wait_for_settlement.py --event-symbol KALSHI.KXBALANCESHEET-EO26 --outcome-id KXBALANCESHEET-EO26-6.6 --timeout 60
+```
+
+**Workflow:**
+1. After **Buy Event Contract**, run the "Await result" command it prints (or build it from the event symbol and contract).
+2. Report how the outcome settled (YES / NO / OTHER), the winning contract, and — with `--contract` — whether the user's contract won. A winner of "none" means it settled some other way than YES/NO.
+3. A 15-minute window settles a few minutes after it closes; long-dated events can take far longer than the timeout — for those, check later with **Get Event Details** instead of waiting.
+
+### Trade a 15-Minute Market
+When the user wants to "trade the 15-minute Bitcoin market", "buy YES on the next BTC window and tell me if it won", or automate recurring prediction-market trades:
+
+1. **Find the window:** `python3 scripts/get_current_event.py --series KXBTC15M` (add `--wait` between windows). Note the event symbol, the time left, and the YES/NO asks.
+2. **Price it:** `python3 scripts/preflight_event_contract.py --event-symbol [EVENT_SYMBOL] --contract YES|NO [--quantity N] [--limit-price P]`.
+3. **Confirm** contract, quantity, limit price, cost and time left with the user. Do not place an order with less time left than it takes to confirm — re-run step 1 for the next window instead.
+4. **Buy:** `python3 scripts/buy_event_contract.py` with the same flags. Report the order ID.
+5. **Fill:** `python3 scripts/wait_for_fill.py --order-id [ORDER_ID] --timeout 120`. An unfilled DAY limit can be cancelled with `cancel_order.py`.
+6. **Result:** `python3 scripts/wait_for_settlement.py --event-symbol [EVENT_SYMBOL] --contract [CONTRACT_SYMBOL]`, then report WON / LOST.
+7. For a repeating strategy, loop from step 1; each window has a new event symbol but the same series.
+
+### Preflight Spread
+When the user wants to estimate the cost of a vertical option spread before placing it:
+
+**Required parameters:**
+- `--spread-type`: One of CALL_CREDIT, CALL_DEBIT, PUT_CREDIT, PUT_DEBIT
+- `--sell`: OSI symbol of the leg to sell
+- `--buy`: OSI symbol of the leg to buy
+- `--quantity`: Number of spread contracts
+- `--limit-price`: Net debit (for DEBIT spreads) or net credit (for CREDIT spreads) as a positive value. The SDK negates credits internally.
+
+**Optional parameters:**
+- `--time-in-force`: DAY (default) or GTD
+
+**Spread types:**
+- `CALL_CREDIT` — Bear Call Spread: sell lower-strike CALL, buy higher-strike CALL (net credit)
+- `CALL_DEBIT` — Bull Call Spread: buy lower-strike CALL, sell higher-strike CALL (net debit)
+- `PUT_CREDIT` — Bull Put Spread: sell higher-strike PUT, buy lower-strike PUT (net credit)
+- `PUT_DEBIT` — Bear Put Spread: buy higher-strike PUT, sell lower-strike PUT (net debit)
+
+**Example:**
+
+```bash
+python3 scripts/preflight_spread.py --spread-type CALL_DEBIT \
+  --sell AAPL251219C00200000 --buy AAPL251219C00190000 \
+  --quantity 1 --limit-price 3.00
+```
+
+**Workflow:**
+1. Help the user pick legs (use `get_option_chain.py` and `get_option_expirations.py` if needed).
+2. Execute: `python3 scripts/preflight_spread.py [OPTIONS]`
+3. Report estimated cost, credit/debit, fees, and buying-power impact.
+4. If the user wants to proceed, use `place_spread.py` with the same parameters.
+
+### Place Spread
+When the user wants to place a vertical option spread:
+
+Same arguments as Preflight Spread above. Uses the OSI-direct helpers added in publicdotcom-py 0.1.11 (`place_call_credit_spread`, etc.).
+
+**Example:**
+
+```bash
+python3 scripts/place_spread.py --spread-type PUT_CREDIT \
+  --sell AAPL251219P00180000 --buy AAPL251219P00170000 \
+  --quantity 1 --limit-price 2.50
+```
+
+**Workflow:**
+1. Confirm all spread details with the user before executing — multi-leg orders are not easily reversible.
+2. Recommend running `preflight_spread.py` first.
+3. Execute: `python3 scripts/place_spread.py [OPTIONS]`
+4. Report the order ID and remind the user to check order status.
+
+### Preflight Short
+When the user asks to "preflight a short", "estimate a short sale", or wants to see the impact before shorting:
+
+**Required parameters:**
+- `--symbol`: Equity symbol to short
+- `--quantity`: Number of shares
+
+**Optional parameters:**
+- `--order-type`: MARKET (default), LIMIT, STOP, or STOP_LIMIT
+- `--limit-price`: Required for LIMIT/STOP_LIMIT
+- `--stop-price`: Required for STOP/STOP_LIMIT
+- `--time-in-force`: DAY (default) or GTD
+- `--session`: CORE or EXTENDED
+
+**Example:**
+
+```bash
+python3 scripts/preflight_short.py --symbol TSLA --quantity 10 --order-type LIMIT --limit-price 245.00
+```
+
+**Workflow:**
+1. Execute: `python3 scripts/preflight_short.py [OPTIONS]`
+2. Report estimated proceeds, fees, and buying-power impact.
+3. If the user wants to proceed, use `place_short.py` with the same parameters.
+
+### Place Short
+When the user asks to "short a stock", "open a short position", or "place a short order":
+
+Same arguments as Preflight Short above. Uses the `place_short_order` helper added in publicdotcom-py 0.1.11. The API represents short intent as SELL + openCloseIndicator=OPEN; this helper handles that automatically.
+
+**Example:**
+
+```bash
+python3 scripts/place_short.py --symbol TSLA --quantity 10
+```
+
+**Workflow:**
+1. Confirm short-sale details with the user — shorting carries unlimited theoretical risk.
+2. Recommend running `preflight_short.py` first.
+3. Execute: `python3 scripts/place_short.py [OPTIONS]`
+4. Report the order ID and remind the user to check order status.
+
+### Options Strategy Guidance
+When the user asks about options strategies, how to automate a strategy, which strategy to use for a given scenario, or wants help constructing multi-leg options trades:
+
+1. Read the file `options-automation-library.md` (located in the same directory as this skill) for detailed strategy context.
+2. This library contains 35+ options strategies organized by category:
+   - **Single-leg strategies**: Long Call, Long Put, Covered Call, Cash-Secured Put
+   - **Vertical spreads**: Bull Call, Bear Call, Bull Put, Bear Put
+   - **Calendar & diagonal spreads**: Long Calendar, Diagonal Spread
+   - **Straddles & strangles**: Long/Short Straddle, Long/Short Strangle
+   - **Complex spreads**: Iron Condor, Iron Butterfly, Broken-Wing Butterfly, Jade Lizard, Christmas Tree
+   - **Synthetic positions**: Synthetic Long/Short, Synthetic Covered Call, Conversion/Reversal
+   - **Income strategies**: Wheel, Poor Man's Covered Call, Ratio Spreads
+   - **Advanced/quant strategies**: Box Spread, Risk Reversal, Hedged Iron Fly, Vol Arb, Calendar Strangles
+   - **Event-driven workflows**: Earnings IV Crush, Pre-Market IV Expansion, Post-Earnings Drift, Macro/OPEX Gamma
+3. Each strategy includes: description, use case with event examples, where the strategy breaks, API workflow steps, and code examples using the Public.com SDK.
+4. Use the shared SDK helpers (Setup, Market Data, Preflight, Multi-leg order helpers) from the library when constructing code examples.
+5. When recommending a strategy, always include the "Where This Strategy Breaks" context so the user understands the risks.
+6. For executable trades, map the library's code patterns to the actual scripts available in this skill:
+   - Single-leg orders → `preflight.py` / `place_order.py`
+   - Vertical spreads (bull/bear call/put) → `preflight_spread.py` / `place_spread.py`
+   - Any other 2-6 leg combination (iron condor, butterfly, straddle, strangle, calendar, diagonal, ratio, jade lizard, etc.) → `preflight_multileg.py` / `place_multileg.py`
+
+### Get Order Status
+When the user asks to "check order status", "is my order filled", "what happened to order X", or wants the current state of a specific order:
+
+**Required parameters:**
+- `--order-id`: The order ID to look up
+
+**Example:**
+```bash
+python3 scripts/get_order.py --order-id 345d3e58-5ba3-401a-ac89-1b756332cc94
+```
+
+Also use it when the user asks "what trades filled this order", "when did order X fill", "at what prices did my order execute", "which exchange / venue filled my order", or "which session was this order placed in".
+
+**Workflow:**
+1. Execute: `python3 scripts/get_order.py --order-id [ID]`
+2. Report the order's status, filled quantity, average price, and reject reason (if any).
+3. Multi-leg orders also include a per-leg breakdown.
+4. Bracket orders show a **Bracket ID** (the entry order's ID). Use it to relate the entry to its take-profit / stop-loss legs in `get_orders.py`.
+5. The output also includes the **Session** (REGULAR, REST_OF_DAY or TWENTY_FOUR_HOURS — as reported by the API; these names differ from the `--session` values used when placing an order), the **Timeline** (created, filled, replaced, closed, last modified) and each **Trade**: side, quantity, symbol, execution price, time, execution venue (`venue XNAS` — the ISO 10383 Market Identifier Code, when the API reports it) and trade ID. Partial fills show up as several trades.
+6. Only orders created within the **last 30 days** can be looked up — an older order returns a not-found error. To find an order ID first (e.g. "my AAPL buy from Tuesday"), run **Search Orders**.
+
+### Wait For Fill
+When the user wants to "wait until my order fills", "block until filled", or wants the agent to monitor an order through to a terminal state before doing the next step:
+
+**Required parameters:**
+- `--order-id`: UUID of the order to track
+
+**Optional parameters:**
+- `--timeout`: Max seconds to wait (default 120)
+- `--poll-seconds`: Polling interval (default 1.0)
+- `--fill-only`: Only return success (exit code 0) on FILLED. Otherwise any terminal status (CANCELLED/REJECTED/EXPIRED/REPLACED) ends the wait.
+
+**Exit codes:** 0 = filled, 1 = other terminal status, 2 = timed out.
+
+**Example:**
+```bash
+python3 scripts/wait_for_fill.py --order-id 345d3e58-5ba3-401a-ac89-1b756332cc94 --timeout 300
+```
+
+**Workflow:**
+1. After `place_order.py` / `place_spread.py` / `place_multileg.py` returns an order ID, run `wait_for_fill.py --order-id <id>` to block until terminal status.
+2. Report the final status, fill quantity, and average price.
+
+### Cancel and Replace Order
+When the user wants to "modify my order", "change the limit price", "update the quantity on order X", or asks to swap an open order for one with new parameters:
+
+**Required parameters:**
+- `--order-id`: UUID of the existing order to replace
+- `--order-type`: New order type (LIMIT, MARKET, STOP, STOP_LIMIT, MARKET_ON_CLOSE, LIMIT_ON_CLOSE)
+
+**Optional parameters:**
+- `--quantity`: New quantity (omit to keep original)
+- `--amount`: New notional dollar amount (mutually exclusive with `--quantity`)
+- `--limit-price`: Required for LIMIT/STOP_LIMIT/LIMIT_ON_CLOSE; rejected for every other type
+- `--stop-price`: Required for STOP/STOP_LIMIT; rejected for every other type
+- `--time-in-force`: DAY (default) or GTD (requires `--expiration-time`)
+- `--expiration-time`: Required when GTD
+
+**Examples:**
+```bash
+python3 scripts/cancel_and_replace.py --order-id 345d3e58-5ba3-401a-ac89-1b756332cc94 \
+  --order-type LIMIT --quantity 10 --limit-price 230.00
+```
+
+Turn an open order into a limit-on-close order ("move my order to the close"):
+```bash
+python3 scripts/cancel_and_replace.py --order-id 345d3e58-5ba3-401a-ac89-1b756332cc94 \
+  --order-type LIMIT_ON_CLOSE --quantity 10 --limit-price 230.00
+```
+
+**Workflow:**
+1. If the user doesn't know the order ID, run `get_orders.py` first.
+2. Confirm the new parameters with the user.
+3. Execute `cancel_and_replace.py`. The replacement gets a new order ID — report both.
+
+### Preflight Multi-Leg
+When the user wants to price a multi-leg options strategy other than a plain vertical spread (iron condor, butterfly, straddle, strangle, calendar, diagonal, ratio spread, jade lizard, etc.):
+
+**Required parameters:**
+- `--leg`: Repeat 2-6 times. Format `SYMBOL:TYPE:SIDE[:OPEN_CLOSE][:RATIO]`
+  - `TYPE` = EQUITY | OPTION
+  - `SIDE` = BUY | SELL
+  - `OPEN_CLOSE` = OPEN | CLOSE (required for OPTION legs)
+  - `RATIO` = optional integer ratio
+- `--quantity`: Number of strategy units
+- `--limit-price`: Net limit (positive = debit, negative = credit)
+
+**Optional parameters:**
+- `--time-in-force`: DAY (default) or GTD (requires `--expiration-time`)
+- `--expiration-time`: Required when GTD
+
+**Examples:**
+
+Iron Condor on AAPL (sell put spread + sell call spread, $1.50 net credit):
+```bash
+python3 scripts/preflight_multileg.py --quantity 1 --limit-price -1.50 \
+  --leg AAPL251219P00190000:OPTION:SELL:OPEN \
+  --leg AAPL251219P00185000:OPTION:BUY:OPEN \
+  --leg AAPL251219C00210000:OPTION:SELL:OPEN \
+  --leg AAPL251219C00215000:OPTION:BUY:OPEN
+```
+
+Long Straddle on AAPL ($5.00 debit):
+```bash
+python3 scripts/preflight_multileg.py --quantity 1 --limit-price 5.00 \
+  --leg AAPL251219C00200000:OPTION:BUY:OPEN \
+  --leg AAPL251219P00200000:OPTION:BUY:OPEN
+```
+
+**Workflow:**
+1. Use `get_option_chain.py` and `get_option_expirations.py` to pick strikes/expirations.
+2. Execute `preflight_multileg.py` to see estimated cost, margin requirement, and buying-power impact.
+3. If user proceeds, run `place_multileg.py` with the same legs.
+
+### Place Multi-Leg
+When the user is ready to place a non-vertical multi-leg options strategy:
+
+Same arguments as Preflight Multi-Leg above. Only LIMIT orders are accepted by the API for multi-leg orders.
+
+**Example:**
+```bash
+python3 scripts/place_multileg.py --quantity 1 --limit-price -1.50 \
+  --leg AAPL251219P00190000:OPTION:SELL:OPEN \
+  --leg AAPL251219P00185000:OPTION:BUY:OPEN \
+  --leg AAPL251219C00210000:OPTION:SELL:OPEN \
+  --leg AAPL251219C00215000:OPTION:BUY:OPEN
+```
+
+**Workflow:**
+1. Always run `preflight_multileg.py` first with the same legs.
+2. Confirm with the user.
+3. Execute `place_multileg.py`. Report the order ID.
+4. Optionally call `wait_for_fill.py --order-id <id>` to monitor through to terminal status.
+
+### Flatten And Go Short
+When the user wants to "reverse my position", "flip to short", "flatten my long and short it", or asks to close a long equity position and immediately open a short:
+
+**Required parameters:**
+- `--symbol`: Equity symbol
+- `--short-quantity`: Number of shares to short after flattening
+
+**Optional parameters:**
+- `--order-type`: Short order type — MARKET (default), LIMIT, STOP, STOP_LIMIT
+- `--limit-price` / `--stop-price`: Required for non-MARKET types
+- `--time-in-force`: DAY (default) or GTD (requires `--expiration-time`)
+- `--session`: CORE or EXTENDED
+- `--flatten-timeout`: Seconds to wait for the flatten leg to fill (default 60)
+
+**Important:** This is **experimental** in the SDK and **not atomic** — it's a two-order workflow (flatten the long, then short). Market conditions can move between the two fills.
+
+**Example:**
+```bash
+python3 scripts/flatten_and_short.py --symbol TSLA --short-quantity 10
+```
+
+**Workflow:**
+1. Warn the user about the non-atomic nature and the unlimited theoretical risk of shorting.
+2. Execute the script. It reports both the flatten order (if any) and the short order.
+3. The script can be skipped if the user is already flat or short — in that case it just submits the short directly.
+
+### Watch Prices (Real-time)
+When the user asks to "watch the price", "monitor a stock", "alert me when X moves", or wants a real-time stream of quote changes:
+
+**Required parameters:**
+- One or more instruments: `SYMBOL` or `SYMBOL:TYPE` (TYPE = EQUITY | OPTION | CRYPTO | EVENTCONTRACT, defaults to EQUITY)
+
+**Optional parameters:**
+- `--poll-seconds`: SDK polling interval (0.1-60, default 2.0)
+- `--max-updates`: Stop after N price changes (useful when the agent only needs a snapshot, not an open stream)
+
+**Examples:**
+
+Watch a single equity:
+```bash
+python3 scripts/watch_prices.py AAPL
+```
+
+Watch a basket with a 5-second poll:
+```bash
+python3 scripts/watch_prices.py AAPL GOOGL MSFT --poll-seconds 5
+```
+
+Capture 10 price changes on BTC, then exit:
+```bash
+python3 scripts/watch_prices.py BTC:CRYPTO --max-updates 10
+```
+
+**Workflow:**
+1. Stream prints one line per detected price change (timestamp, symbol, old→new last, bid, ask, changed fields).
+2. For automation-style use (set an alert and walk away), pair this with `--max-updates` plus an outer loop or with the `/schedule` skill — do not leave a long-lived stream running by default.
+3. For trade triggers, the agent should read each line and decide whether to call `place_order.py`.
+````
+
+## Sibling skill: claw-skill-public-dot-com (OpenClaw fork)
+
+| | |
+|---|---|
+| Repo | https://github.com/PublicDotCom/claw-skill-public-dot-com |
+| Commit | `6ffbf85bc1c345fcdf14373641a8c734bd410e90` (committed 2026-05-22) |
+| License | `license: Apache-2.0` in the SKILL.md frontmatter only. No LICENSE file in the repo. Under this directory's rule that counts as no license, so no SKILL.md text is embedded: summary and short quotes only. |
+| Date scraped | 2026-11-11 |
+| Install | None documented beyond the README prerequisites (Python 3.9+, a Public API key, `export PUBLIC_COM_SECRET=...`, optional `PUBLIC_COM_ACCOUNT_ID`). Frontmatter declares `env: ['PUBLIC_COM_SECRET', 'PUBLIC_COM_ACCOUNT_ID']` for OpenClaw. |
+
+Re-read 2026-11-11, plain files only, no script run. One skill, `public-dot-com` (SKILL.md v1.0, 32 KB), 27 scripts, plus `options-automation-library.md`.
+
+| Skill | What it does | Tools / CLI called | Capability | Guardrail text |
+|---|---|---|---|---|
+| `public-dot-com` | Accounts, portfolio, orders, history, quotes, bars, price streaming, option chains and Greeks; preflight and place equity, crypto and option orders, verticals, 2 to 6 leg strategies, shorts, flatten-and-short; cancel, cancel-and-replace, wait for fill | `scripts/get_*.py`, `preflight*.py`, `place_order.py`, `place_spread.py`, `place_multileg.py`, `place_short.py`, `flatten_and_short.py`, `cancel_order.py`, `cancel_and_replace.py`, `wait_for_fill.py`, `watch_prices.py` | read and live write; no paper mode | "Confirm the order details with the user before executing." |
+
+Differences from the primary repo (`publicdotcom-agent-skill`, v1.4, 40 scripts):
+
+- Missing scripts: no event-contract scripts (`buy_event_contract.py`, `preflight_event_contract.py`, `get_event_*.py`, `get_current_event.py`, `wait_for_settlement.py`), no bond scripts (`search_bonds.py`, `get_bond_details.py`), no `get_tax_lots.py`, `search_orders.py` or `get_strategy_quote.py`. A diff of the two SKILL.md files differs in 475 lines.
+- SDK pin is `publicdotcom-py==0.1.15` (primary: 0.1.28). `scripts/config.py` runs `pip install publicdotcom-py==0.1.15` through `subprocess` when the SDK is missing, without a prompt, same pattern as the primary. Pinned, no hash.
+- Guardrail text is the same set as the primary: the "run this in as isolated of an instance as possible" disclaimer; "Confirm the order details with the user before executing"; "Confirm with the user which order they want to cancel"; "Confirm all spread details with the user before executing" (adding that multi-leg orders are not easily reversible); "Confirm short-sale details with the user" (adding that shorting carries unlimited theoretical risk); "Never silently retry the same failing command more than once."
+- All of it is model-enforced. Grep of `scripts/` finds no `input()`, dry-run flag, notional cap or required-preflight check; `place_order.py` submits when called with valid arguments.
+- Secret handling is the same as the primary: if `PUBLIC_COM_SECRET` is unset the agent asks the user for it in chat, then tells them to export it, so the key transits the conversation.
+- Autonomy flag: the README's example prompts include "Set up a job to monitor the price of Bitcoin every 30 minutes. If the price is below $75K, buy $100 worth of it ... All orders are market orders ... Run indefinitely." That is an unattended live-trading loop advertised as a normal use, and it collides with the per-order confirmation rule, which the loop would have to skip or pre-approve.
+- Staleness: five months behind the primary and lacks its later features.
+
+## Sibling skill: publicdotcom-perplexity-skill (Perplexity Computer fork)
+
+| | |
+|---|---|
+| Repo | https://github.com/PublicDotCom/publicdotcom-perplexity-skill |
+| Commit | `d0078084756fccb2c754a58c501aecbb74cfe11c` (committed 2026-05-22) |
+| License | `license: Apache-2.0` in the SKILL.md frontmatter only. No LICENSE file. Treated as no license: no SKILL.md text embedded. |
+| Date scraped | 2026-11-11 |
+| Install | None documented beyond the README prerequisites (same as above), written for "Perplexity Computer". |
+
+Re-read 2026-11-11, plain files only. One skill, `publicdotcom-perplexity-skill` (v1.0, 32 KB), 27 scripts, the same file list as the OpenClaw fork. `diff` of the two SKILL.md files shows only the frontmatter (`id`, `name`, `description`, `env`, `source`); the body and the guardrail text are line-for-line identical (the Perplexity copy is 25 bytes shorter).
+
+| Skill | What it does | Tools / CLI called | Capability | Guardrail text |
+|---|---|---|---|---|
+| `publicdotcom-perplexity-skill` | Same coverage as the OpenClaw fork | Same 27 `scripts/*.py`, SDK `publicdotcom-py==0.1.15` auto-installed by `scripts/config.py` via `pip install` | read and live write; no paper mode | Same confirmation lines as above; model-enforced only |
+
+The Perplexity description says the skill runs "in Perplexity Computer". The same README example prompt about a Bitcoin buy loop that runs indefinitely is present. Nothing in either fork adds a code-side confirmation, so the only difference from the primary is age and missing scripts.

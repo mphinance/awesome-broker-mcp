@@ -54,7 +54,13 @@ transaction history, watchlists, portfolio metrics.
   endpoints including `POST /positions/otc`, but it is Agent Skills definitions, NOT
   an MCP server — and "IG-incubator" is an unverified personal GitHub user account
   (not an org, no company/email set, 1 repo, 0 stars, created and abandoned
-  2026-03-10). Do not treat it as official IG.
+  2026-03-10). Do not treat it as official IG. Provenance detail (docs/skills/ig.md, GitHub
+  API 2026-11-11): the repo's single commit is authored `Myer Raymond <myer.raymond@ig.com>`,
+  each skill folder's `LICENSE.md` reads "Copyright (c) 2026 IG Group" and the frontmatter author
+  is `IG-Aus`, which is consistent with IG staff but is not verification; the repo has no root
+  LICENSE (API reports `license: null`) and nothing links it from IG. Its `AGENTS.md` shows a
+  Claude Desktop config launching `node ig-mcp-server/index.js`, but **no `ig-mcp-server`
+  directory exists in the repo**, so that referenced server cannot be installed from it.
 
 ## Sources
 

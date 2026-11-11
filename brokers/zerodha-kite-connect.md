@@ -46,6 +46,11 @@ on a self-hosted instance; the official hosted endpoint excludes trading tools
   EXCLUDED_TOOLS=place_order,modify_order,cancel_order) lets self-hosters build their
   own read-only instance.
 
+## Other repos
+
+- **zerodha/kite-cli** (official, MIT, 12 stars, created 2026-10-14, last push 2026-11-11, latest release v0.2.2): a CLI and terminal UI for Kite, not an MCP server. Ships an official agent skill (`skills/kite/SKILL.md`) that Claude Code and Codex can install, structured `--json` output, and a `docs/guide/agents.md` page. Trading commands preview requests before submission unless `--confirm` is passed; per its docs, sign-in stays interactive so the agent never sees your password, 2FA code or token. README and agents guide read 2026-11-11.
+- **vatsalgohil14/kite-mcp** (community, Rust, 55 tools over Kite Connect v3, 0 stars, no license file, created 2026-11-01, last push 2026-11-01): local stdio server. Per its README, mutating tools return a preview plus a `confirm_token` and need `confirm_action` within 2 minutes (`require_confirmation` defaults to true). Unaudited and a young repo.
+
 ## Sources
 
 Re-read 2026-11-11: README claims unchanged (hosted endpoint excludes destructive trading

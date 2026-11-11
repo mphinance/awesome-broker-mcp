@@ -41,6 +41,7 @@ none — public marketing/help content only, zero account access
   help-centre/promotions/status wrapper. Do not file it as a broker connector.
 - A second community repo, tatianathevisionary/wealthsimple-mcp, is explicitly Help
   Center only (7 tools over the public Zendesk JSON API, no auth, no account data).
+- A trading-capable unofficial server exists: addu390/ws (`ws-mcp`, Rust, Apache 2.0, 1 star, last push 2026-10-03, not archived). README read 2026-11-11: it talks to the same GraphQL API as the Wealthsimple web app, `ws-mcp setup` picks a mode (`read`, `paper` or `trade`) and the accounts the agent may trade in, and it keeps an audit log. Its own README warns the API can change without notice and that automated access may conflict with Wealthsimple's terms. Not verified beyond the README; same account-termination risk as below.
 - Wealthsimple offers no official developer API. Its Terms of Service PROHIBIT
   API-based trading, and the platform detects orders submitted outside official apps;
   flagged accounts receive warnings and face termination. Any 'trading MCP' built on
@@ -55,5 +56,6 @@ none — public marketing/help content only, zero account access
 Checked directly on 2026-11-11 (repo still lists the same five public-content tools; 0 stars, last push 2025-05-14):
 
 - <https://github.com/lwsinclair/wealthsimple-mcp-server>
+- <https://github.com/addu390/ws> (README, 2026-11-11)
 - <https://github.com/orgs/wealthsimple/repositories?q=mcp>
 - <https://github.com/wealthsimple/wealthsimple-mcp-server>

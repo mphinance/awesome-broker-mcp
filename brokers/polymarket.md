@@ -52,6 +52,15 @@ supplied; without it the server is read-only market data.
 - Confidence medium, not high: the negative on an official server rests on search
   absence, and I verified only two of the six community repos.
 
+## First-party repos (not MCP)
+
+Under the `Polymarket` org. README read 2026-11-11; stars and last push as of that date. Polymarket still has no first-party MCP server, but it does ship these agent-facing pieces:
+
+- [`Polymarket/agent-skills`](https://github.com/Polymarket/agent-skills): 1 `SKILL.md` (199 stars, last push 2026-02-19, no license file) plus reference files for auth, orders, market data, WebSocket, CTF operations, bridge and gasless relayer. Teaches an agent to build against the API; not an executor.
+- [`Polymarket/polymarket-cli`](https://github.com/Polymarket/polymarket-cli): Rust CLI, JSON output for scripts and agents (2,907 stars, last push 2026-05-26, no license file). Browse markets without a wallet; trading needs a private key. The README warns it is early, experimental software and not for large funds.
+- [`Polymarket/polymarket-us-python`](https://github.com/Polymarket/polymarket-us-python) and [`polymarket-us-typescript`](https://github.com/Polymarket/polymarket-us-typescript): official SDKs for Polymarket US (MIT, pushed 2026-10-09). SDKs only, no MCP or skills.
+- [`Polymarket/agents`](https://github.com/Polymarket/agents): ARCHIVED, last push 2024-11-05 (3,817 stars, MIT). LLM trading-agent framework; read-only archive, do not build on it.
+
 ## Sources
 
 Checked directly on 2026-07-16; repo, v0.1.0 release notes and README re-read 2026-11-11:

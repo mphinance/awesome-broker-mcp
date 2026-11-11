@@ -76,6 +76,18 @@ Read it as a calculator the model may consult, not a control.
   said otherwise. The concern isn't anonymity, it's that the project has never been
   updated.
 
+## Other community repos
+
+README read 2026-11-11, no clone, so safety claims are README claims and tool registration
+was not verified (see the lesson above: check `list_tools()` before believing an order
+claim). None archived.
+
+| Repo | What it is | Stars | Last push | License |
+|---|---|---|---|---|
+| [`kerryjiang/OpenEtradeMcp`](https://github.com/kerryjiang/OpenEtradeMcp) | .NET global tool; tools auto-generated from E*TRADE's OpenAPI spec; optional MCP-elicitation confirmation for order placement, cancel and modify; sandbox support | 5 | 2026-10-03 | Apache-2.0 |
+| [`sblattj/etrade-mcp`](https://github.com/sblattj/etrade-mcp) | npm package; reads always on, order placement opt-in behind a code-enforced preview then place handshake, including multi-leg; OAuth 1.0a with VIP-TOTP renewal | 1 | 2026-11-11 | MIT |
+| [`chrisguidry/etrade-mcp`](https://github.com/chrisguidry/etrade-mcp) | Read-only: 7 tools (accounts, balances, portfolio, transactions, quotes); README says none can place, change or cancel orders | 2 | 2026-11-06 | none listed |
+
 ## Sources
 
 Checked directly on 2026-07-16 (repo cloned and tool surface enumerated):

@@ -46,6 +46,19 @@ account, asset, copy trading, and WebSocket/WS-trade streams.
 - The README's own safety advice is to create the API key with read-only permissions first;
   the 23 market-data tools need no key.
 
+## Other first-party repos (bybit-exchange)
+
+README or tree read 2026-11-11. Stars and last push as of that date. All under Bybit's own org.
+
+| Repo | What it is | Stars | Last push | License |
+|---|---|---|---|---|
+| [`bybit-exchange/skills`](https://github.com/bybit-exchange/skills) | One root `SKILL.md` (v1.7.12) that teaches an agent to trade Bybit via signed REST calls, no install: market, spot, derivatives, earn, bots, copy trading, fiat. README safety table: CONFIRM-typed trade cards on mainnet, **mainnet by default** | 94 | 2026-11-11 | MIT |
+| [`bybit-exchange/trading-cli`](https://github.com/bybit-exchange/trading-cli) | `bybit-official-trading-cli` (npm): V5 CLI for agents, about 435 commands, JSON I/O, auto-registers a bootstrap SKILL.md. Mainnet writes need `--yes`; per-order and hourly USD caps, kill-switch, restricted money-movement endpoints | 1 | 2026-07-20 | none listed |
+| [`bybit-exchange/advanced-skills`](https://github.com/bybit-exchange/advanced-skills) | 4 strategy skills (options wheel, dual-asset buy-low, event-driven double win, and one more) shipping Python scripts; no root README | 1 | 2026-07-29 | none listed |
+| [`bybit-exchange/bybit-skills-hub`](https://github.com/bybit-exchange/bybit-skills-hub) | **Archived** (2026-03-05). Earlier single-skill V5 REST hub, 274 endpoints; superseded by `skills` | 6 | 2026-03-05 | none listed |
+
+Not Bybit: the other repos in the org (`kaas`, `svg-diagram`, `api-rsa-generator`) are unrelated to trading.
+
 ## Sources
 
 Checked directly on 2026-11-11:

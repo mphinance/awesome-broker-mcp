@@ -135,6 +135,15 @@ Compare [IBKR](interactive-brokers.md), where the server cannot submit at all, a
   to offer a product on top of it go through Public's partnership program, which is
   distinct from you connecting your own account.
 
+## Related first-party repos
+
+All under the `PublicDotCom` org, none archived. README read 2026-11-11; stars and last push as of that date.
+
+- [`publicdotcom-agent-skill`](https://github.com/PublicDotCom/publicdotcom-agent-skill): 1 `SKILL.md` (4 stars, pushed 2026-10-29, no license file). The current agent skill: portfolio, tax lots, quotes, option chains and multi-leg, bonds, event contracts, preflight and place orders, cancel-and-replace. Script-based, uses the `publicdotcom-py` SDK and your API key, no MCP.
+- [`publicdotcom-cli`](https://github.com/PublicDotCom/publicdotcom-cli): `public` command-line client for the Trading API (9 stars, pushed 2026-10-29, Apache-2.0). `pipx install publicdotcom-cli`. Can submit order requests, so treat it as live.
+- [`claw-skill-public-dot-com`](https://github.com/PublicDotCom/claw-skill-public-dot-com): OpenClaw version of the skill (42 stars, pushed 2026-05-22, 1 `SKILL.md`, no license file). Older and narrower than the agent-skill repo (no tax lots, bonds or event contracts in its feature list).
+- [`publicdotcom-perplexity-skill`](https://github.com/PublicDotCom/publicdotcom-perplexity-skill): same skill packaged for Perplexity Computer (7 stars, pushed 2026-05-22, 1 `SKILL.md`, no license file).
+
 ## Sources
 
 Re-checked 2026-11-11: the llms.txt, the hosted-mcp page, the API changelog (entries

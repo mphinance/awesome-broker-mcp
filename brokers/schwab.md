@@ -43,3 +43,11 @@ own docs — skips the approval layer entirely.
 
 - The Discord-bot-approval requirement is a real setup cost most other brokers in
   this directory don't have — factor that in before assuming "connect and go."
+
+## Other community servers
+
+Not endorsed by Schwab; same credential-trust caveat as above. READMEs read 2026-11-11; stars and last push as of that date.
+
+- [`sudowealth/schwab-mcp`](https://github.com/sudowealth/schwab-mcp): TypeScript, Cloudflare Workers with Durable Objects, OAuth 2.0 with PKCE (87 stars, last push 2025-06-02, no license file, not archived). README calls itself unofficial and "may be incomplete or unstable". Covers accounts, orders, quotes, options chains, movers. Stale for 5 months.
+- [`itsmostafa/schwab-mcp`](https://github.com/itsmostafa/schwab-mcp): Go single-binary stdio server for the Trader API; README says it reads accounts, pulls market data and places trades (5 stars, last push 2026-09-16, MIT, not archived). Tool surface not enumerated here.
+- `major/schwab-agent` and `major/schwab-agent-rs`: ARCHIVED agent-oriented Schwab CLI (last pushes 2026-05-18 and 2026-06-01), superseded by `major/schwab-rs`. Not read; listed so nobody builds on the archived repos.

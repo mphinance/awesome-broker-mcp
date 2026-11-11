@@ -42,3 +42,9 @@ None.
   wrapper is the only route today.
 - If StoneX ships something, it would most likely appear at developer.stonex.com —
   worth re-checking that portal with a JS-capable fetch later.
+
+## Community repo found 2026-11-11 (StoneX Client, not FOREX.com)
+
+- **[anaisbetts/stonex-mcp](https://github.com/anaisbetts/stonex-mcp)** (community, local stdio via `npx -y stonex-mcp --cookies <file>`; 2 stars, created and last pushed 2026-08-03, MIT, not archived; README and file tree read, source not read). A typed client plus MCP server for the **StoneX Client** web portal (`client.stonex.com`, REST under `vulcan.stonex.com/torchapi`). The README describes read endpoints only: accounts, balances, summary, positions, activity, performance, projected income and documents. No order tools are named, so treat it as read-only, unverified at the code level. This is the StoneX client portal, not the FOREX.com trading platform, and it is not an order route.
+- **Auth caution:** there is no API key. You export your logged-in browser session as a `cookies.txt` and the server mints a bearer JWT from it, caching the token on disk (`~/.cache/stonex-mcp/access-token.json` on Linux). That is a live session credential for your whole StoneX account in a file, run by a one-maintainer repo, and it works by replaying the web app's private API, which StoneX has not sanctioned. The README says to treat both files like passwords.
+- This corrects the earlier caveat above: a `stonex-mcp` repo does exist and is not the Chinese ops-diagnostics tool that earlier search hit. The status of this entry (no FOREX.com MCP) is unchanged.

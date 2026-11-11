@@ -79,6 +79,10 @@ charts, so you supply limit prices.
 - shner-elmo/tradezero-api is a community Python package that automates the TradeZero web
   platform; it is not an MCP server.
 
+## Other repos (not endorsed by TradeZero)
+
+- **[abigaillhiggins/tradezero-mcp](https://github.com/abigaillhiggins/tradezero-mcp)** (community, local Python 3.11+ stdio server; 0 stars, last push 2026-08-12, MIT, not archived; README read 2026-11-11, source not read). A **read-only trading-journal** server, not an order route. It syncs fills and the cash ledger into a local SQLite journal and serves nine tools: `sync_now`, account snapshot, open positions, fills, FIFO round trips, stats, cost reconciliation, and local diary notes. Its README says the HTTP client implements only GET against a whitelist of read paths, so order placement has no transport in the process, and that TradeZero API keys are unscoped (no read-only keys, per its 2026-08-10 check), which is the reason it enforces read-only itself. That unscoped-key claim is worth knowing even if you use TradeZero's official server instead. **Caution:** it still holds a full-power TradeZero API key and secret in a local `.env`, and it is a zero-star, single-author repo.
+
 ## Sources
 
 Checked directly on 2026-11-11:

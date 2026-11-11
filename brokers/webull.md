@@ -134,6 +134,10 @@ flowchart TD
     Cloud -.separate product, no shared code.-> SDK
 ```
 
+## Community add-on (not a server)
+
+`github.com/nutdnuy/QuantCornerBacktestingWebullMCP`: a community suite of 8 skills plus a core skill (9 `SKILL.md` entry points) for long-only backtesting research on top of an already-connected Webull MCP. MIT, 1 star, created and last pushed 2026-11-09. Its README says outright it is "an AI skill suite, not a Webull MCP server". Third party, not Webull. README read 2026-11-11.
+
 ## Caveats
 
 - Cloud MCP can now queue orders, but every order instruction needs a human tap in the

@@ -91,6 +91,14 @@ you can set once that prevents it.
 - The dry-run default is genuinely thoughtful design. It is still one boolean away from
   a live order.
 
+## Other community repos
+
+README read 2026-11-11, no clone. Fidelity has no public API, so these automate the website.
+
+| Repo | What it is | Stars | Last push | License |
+|---|---|---|---|---|
+| [`jiaweitang22/claude-fidelity-mcp`](https://github.com/jiaweitang22/claude-fidelity-mcp) | Playwright (Firefox) browser automation; you log in yourself, session saved locally; lists `fidelity_place_order`, `fidelity_stage_order` and batch tools, with orders and transfers defaulting to `dry_run: true`. README warns it may violate Fidelity's ToS | 1 | 2026-10-23 | MIT |
+
 ## Sources
 
 Checked directly on 2026-07-16 (repo cloned, `src/index.ts` read); re-checked 2026-10-12 and 2026-11-11 (jaketuring999 README re-read; SnapTrade llms.txt lists Fidelity among integrations, trading claim not re-verified; original repo still 404, naelmohammad copy unchanged since 2026-04-13, GitHub search for other Fidelity MCPs, SnapTrade llms.txt re-fetched):

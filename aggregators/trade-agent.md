@@ -97,6 +97,13 @@ impossible the way IBKR's design does. Good practice, not a hard gate.
 - Listings under the old "Trade Agent" name still circulate; they point at the same
   product.
 
+## Other repos in the org
+
+- `trade-it-inc/skills` (first-party, 0 stars, no license file, last push 2026-11-10): the "Trade It Developer" plugin for Codex and Claude Code, one skill (`trade-it-developer`) that helps a coding assistant build integrations (OAuth, brokerage connections, trading, webhooks, Trade Links, MCP) against current Trade It contracts. A shared Trade It marketplace lists it next to the MCP plugin. Not for end users trading their own accounts.
+- `trade-it-inc/openclaw-skill` (first-party, MIT, 0 stars, last push 2026-03-24): an OpenClaw skill (`tradeit-api/SKILL.md`) plus a Python helper for the Trade It REST API; it says it prefers explicit confirmation before execution, and notes some accounts may allow immediate placement on create if the user enabled that setting. Not an MCP server.
+
+Both READMEs read 2026-11-11.
+
 ## Sources
 
 Checked directly on 2026-11-11 (repo, docs MCP overview, installation, brokerages, llms.txt):

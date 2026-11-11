@@ -42,6 +42,14 @@ spot, swap, account), and `--profile live` is needed to include everything.
 - The npm package @okx_ai/okx-trade-mcp was seen in search results and referenced by
   the official repo, but the npm listing itself was not fetched.
 
+## Related first-party repos
+
+Read from the repo READMEs, 2026-11-11 (stars and last push as of that date). All in the `okx` org, all MIT, none archived:
+
+- [`okx/agent-skills`](https://github.com/okx/agent-skills): 10 `SKILL.md` skills (200 stars, last push 2026-10-28) that drive the CEX account through the `okx` CLI (`@okx_ai/okx-trade-cli`) instead of MCP: auth, market data, spot/swap/futures/options/event-contract trading, portfolio, grid and DCA bots, earn, smart money. Order-capable once authed.
+- [`okx/onchainos-skills`](https://github.com/okx/onchainos-skills): 7 `SKILL.md` skills (345 stars, last push 2026-11-07) for the OnchainOS DEX and wallet API: token search, market data, swaps, wallet send, DeFi, x402 payments. Its `onchainos` CLI also runs as an MCP server (`claude mcp add --scope user onchainos-cli onchainos mcp`). On-chain, not the CEX account; see the Onchain OS caveat above.
+- [`okx/plugin-store`](https://github.com/okx/plugin-store): a curated plugin and skill catalog (63 `SKILL.md` files, 12 stars, last push 2026-09-29) for DeFi, trading and Web3 on Claude Code, Cursor and OpenClaw. Team-curated, external submissions closed. Mostly on-chain; not broker-specific.
+
 ## Sources
 
 Checked directly on 2026-11-11:

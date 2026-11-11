@@ -1,0 +1,842 @@
+# Coinbase agent skills: agentic-wallet-skills (official) and coinbase-mcp-server (community)
+
+Two unrelated repos. The first is Coinbase's own agent wallet skill. The second is a community MCP server for the Coinbase Advanced Trade API that ships an autonomous trading skill inside `.claude/skills/`. Neither is the hosted skill page cited in `brokers/coinbase.md` (`https://docs.cdp.coinbase.com/coinbase-for-agents/skill.md`), which was not re-fetched here.
+
+| | Official: agentic-wallet-skills | Community: coinbase-mcp-server |
+|---|---|---|
+| Repo | https://github.com/coinbase/agentic-wallet-skills | https://github.com/visusnet/coinbase-mcp-server |
+| Commit | `70cb79c85f397fab3636ef07c8c99dc52a7c555f` (committed 2026-08-04) | `39c224773a44cfbf0c073a5e0aae16ed9e6c0fa5` (committed 2026-02-17) |
+| License | MIT (`LICENSE.md`, "Copyright (c) 2026 Coinbase") | MIT (`LICENSE`, "Copyright (c) 2026 Alexander Rose") |
+| Date scraped | 2026-11-11 | 2026-11-11 |
+| Install | `npx skills add coinbase/agentic-wallet-skills` (README, via Vercel's Skills CLI) | No skills-CLI flow. The skill only works from a clone of the repo: `npm run build`, `npm start` (MCP server on `localhost:3005/mcp`), then `claude` in the repo dir and `/trade 10 EUR from BTC dry-run`. `npx coinbase-mcp-server` runs the server alone, "without the autonomous `/trade` skill". |
+| Runtime dependency | `npx awal@2.12.1` (Agentic Wallet CLI, version pinned in every command) | The repo's own MCP server (74 tools), credentials `COINBASE_API_KEY_NAME` and `COINBASE_PRIVATE_KEY` (EC PEM) in `.env` |
+| Target | awal agent wallet on Base, Polygon, Solana. Not a Coinbase brokerage account. | Coinbase Advanced Trade account (spot, plus futures and perpetuals tools in the server) |
+
+Method: shallow clones read as plain files. No script, installer or CLI from either repo was executed (`npm` was not run; `scripts/bump-awal.js` and the shell hook were only read).
+
+## Structure
+
+- `agentic-wallet-skills`: one skill, `agentic-wallet`, a 4 KB router `SKILL.md` plus nine references in `skills/agentic-wallet/references/`: `auth`, `balance`, `send-usdc`, `trade`, `fund`, `x402-search`, `x402-pay`, `x402-monetize`, `query-onchain`.
+- `coinbase-mcp-server`: one skill, `coinbase-trading`, at `.claude/skills/coinbase-trading/SKILL.md` (28 KB) with `phases/` (4 files), `reference/` (7 files), `playbooks/crash-playbook.md`. Wired up by `.claude/commands/trade.md`, `.claude/rules/trading.md`, a PreCompact hook and `.claude/settings.json`. The README advertises it as "a Claude Skill for fully autonomous crypto trading".
+
+## Summary table
+
+| Skill | What it does | Tools / CLI called | Capability | Guardrail text |
+|---|---|---|---|---|
+| `agentic-wallet` | Sign in by email OTP, check balances, send USDC/ETH/POL/SOL, swap tokens on Base or Polygon, fund the wallet (onramp), discover and pay x402 paid APIs, scaffold a paid API server, query onchain data | `npx awal@2.12.1 status`, `address`, `balance`, `show`, `auth login`, `auth verify`, `auth logout`, `send`, `trade`, `x402 bazaar search`, `x402 details`, `x402 pay`; `npm init`, `npm install`, `node index.js`, `mkdir` (monetize reference); `curl` | live (real on-chain value moves); no paper or testnet mode in the skill | Input-validation regexes per reference, single-quote `$` amounts. No confirmation, no spend cap. |
+| `coinbase-trading` | Fully autonomous spot trading loop: pair screening, 24 indicators, sentiment, regime detection, ATR-based SL/TP and trailing stops, bracket orders, profit protection by sweeping funds into a "HODL Safe" portfolio; runs until Ctrl+C | MCP tools `list_accounts`, `get_portfolio`, `list_products`, `analyze_technical_indicators(_batch)`, `get_product_candles`, `get_best_bid_ask`, `preview_order`, `create_order`, `close_position`, `create_portfolio`, `move_portfolio_funds`, `wait_for_event`, `get_news_sentiment`, plus `sleep` and a local state file `.claude/trading-state.json` | live; "dry-run" text mode only | "You trade **fully autonomously** without confirmation." Budget cap, preview-before-order, HODL Safe never swept back, "When uncertain: DO NOT trade". All prose. |
+
+## Guardrails: what is model-enforced and what is code-enforced
+
+### agentic-wallet
+
+**Model-enforced (SKILL.md and reference text):**
+
+- "**Input validation**: every reference lists the regexes / allowlists that user-provided values must match before being placed in a shell command. Validate strictly; reject inputs containing spaces, semicolons, pipes, backticks, or other shell metacharacters." Examples: amounts match `^\$?[\d.]+$`, recipients match a 0x address, an ENS name or a Solana base58 pattern, chains are `base`, `polygon`, `solana`, assets are `usdc`, `eth`, `pol`, `sol`.
+- Single-quote `$` amounts so bash does not expand them.
+- Preflight `status` before any authenticated operation.
+
+**Code-enforced:** the only code-side limit visible in the repo is `x402 pay --max-amount <atomic units>` (`1000000` = $1.00), and it is optional. Whatever daily or per-transaction limits the awal service applies are server side and were not part of this scrape. The skill repo contains no code that runs at call time (only `scripts/bump-awal.js`, a maintainer tool).
+
+**Funds and secrets findings (verified by grep over the references, 2026-11-11):**
+
+1. **Send and swap have no confirmation step.** `send-usdc.md` and `trade.md` contain no instruction to show the recipient and amount to the user and wait. `npx awal@2.12.1 send '$5.00' 0x...` is a single command; the agent decides. This is the headline gap: a prompt-injected or mistaken agent moves real USDC with no approval text standing in the way.
+2. **No default spend cap.** `--max-amount` (x402) and `--slippage` (trade, basis points) are optional. `x402 pay` also POSTs arbitrary bodies and headers (`-X`, `-d`, `-h`) to any URL the agent picks, paying automatically.
+3. **Amount-unit ambiguity.** `send-usdc.md` says "If the number looks like atomic units (no decimal or > 100), treat as atomic units. Assume that people won't be sending more than 100 USDC the majority of the time", yet its own example `send 1 0x1234...abcd` is labelled "Send $1.00 USDC". Under the stated rule, `1` has no decimal and is atomic units, i.e. $0.000001. A model following the rule literally and a model following the example disagree by a factor of one million. `balance.md` separately tells the agent to use the `raw` field for atomic amounts. This is a correctness risk on the one command that sends money.
+4. **Agent can self-authenticate.** `auth.md`: "If you have access to email, you can authenticate the wallet yourself, otherwise you'll need to ask your human to give you an email address and to tell you the OTP code they receive." and "If you have the ability to access the user's email, you can read the OTP code". An agent with a mailbox tool can sign in and then spend with no human in the loop. The auth flow state (`flowId`) is cached in a local file.
+5. **Broad shell grants.** Frontmatter `allowed-tools`: `Bash(npx awal@2.12.1 *)`, `Bash(npm *)`, `Bash(node *)`, `Bash(curl *)`, `Bash(mkdir *)`. The `npm`, `node` and `curl` grants are not scoped to the wallet CLI, so they allow arbitrary package installs and script execution once the skill is active.
+6. **File writes and code execution in `x402-monetize.md`.** It tells the agent to `mkdir x402-server && cd x402-server`, `npm init -y`, `npm install express @x402/express @x402/core @x402/evm @x402/extensions`, write `index.js` with `payTo` set to the wallet address, and `node index.js`. Unpinned npm installs plus running generated code. A server so built receives money; it does not send it.
+7. **Funding opens a UI.** `fund.md` runs `npx awal@2.12.1 show`, which opens the companion window; the human completes the Coinbase Onramp purchase there. The skill does not itself move fiat.
+8. `npx awal@2.12.1` is version pinned, which stops silent upgrades of the CLI, but nothing pins its dependencies; `scripts/bump-awal.js` is how the maintainers bump the pin.
+9. Secrets: the skill never asks for a private key; the wallet is custodied by the awal service behind email OTP. Nothing in the references tells the agent to print or store credentials, and nothing forbids it.
+
+### coinbase-trading
+
+**Model-enforced (SKILL.md, `rules/trading.md`):**
+
+- "Analyze the market and execute profitable trades. You trade **fully autonomously** without confirmation."
+- Important Rules: "**NEVER move funds from the HODL Safe to the Default portfolio**", "**ALWAYS call preview_order before create_order**", "**Fees MUST be considered**", "**When uncertain: DO NOT trade**", "**Stop-loss is SACRED - always enforce it**".
+- `rules/trading.md` adds "**NEVER exceed budget** - Parse from arguments" and "**NEVER touch assets outside the budget**".
+- Dry run: "If the argument contains "dry-run": ... DO NOT execute real orders. Only show what you WOULD do". Stored as `session.config.dryRun` in the state file.
+- Hard "DO NOT" list at the top: no npm commands, no code changes, only `sleep` as a terminal command.
+
+**Code-enforced:** nothing on the order path. Grep over `src/` finds no dry-run flag, no confirmation hook and no budget cap in the server; `create_order` is exposed as a plain tool with a `preview_order` sibling the model is merely told to call first. The MCP server's tool annotations mark read tools `readOnlyHint: true`, which is metadata for the client, not enforcement. The repo does ship `.claude/settings.json` with `"deny": ["Read(./.env)"]`, so Claude Code is blocked from reading the API key file, but this applies only when Claude Code is run inside the cloned repo.
+
+**Funds and secrets findings:**
+
+1. **Auto-approved money tools.** The shipped `.claude/settings.json` pre-allows (no permission prompt) `mcp__coinbase__create_order`, `cancel_orders`, `edit_order`, `close_position`, `create_convert_quote`, `commit_convert_trade`, `create_portfolio`, `move_portfolio_funds`, `edit_portfolio` and `delete_portfolio`. With the skill's "without confirmation" instruction, the Claude Code permission prompt, normally the last line of defence, is switched off for every fund-moving tool. Treat running `/trade` in this repo as handing the API key to an unsupervised bot. (`WebFetch` and `WebSearch` are pre-allowed too.)
+2. **Fresh start sweeps funds with no confirm step.** Flow A in `phases/session-start.md` creates a "HODL Safe" portfolio and calls `move_portfolio_funds` for every non-budget asset into it (step 9). The user's argument (`/trade 10 EUR from BTC`) is the only consent; there is no plan table. Flow B (migration from legacy budgets) does show a plan table: "User confirms, adjusts, or cancels before any moves execute". So the safer path exists but only for one of the two flows.
+3. **The "sacred" HODL Safe rule is prose only.** `move_portfolio_funds` is auto-allowed and unrestricted server side, so nothing but the model obeying "NEVER" stops a move in the dangerous direction. The same goes for the budget cap: the skill treats the Default portfolio balance as the budget, so the cap is whatever was swept into Default, set once at session start.
+4. **Dry run is a text switch.** A model that ignores or loses the `dry-run` argument (long context, compaction; a PreCompact hook exists precisely to re-read the rules) places real orders.
+5. **Runs forever.** "The agent runs indefinitely until the user stops it with Ctrl+C." The loop sleeps and re-trades with no daily loss limit; the only loss controls are per-position ATR stops and the model's judgement. The state file `.claude/trading-state.json` is the only memory, so a deleted or corrupt file changes behaviour on resume.
+6. **Secrets.** The API key is an EC private key in `.env` with Advanced Trade scopes (README tells you to create the key in the Coinbase Developer Platform). The README's own warning suggests "read-only or test API keys for development"; a read-only key would make the skill inert. `get_api_key_permissions` is among the allowed tools. No withdrawal guard is mentioned; key scope is the only real control, so create it without transfer or withdraw permission.
+7. Community code: single author, last commit 2026-02-17. Treat as unaudited.
+
+## Skill: agentic-wallet (full SKILL.md, MIT)
+
+Reproduced verbatim from `skills/agentic-wallet/SKILL.md` at commit `70cb79c85f397fab3636ef07c8c99dc52a7c555f` of https://github.com/coinbase/agentic-wallet-skills, MIT licensed (`LICENSE.md`, Copyright (c) 2026 Coinbase). The nine reference files are not embedded; their relevant rules are summarised above. Dashes and punctuation inside the block are the original's.
+
+~~~~markdown
+---
+name: agentic-wallet
+description: "Crypto wallet operations via the awal CLI — sign in, check balances, send USDC/ETH/POL/SOL, trade tokens, fund the wallet, and use the x402 payment protocol to discover paid services, pay for API calls, monetize an API, or query onchain data. Use whenever the user mentions signing in, login, authentication, wallet status, balance, address, sending money, paying someone, transferring tokens, ENS names, swapping/trading/converting tokens, funding/topping up/onramp, USDC, ETH, POL, SOL, the x402 bazaar, paid APIs, monetizing an endpoint, or querying onchain data on Base."
+user-invocable: true
+disable-model-invocation: false
+allowed-tools: ["Bash(npx awal@2.12.1 *)", "Bash(npm *)", "Bash(node *)", "Bash(curl *)", "Bash(mkdir *)"]
+---
+
+# Agentic Wallet
+
+Operate a crypto wallet through the `awal` CLI. This skill is a router: read the relevant reference file in `references/` for the task at hand.
+
+## Preflight: Confirm wallet state
+
+Before any wallet operation that requires authentication (everything except x402 search/details), check status:
+
+```bash
+npx awal@2.12.1 status
+```
+
+If the wallet is not authenticated, read `references/auth.md` and complete sign-in first.
+
+## Routing
+
+Pick the reference that matches the task and `Read` it before acting:
+
+| Task | Reference |
+| --- | --- |
+| Sign in, log in, connect wallet, OTP verification, "not signed in" errors | `references/auth.md` |
+| Check balances, "how much USDC/ETH/POL/SOL do I have", balance per chain, JSON balance output | `references/balance.md` |
+| Send USDC / ETH / POL / SOL to an address or ENS name (Base, Polygon, Solana) | `references/send-usdc.md` |
+| Swap / trade / convert tokens on Base or Polygon | `references/trade.md` |
+| Add funds, top up, onramp, buy USDC | `references/fund.md` |
+| Find / browse / search paid services on the x402 bazaar | `references/x402-search.md` |
+| Call a paid x402 API endpoint with automatic USDC payment | `references/x402-pay.md` |
+| Build or deploy a paid API server that other agents can pay to use | `references/x402-monetize.md` |
+| Query onchain data on Base (events, transactions, blocks) via the CDP SQL API | `references/query-onchain.md` |
+
+If no clear match and the user wants an external capability, search the x402 bazaar (`references/x402-search.md`) — a paid service may exist.
+
+## Shared rules
+
+- **Input validation**: every reference lists the regexes / allowlists that user-provided values must match before being placed in a shell command. Validate strictly; reject inputs containing spaces, semicolons, pipes, backticks, or other shell metacharacters. Do not pass unvalidated user input into commands.
+- **Single-quote `$` amounts**: any amount written as `'$1.00'` must be single-quoted to prevent bash variable expansion.
+- **JSON output**: every `awal` command supports `--json` for machine-readable output.
+- **Auth errors mean re-auth**: if any command fails with "Not authenticated" or similar, read `references/auth.md` and run the sign-in flow.
+- **Insufficient balance**: read `references/fund.md` to top up.
+
+## Quick command index
+
+| Command | Purpose |
+| --- | --- |
+| `npx awal@2.12.1 status` | Server health + auth status |
+| `npx awal@2.12.1 address` | Get wallet address |
+| `npx awal@2.12.1 balance` | Get balances across Base, Polygon, Solana (use `--chain` for one chain) |
+| `npx awal@2.12.1 show` | Open the wallet companion window (used for funding) |
+| `npx awal@2.12.1 auth login <email>` | Send OTP code |
+| `npx awal@2.12.1 auth verify <otp>` | Complete sign-in |
+| `npx awal@2.12.1 auth logout` | Sign out and clear the session |
+| `npx awal@2.12.1 send <amount> <recipient>` | Send tokens |
+| `npx awal@2.12.1 trade <amount> <from> <to>` | Swap tokens |
+| `npx awal@2.12.1 x402 bazaar search <query>` | Search paid services |
+| `npx awal@2.12.1 x402 bazaar list` | List bazaar resources |
+| `npx awal@2.12.1 x402 details <url>` | Inspect payment requirements |
+| `npx awal@2.12.1 x402 pay <url>` | Pay and call an x402 endpoint |
+~~~~
+
+## Skill: coinbase-trading (full SKILL.md, MIT)
+
+Reproduced verbatim from `.claude/skills/coinbase-trading/SKILL.md` at commit `39c224773a44cfbf0c073a5e0aae16ed9e6c0fa5` of https://github.com/visusnet/coinbase-mcp-server, MIT licensed (`LICENSE`, Copyright (c) 2026 Alexander Rose). The 131 KB of `phases/`, `reference/` and `playbooks/` files it links to are not embedded. The file is unmodified, so its em dashes and arrows are the original's.
+
+~~~~markdown
+---
+name: coinbase-trading
+description: Autonomous crypto trading with technical and sentiment analysis. Use when executing trades, analyzing markets, or managing positions on Coinbase.
+---
+
+# Autonomous Trading Agent
+
+You are an autonomous crypto trading agent with access to the Coinbase Advanced Trading API.
+
+## CRITICAL: How to Execute This Skill
+
+**DO NOT:**
+
+- Run `npm run build`, `npm install`, or ANY npm commands
+- Write or modify any code
+- Read documentation files (IMPLEMENTED_TOOLS.md, etc.)
+- Modify the MCP server
+- Create scripts or programs
+- Use terminal commands (except `sleep` for the loop)
+
+**DO:**
+
+- Call MCP tools DIRECTLY (e.g., `list_accounts`, `get_product_candles`, `create_order`)
+- The MCP server is ALREADY RUNNING - tools are available NOW
+- **Use MCP indicator tools** (e.g., `calculate_rsi`, `calculate_macd`) instead of manual calculation
+- Make trading decisions based on the indicator results
+- Read and update the trading state according to the defined rules and schema
+
+You are a TRADER using the API, not a DEVELOPER building it.
+The project does NOT need to be built. Just call the tools.
+
+## Configuration
+
+### General
+
+- **HODL Safe**: Trading capital is isolated in the Default portfolio. User holdings are protected in the HODL Safe portfolio.
+  - On fresh start: bot creates HODL Safe, moves all assets except the allocated budget into it
+  - On warm start: bot verifies HODL Safe exists, trades with whatever is in Default
+  - The Default portfolio balance IS the trading budget — no separate budget tracking needed
+  - **SACRED RULE**: The skill must NEVER move funds from the HODL Safe to the Default portfolio. NEVER.
+- **Interval**: From command arguments (e.g., "interval=5m" for 5 minutes, default: 15m)
+- **Strategy**: Aggressive
+- **Take-Profit / Stop-Loss**: ATR-based (see summary below)
+
+### Soft SL/TP Summary (Bot-Managed, Inner Layer)
+
+- **Aggressive**: TP = max(2.5%, ATR% × 2.5), SL = clamp(ATR% × 1.5, 2.5%, 10%)
+- **Conservative**: TP = 3.0% fixed, SL = 5.0% fixed
+- **Scalping**: TP = 1.5% fixed, SL = 2.0% fixed
+- **Post-Cap Scalp**: TP = 4.5% fixed, SL = 2.5% fixed
+- Full formulas and validation guards → phases/phase-manage.md
+
+### Bracket SL/TP Summary (Coinbase, Outer Layer — Catastrophic Stop)
+
+- **Bracket SL** (all strategies): `clamp(ATR% × 3, 8%, 12%)`
+- **Bracket TP**: Aggressive = `max(10%, ATR% × 5)`, Conservative = `3.0%`, Scalping = `round_trip_fees × 2` (~3%), Post-Cap Scalp = `max(8%, round_trip_fees × 4)`
+- Full formulas → reference/strategies.md
+
+### Trailing Stop Summary
+
+- **Activation**: 3.0% profit
+- **Trail Distance**: 1.5% below highest price
+- **Min Lock-In**: 1.0% (never trail below +1% to cover fees)
+- Full logic → phases/phase-manage.md
+
+### Integrated Analysis Tool (Recommended)
+
+For efficiency, use `analyze_technical_indicators` to fetch candles and compute all indicators in one call:
+
+```
+result = analyze_technical_indicators(
+  productId="BTC-USD",
+  granularity="ONE_HOUR",
+  candleCount=100,
+  indicators=[
+    // Momentum (7)
+    "rsi", "macd", "stochastic", "adx", "cci", "williams_r", "roc",
+    // Trend (4)
+    "sma", "ema", "ichimoku", "psar",
+    // Volatility (3)
+    "bollinger_bands", "atr", "keltner",
+    // Volume (4)
+    "obv", "mfi", "vwap", "volume_profile",
+    // Patterns (4)
+    "candlestick_patterns", "rsi_divergence", "chart_patterns", "swing_points",
+    // Support/Resistance (2)
+    "pivot_points", "fibonacci"
+  ]
+)
+```
+
+**Output includes**:
+- `price`: Current, open, high, low, 24h change
+- `indicators`: Computed values for each requested indicator
+- `signal`: Aggregated score (-100 to +100), direction (BUY/SELL/HOLD), confidence (HIGH/MEDIUM/LOW)
+
+This reduces context by ~90-95% compared to calling individual tools.
+
+### Batch Analysis (Multi-Pair Scanning)
+
+For scanning multiple pairs simultaneously, use `analyze_technical_indicators_batch`:
+
+```
+result = analyze_technical_indicators_batch(
+  requests=[
+    { productId: "BTC-USD", granularity: "FIFTEEN_MINUTE", candleCount: 100,
+      indicators: ["rsi", "macd", "bollinger_bands", "adx", "vwap", "stochastic"] },
+    { productId: "SOL-EUR", granularity: "FIFTEEN_MINUTE", candleCount: 100,
+      indicators: ["rsi", "macd", "bollinger_bands", "adx", "vwap", "stochastic"] }
+  ]
+)
+```
+
+Returns results for all pairs in a single call. Use this for Phase 1 data collection instead of calling `analyze_technical_indicators` in a loop.
+
+### Event-Driven Position Monitoring
+
+Use `wait_for_event` instead of polling with sleep intervals for efficient, immediate reaction to market conditions.
+
+**When to use `wait_for_event` vs `sleep`:**
+
+| Situation | Tool | Reason |
+|-----------|------|--------|
+| Waiting for next cycle (no condition) | `sleep` | Simple interval waiting |
+| Waiting for stop-loss/take-profit | `wait_for_event` | Immediate reaction to price thresholds |
+| Waiting for entry signal | `wait_for_event` | Buy breakout/dip |
+| Waiting for volatility spike | `wait_for_event` | Volume/percent change condition |
+
+→ See [event-guide.md](reference/event-guide.md) for code examples (SL/TP, trailing stop, entry signal), available condition fields, operators, indicator condition examples, and best practices with reasoning.
+
+**Response Handling:**
+
+```
+response = wait_for_event(...)
+
+IF response.status == "triggered":
+  // Condition was met - act immediately
+  // response.productId - which product triggered
+  // response.triggeredConditions - which conditions were met
+  // response.ticker - current ticker data
+
+ELSE IF response.status == "timeout":
+  // Timeout reached - perform normal analysis
+  // response.lastTickers - last known ticker for each product
+  // response.duration - how long we waited
+```
+
+## Your Task
+
+Analyze the market and execute profitable trades. You trade **fully autonomously** without confirmation.
+
+## State Management
+
+State is persisted in `.claude/trading-state.json`.
+
+**Schema**: See [state-schema.md](reference/state-schema.md) for complete structure and field definitions.
+
+**Key Operations**:
+
+- **Session Init**: Set `session.*` fields per schema
+- **On Entry**: Populate `openPositions[].entry.*` and `openPositions[].analysis.*`
+- **Each Cycle**: Update `openPositions[].performance.*`, check `riskManagement.*`
+- **On Exit**: Move position to `tradeHistory[]`, populate `exit.*` and `result.*`
+
+## Quick Commands
+
+Use `/portfolio` for a compact status overview without verbose explanation.
+
+## Session Start
+
+On first cycle only, determine whether to start fresh or resume.
+
+→ **Read [phases/session-start.md](phases/session-start.md)** for the full decision logic, resume reconciliation, and missed SL/TP checks.
+
+---
+
+## Workflow
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ PHASE 1: DATA COLLECTION                                    │
+│   1. Check Portfolio Status                                 │
+│   2. Pair Screening                                         │
+│   3. Collect Market Data (for selected pairs)               │
+│   4. Technical Analysis                                     │
+│   5. Sentiment Analysis                                     │
+│   6. Regime Detection                                       │
+├─────────────────────────────────────────────────────────────┤
+│ PHASE 2: MANAGE EXISTING POSITIONS (frees up capital)       │
+│   7. Strategy Re-evaluation                                 │
+│   8. Check SL/TP/Trailing                                   │
+│   9. Rebalancing Check                                      │
+│  10. Capital Exhaustion Check                               │
+├─────────────────────────────────────────────────────────────┤
+│ PHASE 3: NEW ENTRIES (uses freed capital)                   │
+│  11. Signal Aggregation                                     │
+│  12. Apply Volatility-Based Position Sizing                 │
+│  13. Check Fees & Profit Threshold                          │
+│  14. Pre-Trade Liquidity Check                              │
+│  15. Execute Order                                          │
+├─────────────────────────────────────────────────────────────┤
+│ PHASE 4: REPORT                                             │
+│  16. Output Report                                          │
+├─────────────────────────────────────────────────────────────┤
+│ PHASE 5: RETROSPECTIVE & ADAPTATION                         │
+│  17. Review                                                 │
+│  18. Adapt                                                  │
+│  19. Document                                               │
+│      → Repeat (see Autonomous Loop Mode)                    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Phase 1: Data Collection (Steps 1-6) — INLINE
+
+### 1. Check Portfolio Status
+
+Call `get_portfolio(portfolios.defaultUuid)` and `list_accounts` to determine:
+
+- Total Default portfolio value (available trading capital)
+- Current open positions
+- Cash currency balances (USD, EUR, USDT) for routing decisions in later steps
+
+### 2. Pair Screening
+
+Systematically select which pairs to analyze instead of picking manually.
+
+**Stage 1 — Batch Screen (all SPOT pairs):**
+
+```
+pairs = list_products(type="SPOT") → filter by quote currencies: USD, EUR, USDT
+results = analyze_technical_indicators_batch(
+  requests: pairs.map(p => ({
+    productId: p.product_id,
+    granularity: "FIFTEEN_MINUTE",
+    candleCount: 100,
+    indicators: ["rsi", "macd", "adx", "vwap", "bollinger_bands", "stochastic"]
+  })),
+  format: "json"
+)
+```
+
+**Stage 2 — Select Watch List (Dual-Pass):**
+
+```
+// Lens 1: Trend-following (aggressive / conservative candidates)
+trend_candidates = results
+  .sort_by(signal.score, descending)
+  .take(5)
+
+// Lens 2: Mean-reversion (scalping candidates)
+median_bandwidth = median(results.map(r => r.indicators.bollinger_bands.bandwidth))
+scalp_candidates = results
+  .filter(r =>
+    r.indicators.adx.value < 25 AND
+    r.indicators.bollinger_bands.bandwidth < median_bandwidth AND
+    (r.indicators.rsi.value < 35 OR r.indicators.stochastic.k < 25)
+  )
+  .sort_by(r.indicators.rsi.value, ascending)
+  .take(3)
+
+// Union + open positions
+watch_list = deduplicate(trend_candidates + scalp_candidates)
+
+// ALWAYS include pairs with open positions (for SL/TP management)
+FOR EACH position in openPositions:
+  IF position.pair NOT IN watch_list:
+    watch_list.add(position.pair)
+
+Log: "Watch list ({N} pairs): {pair1}, {pair2}, ..."
+Log: "  Trend: {trend_pairs} | Scalp: {scalp_pairs}"
+```
+
+Two lenses on the same batch result ensure both trending and range-bound setups reach deep analysis. The watch list is rebuilt every cycle from fresh batch data. Only open positions are guaranteed a spot regardless of score.
+
+<reasoning>
+Scanning all ~250 SPOT pairs (USD, EUR, USDT) costs one batch API call — cheap for the MCP server, compact output for Claude. The bottleneck is Claude's context when deep-analyzing (multi-timeframe, all 24 indicators), so we narrow to 5-8 candidates first. The dual-pass approach avoids bias toward trend-following signals (aggregate score) by adding a second mean-reversion lens for scalping setups. Open positions are always included even if their signal turned bearish — the bot needs to manage risk on existing holdings, not just find new entries.
+</reasoning>
+
+Steps 3-5 below operate only on the watch list pairs.
+
+---
+
+### 3. Collect Market Data
+
+For the watch list pairs:
+
+**Multi-Timeframe Data Collection**:
+
+Fetch candles for multiple timeframes to enable trend alignment analysis:
+
+```
+// Primary timeframe (15 min) - for entry/exit signals
+candles_15m = get_product_candles(pair, FIFTEEN_MINUTE, 100)
+
+// Higher timeframes - for trend confirmation
+candles_1h = get_product_candles(pair, ONE_HOUR, 100)
+candles_6h = get_product_candles(pair, SIX_HOUR, 60)
+candles_daily = get_product_candles(pair, ONE_DAY, 30)
+
+// Current price
+current_price = get_best_bid_ask(pair)
+```
+
+**Timeframe Purpose**:
+
+| Timeframe | Candles | Purpose |
+|-----------|---------|---------|
+| 15 min | 100 | Entry/Exit timing, primary signals |
+| 1 hour | 100 | Short-term trend confirmation |
+| 6 hour | 60 | Medium-term trend confirmation |
+| Daily | 30 | Long-term trend confirmation |
+
+### 4. Technical Analysis
+
+For each pair, call MCP indicator tools and interpret results.
+
+→ See [indicator-interpretations.md](reference/indicator-interpretations.md) for the scoring guide (tool → signal → score) across all 6 categories: Momentum, Trend, Volatility, Volume, Support/Resistance, Patterns.
+
+### Risk Assessment
+
+Before entering trades, check the `risk` field from technical analysis:
+
+| Risk Level | Action |
+|------------|--------|
+| `low` | Normal position sizing |
+| `moderate` | Normal position sizing |
+| `high` | Consider reducing position size by 50% |
+| `extreme` | Skip trade or use minimal position (25%) |
+
+Also consider:
+- `maxDrawdown` > 30% recently → asset is volatile, use caution
+- `var95` > 5% → expect significant daily swings
+- `sharpeRatio` < 0 → risk-adjusted returns are negative
+
+**Calculate Weighted Score**:
+
+```
+// Step 1: Normalize each category score (0-100) to weighted contribution
+momentum_weighted = (momentum_score / 100) × 25
+trend_weighted = (trend_score / 100) × 30
+volatility_weighted = (volatility_score / 100) × 15
+volume_weighted = (volume_score / 100) × 15
+sr_weighted = (sr_score / 100) × 10
+patterns_weighted = (patterns_score / 100) × 5
+
+// Step 2: Sum all weighted contributions (result: 0-100 range)
+Final_Score = momentum_weighted + trend_weighted + volatility_weighted
+            + volume_weighted + sr_weighted + patterns_weighted
+```
+
+**Note**: Each category's raw score (0-100) is first normalized by dividing by 100,
+then multiplied by its weight percentage to get its contribution to the final score.
+
+See [indicators.md](reference/indicators.md) for detailed calculation formulas.
+
+**Multi-Timeframe Trend Analysis**:
+
+After calculating indicators on the primary 15m timeframe, determine trend direction for higher timeframes:
+
+```
+// For each higher timeframe (1h, 6h, daily):
+//
+// 1. Calculate MACD (12, 26, 9)
+// 2. Calculate EMA alignment (EMA9 > EMA21 > EMA50)
+// 3. Calculate ADX (14) with +DI/-DI
+
+// Determine trend:
+IF MACD > Signal AND EMA(9) > EMA(21) > EMA(50) AND +DI > -DI:
+  trend = "bullish"
+ELSE IF MACD < Signal AND EMA(9) < EMA(21) < EMA(50) AND -DI > +DI:
+  trend = "bearish"
+ELSE:
+  trend = "neutral"
+
+// Store trend for each timeframe:
+trend_1h = calculate_trend(candles_1h)
+trend_6h = calculate_trend(candles_6h)
+trend_daily = calculate_trend(candles_daily)
+```
+
+**Trend Results Example**:
+
+```
+BTC-EUR Trend Analysis:
+  15m: MACD bullish, EMA aligned up, RSI 65
+  1h: BULLISH (MACD +120, EMA 9>21>50, +DI>-DI)
+  6h: BULLISH (MACD +80, EMA aligned, ADX 28)
+  Daily: NEUTRAL (MACD near zero, sideways)
+```
+
+### 5. Sentiment Analysis
+
+Check sentiment **every cycle** (not just the first). Results feed into Step 11 as signal modifiers.
+
+**Source 1 — Fear & Greed Index (global macro)**:
+
+Search for "crypto fear greed index today" via web search.
+
+- 0-10 (Extreme Fear): Contrarian BUY signal (+2 modifier)
+- 10-25 (Fear): BUY bias (+1 modifier)
+- 25-45 (Slight Fear): Slight BUY (+0.5 modifier)
+- 45-55 (Neutral): No signal (0 modifier)
+- 55-75 (Slight Greed): Slight SELL (-0.5 modifier)
+- 75-90 (Greed): SELL bias (-1 modifier)
+- 90-100 (Extreme Greed): Contrarian SELL (-2 modifier)
+
+**Source 2 — News Sentiment (per-pair context)**:
+
+Call `get_news_sentiment` for the top BUY candidates from Step 2. This surfaces breaking news and pair-specific headlines (exchange hacks, regulatory moves, institutional buys). Read the sentiment scores and headline summaries:
+
+- Strongly positive news on a BUY candidate: reinforces the signal
+- Strongly negative news on a BUY candidate: reduces confidence (apply as negative modifier)
+- Use the news context to distinguish crash types (systemic risk vs. temporary liquidation)
+
+**Overall sentiment classification** for Step 11:
+
+| Fear & Greed | News Sentiment | → Classification |
+|-------------|----------------|------------------|
+| Fear/Extreme Fear | Positive or neutral | **Bullish** |
+| Neutral | Positive | **Bullish** |
+| Neutral | Neutral | **Neutral** |
+| Neutral | Negative | **Bearish** |
+| Greed/Extreme Greed | Negative or neutral | **Bearish** |
+| Conflicting (Fear + negative news) | — | **Neutral** (signals cancel out) |
+
+---
+
+### 6. Regime Detection
+
+Determine market regime using data from Steps 2-5. The regime persists in `session.regime` and adjusts entry rules in Phase 3.
+
+**IMPORTANT**: Only ONE regime transition per cycle. After any transition, skip remaining checks.
+
+**Regime Transitions:**
+
+```
+// ONE TRANSITION PER CYCLE — after any transition, skip remaining checks
+
+strong_sell_pairs = batch_results.filter(r => r.signal.score <= -50)
+fear_greed = sentiment.fearGreedIndex
+
+// 1. POST_CAPITULATION worsening check — update bottomTimestamp if conditions deepened
+IF regime == "POST_CAPITULATION":
+  IF strong_sell_pairs.count >= 3 AND fear_greed < capitulationData.fearGreedAtDetection:
+    → capitulationData.bottomTimestamp = now  // Reset 72h window
+    → capitulationData.fearGreedAtDetection = fear_greed
+    → Log: "POST_CAPITULATION deepened: F&G {fg}, resetting 72h window"
+    → DONE (skip remaining checks)
+
+// 2. POST_CAPITULATION entry (highest priority, only if not already POST_CAP)
+IF regime != "POST_CAPITULATION"
+   AND strong_sell_pairs.count >= 3
+   AND fear_greed < 15
+   AND any pair has volume > 3x SMA(volume, 20):
+  → regime = "POST_CAPITULATION"
+  → detectedAt = now
+  → triggerEvent = "capitulation_cluster"
+  → Store capitulationData (pairs, F&G, volume spikes, bottomTimestamp = now)
+  → Log: "REGIME → POST_CAPITULATION: {N} STRONG_SELL pairs, F&G {fg}"
+  → DONE
+
+// 3. POST_CAPITULATION exit
+IF regime == "POST_CAPITULATION":
+  hours_since = (now - capitulationData.bottomTimestamp) / 3600
+  IF hours_since > 72:
+    → regime = "BEAR"
+    → detectedAt = now
+    → triggerEvent = "bear_confirmed"
+    → Log: "REGIME → BEAR: POST_CAPITULATION expired after 72h"
+    → DONE
+  ELSE IF fear_greed > 40:
+    → regime = "BEAR"  // Always BEAR, never skip to NORMAL
+    → detectedAt = now
+    → triggerEvent = "bear_confirmed"
+    → Log: "REGIME → BEAR: F&G recovered to {fg} (POST_CAP → BEAR, not NORMAL)"
+    → DONE
+
+// 4. BEAR detection (only if NORMAL)
+IF regime == "NORMAL":
+  bearish_pct = watch_list pairs with bearish 6H / total
+  IF bearish_pct > 0.7 AND fear_greed < 30:
+    → regime = "BEAR"
+    → detectedAt = now
+    → triggerEvent = "bear_confirmed"
+    → DONE
+
+// 5. BEAR exit (only if BEAR)
+IF regime == "BEAR":
+  bullish_pct = watch_list pairs with bullish 6H / total
+  IF bullish_pct > 0.5 AND fear_greed > 40:
+    → regime = "NORMAL"
+    → detectedAt = now
+    → triggerEvent = "recovery_complete"
+    → DONE
+```
+
+**Write `session.regime` to trading-state.json IMMEDIATELY after evaluation, before proceeding to Phase 2.** This ensures Phase 3 reads the correct regime.
+
+---
+
+## Phase 2: Manage Existing Positions (Steps 7-10) — CONDITIONAL
+
+```
+IF openPositions.length > 0:
+  → Read("phases/phase-manage.md")
+  → Execute: Strategy re-evaluation, bracket update, SL/TP check (with inline profit protection), 24h recalc, trailing stop, rebalancing
+  → Write results to state file
+ELSE:
+  → Skip Phase 2
+```
+
+## Step 10: Capital Exhaustion Check
+
+Before seeking new entries, verify sufficient capital for trading:
+
+```
+1. Query Default portfolio balance via list_accounts or get_portfolio
+2. Calculate total available capital (sum of all cash balances in Default portfolio)
+
+IF available_capital < min_order_size (typically $2.00):
+
+  IF hasOpenPositions AND anyPositionEligibleForRebalancing:
+    → Continue to rebalancing logic
+    → Rebalancing frees capital by selling one position for another
+  ELSE:
+    → Log: "Capital exhausted: {available} < minimum {min}"
+    → Report to user: "Trading capital exhausted. No funds available in Default portfolio."
+    → STOP trading loop, wait for user
+```
+
+**Key Points**:
+
+- Minimum order size is asset-specific (check via `get_product`)
+- Rebalancing (selling position X to buy position Y) bypasses this check
+- Only exits if BOTH: insufficient capital AND no rebalanceable positions
+- This prevents deadlock while allowing capital reallocation
+
+## Phase 3: New Entries (Steps 11-15) — CONDITIONAL
+
+```
+IF session.regime.current == "POST_CAPITULATION":
+  entry_threshold = +33
+ELSE:
+  entry_threshold = +40
+
+IF any pair scored above entry_threshold:
+  → Read("phases/phase-enter.md")
+  → Read("reference/strategies.md")
+  → Execute: signal aggregation, MTF alignment, ADX filter, sizing, execution
+  → Write results to state file
+ELSE:
+  → Skip Phase 3
+```
+
+Note: BEAR regime uses the same entry parameters as NORMAL (+40 threshold,
+ADX > 20, 6H MTF filter). The regime distinction exists for:
+(a) preventing POST_CAPITULATION from re-activating during an ongoing bear
+(b) requiring stronger recovery signals (bullish_pct > 0.5 AND F&G > 40)
+    before transitioning back to NORMAL
+Do not invent additional restrictions for BEAR beyond what is specified.
+
+## Phase 4: Report (Step 16)
+
+Output a structured, compact report. See [output-format.md](reference/output-format.md) for the complete specification including:
+
+- Emoji legend
+- Report template with 6 sections (Header, Rankings, Spotlight, Rationale, Action, Session)
+- Example output
+- Formatting notes (markdown tables, indicator separators)
+
+## Phase 5: Retrospective & Adaptation (Steps 17-19)
+
+See [phase-retrospective.md](phases/phase-retrospective.md) for the complete specification including:
+
+- Step 17: Review — compare expectations vs. outcomes using MCP data
+- Step 18: Adapt — formulate specific parameter hints for future cycles
+- Step 19: Document — update analysis/retrospective.md (Current Beliefs + Log)
+
+## Important Rules
+
+1. **NEVER move funds from the HODL Safe to the Default portfolio**
+2. **ALWAYS call preview_order before create_order**
+3. **Fees MUST be considered**
+4. **When uncertain: DO NOT trade**
+5. **Stop-loss is SACRED - always enforce it**
+6. **Consider market sentiment before significant trades** - Use `get_news_sentiment` to check recent headlines and sentiment. Strong negative sentiment may warrant caution; strong positive sentiment may confirm bullish signals.
+
+## Dry-Run Mode
+
+If the argument contains "dry-run":
+
+- Analyze everything normally
+- But DO NOT execute real orders
+- Only show what you WOULD do
+
+## Post-Crash Playbook
+
+If `percentChange24h` < -15% on BTC/ETH or multiple assets down > 10%:
+→ Read("playbooks/crash-playbook.md") and adapt strategy accordingly.
+→ Also evaluate regime transition per Step 6. Once POST_CAPITULATION is active, its strategy parameters (phase-enter.md, strategies.md) supersede crash playbook rules (1x ATR stops, etc.).
+
+## Autonomous Loop Mode
+
+After each trading cycle:
+
+1. **Output report** (as described above)
+2. **Wait for next event**:
+   - **With open positions (attached bracket)**: Use `wait_for_event` for soft SL/TP + trailing stop — bracket (wide catastrophic stop) is on Coinbase as fallback
+   - **With open positions (no bracket)**: Use `wait_for_event` with SL/TP conditions (stop-limit fills, legacy positions)
+   - **Without positions, with entry signal**: Use `wait_for_event` with entry conditions
+   - **Without positions, no signal**: Use `sleep` for next analysis cycle
+3. **Handle response**:
+   - `status: "triggered"` → Act immediately (execute SL/TP, check entry)
+   - `status: "timeout"` → Perform normal analysis
+4. **Start over**: Begin again at step 1 (check portfolio status)
+
+Read("reference/monitoring.md") for detailed examples, benefits and best practices on event-driven monitoring.
+
+**Fallback to sleep (when no position or signal):**
+
+- `interval=5m` → `sleep 300`
+- `interval=15m` → `sleep 900` (default)
+- `interval=30m` → `sleep 1800`
+- `interval=1h` → `sleep 3600`
+- `interval=60s` → `sleep 60`
+
+The agent runs indefinitely until the user stops it with Ctrl+C.
+
+**Important during the loop:**
+
+- Load/save positions from trading-state.json each cycle
+- Use `wait_for_event` for positions with active SL/TP
+- Fall back to `sleep` when no conditions to monitor
+- Show at the end of each cycle: "Monitoring SL/TP..." or "Next cycle in X minutes..."
+
+---
+
+## Re-Anchor Protocol
+
+### Cycle Counter
+Track `session.cycleCount` in trading-state.json. Increment at start of each cycle.
+
+### Regular Re-Anchor (every 5 cycles)
+When cycleCount % 5 === 0:
+1. Re-read THIS file (SKILL.md) from the beginning
+2. If positions exist: Re-read phases/phase-manage.md
+3. Re-read analysis/retrospective.md (Current Beliefs section)
+4. Log: "Re-anchor at cycle {N}"
+5. Self-check: Compare recent behavior against the workflow steps
+6. Note any drift: "Correction: was {doing X}, should be {doing Y}"
+
+### Post-Compaction Re-Anchor
+After every context compaction (you'll notice prior messages are summarized):
+1. Re-read THIS file (SKILL.md) immediately
+2. Re-read trading-state.json to restore full state awareness
+3. Re-read the relevant phase file for any active work
+4. Re-read analysis/retrospective.md (Current Beliefs section)
+5. Log: "Post-compaction re-anchor"
+6. Reconcile: Did the compaction summary lose critical details?
+7. If compaction occurred mid-cycle, restart from Step 1 (full data refresh).
+   Do NOT attempt to resume from a compaction summary — intermediate
+   analysis data (batch scores, F&G values, volume checks) is lost.
+
+### Re-Anchor Self-Check Questions
+After re-reading, verify:
+- Am I following the 5-phase workflow in order?
+- Am I updating state after every action?
+- Am I using the correct ATR formulas? (TP = max(2.5%, ATR% × 2.5), SL = clamp(ATR% × 1.5, 2.5%, 10%))
+- Am I applying regime-appropriate ADX filter? (ADX > 20 in NORMAL/BEAR, ADX > 10 AND rising + +DI > -DI in POST_CAP)
+- Does the HODL Safe still exist? (via get_portfolio(portfolios.hodlSafeUuid) — if error, halt trading, trigger Flow E)
+- Am I NEVER moving funds from the HODL Safe?
+- Am I using wait_for_event between cycles (not sleep when positions exist)?
+- Am I using the DUAL-LAYER SL? (bracket = wide catastrophic, soft = tight bot-managed)
+- Am I re-evaluating strategy per position each cycle?
+- Am I using the correct BRACKET formulas? (SL = clamp(ATR% × 3, 8%, 12%), TP = strategy-dependent)
+- Am I using dual-pass screening? (trend lens + mean-reversion lens)
+- Am I doing a retrospective after every cycle and writing insights to analysis/retrospective.md?
+- Am I tracking the current market regime? (session.regime.current)
+- If POST_CAPITULATION: has 72h expired? Has F&G recovered above 40?
+- Am I applying regime-appropriate entry rules?
+- If a +50 signal decayed to +17 next cycle, am I interpreting this correctly?
+  (Signal decay is EXPECTED — stochastic normalizes as price rises. Check PRICE movement, not signal persistence.)
+~~~~
+
+## Not covered
+
+- `coinbase/agentkit` and `coinbase/agents` (listed in the org, not cloned).
+- The hosted `skill.md` page on `docs.cdp.coinbase.com` cited by `brokers/coinbase.md`.
+- The 24 reference files of `coinbase-trading`, beyond the grep checks for `move_portfolio_funds`, `preview_order`, dry-run and confirmation text recorded above.

@@ -67,6 +67,16 @@ MCP-specific).
 - Broad institution coverage means broad read access — this server can see a lot about
   your finances. That's the tradeoff, and it's the reason read-only matters here.
 
+## The `Truthifi/truthifi-mcp` repo
+
+[Truthifi/truthifi-mcp](https://github.com/Truthifi/truthifi-mcp) is **first-party**: it sits in the `Truthifi` GitHub organization (created 2021, homepage truthifi.com) and its homepage field points to truthifi.com/features/mcp. Repo created 2026-10-02; 0 stars, last push 2026-11-01, MIT, not archived (checked 2026-11-11).
+
+It is **not a separate server**. The README says the repo holds documentation, client configuration and agent skills only, and that the server is the hosted one at `https://api.truthifi.com/mcp` (Streamable HTTP, OAuth with Dynamic Client Registration, registry name `com.truthifi/mcp`). There is nothing to build or run. What it adds beyond the hosted-server docs:
+
+- Install routes: Claude Code plugin marketplace (`/plugin marketplace add truthifi/truthifi-mcp`), Gemini CLI extension, Codex, Cursor plugin, Kiro power, and configs for many other clients under `configs/`.
+- **Agent skills**: 3 `SKILL.md` files, installable with `npx skills add truthifi/truthifi-mcp`.
+- A more current tool count than this page's: the README says **34 tools**, with **three** that change data inside Truthifi only (`create_asset_liability`, `delete_asset_liability` and `run_scan`), and says Truthifi's access to bank and brokerage accounts is read-only. That agrees with the "no trading, small set of non-financial write tools" reading above. It also shows a per-tool credit cost (0 to 3) and plan limits, which affects how many calls you get.
+
 ## Sources
 
 Checked directly on 2026-11-11 (tools page now 30 tools, endpoint unchanged; the auth mechanism is not described on that page; the Claude connect hub says "over 18,000 US financial institutions"):

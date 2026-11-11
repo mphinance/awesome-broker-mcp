@@ -67,6 +67,13 @@ slightly from the source read here.
   company) — unrelated product, appears in the same searches. Also distinct from the
   community repo luxiaolei/tiger-mcp.
 
+## Related first-party repos
+
+Both under the `tigerfintech` org, not archived, no license file. READMEs read 2026-11-11. These are Agent Skills (`SKILL.md`) that teach a coding agent to write Tiger Open API SDK code. They are not MCP servers and do not execute orders themselves.
+
+- [`tigerfintech/tigeropen-skill`](https://github.com/tigerfintech/tigeropen-skill): 7 `SKILL.md` skills, one per SDK language (Python, Java, TypeScript, Go, Rust, C++, C#). 17 stars, last push 2026-10-22. Install with `npx skills add tigerfintech/tigeropen-skill`. Ships a `DISCLAIMER.md` risk notice.
+- [`tigerfintech/tigeropen-skill-us`](https://github.com/tigerfintech/tigeropen-skill-us): 2 `SKILL.md` skills (Python, Java) for the TradeUP (US market) variant of the API: US stocks, ETFs and options. 0 stars, last push 2026-08-04.
+
 ## Sources
 
 Re-checked 2026-11-11: the MCP docs page `.md` is unchanged in substance (updatedAt still 2026-08-11; same uvx config, `TIGERMCP_READONLY`, personal vs institutional env vars). The SDK repo has newer releases (v3.8.1 2026-11-04, v3.9.0 2026-11-05) but the MCP example directory's last commit is 2026-03-03 and PyPI `tigermcp` is still 0.1.7, so the SDK releases do not change the MCP server. The llms.txt byte change is not MCP-related.

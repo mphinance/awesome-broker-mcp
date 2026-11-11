@@ -7,6 +7,14 @@
      "status": 200,
      "alive": true
     },
+    "mcp:https://api.alpaca.markets/mcp": {
+     "status": 401,
+     "alive": true
+    },
+    "mcp:https://paper-api.alpaca.markets/mcp": {
+     "status": 401,
+     "alive": true
+    },
     "llms:https://alpaca.markets/llms.txt": {
      "status": 200,
      "hash": "5c1f104356c3654a",
@@ -21,6 +29,24 @@
      "status": 404,
      "soft404": true
     },
+    "llms:https://api.alpaca.markets/llms.txt": {
+     "status": 401
+    },
+    "llms:https://api.alpaca.markets/llms-full.txt": {
+     "status": 401
+    },
+    "openapi:https://api.alpaca.markets/openapi.json": {
+     "status": 401
+    },
+    "llms:https://paper-api.alpaca.markets/llms.txt": {
+     "status": 401
+    },
+    "llms:https://paper-api.alpaca.markets/llms-full.txt": {
+     "status": 401
+    },
+    "openapi:https://paper-api.alpaca.markets/openapi.json": {
+     "status": 401
+    },
     "page:https://alpaca.markets/mcp-server": {
      "status": 200,
      "hash": "641bf9f162c83449",
@@ -32,6 +58,21 @@
      "pushed": "2026-11-04",
      "archived": false,
      "tag": "v2.4.1"
+    },
+    "alpacahq/agentic": {
+     "pushed": "2026-11-09",
+     "archived": false,
+     "tag": null
+    },
+    "alpacahq/alpaca-skills": {
+     "pushed": "2026-11-11",
+     "archived": false,
+     "tag": null
+    },
+    "alpacahq/cli": {
+     "pushed": "2026-10-22",
+     "archived": false,
+     "tag": "v0.0.15"
     }
    }
   },
@@ -111,6 +152,16 @@
      "pushed": "2025-04-16",
      "archived": false,
      "tag": null
+    },
+    "binance/binance-skills-hub": {
+     "pushed": "2026-10-26",
+     "archived": false,
+     "tag": null
+    },
+    "binance/binance-cli": {
+     "pushed": "2026-11-06",
+     "archived": false,
+     "tag": "v2.3.0"
     }
    }
   },
@@ -140,6 +191,26 @@
      "pushed": "2026-11-11",
      "archived": false,
      "tag": "2.1.26"
+    },
+    "bybit-exchange/skills": {
+     "pushed": "2026-11-11",
+     "archived": false,
+     "tag": "v1.7.12"
+    },
+    "bybit-exchange/trading-cli": {
+     "pushed": "2026-07-20",
+     "archived": false,
+     "tag": "0.0.1"
+    },
+    "bybit-exchange/advanced-skills": {
+     "pushed": "2026-07-29",
+     "archived": false,
+     "tag": null
+    },
+    "bybit-exchange/bybit-skills-hub": {
+     "pushed": "2026-03-05",
+     "archived": true,
+     "tag": null
     }
    }
   },
@@ -205,7 +276,18 @@
      "bytes": 380559
     }
    },
-   "repos": {}
+   "repos": {
+    "visusnet/coinbase-mcp-server": {
+     "pushed": "2026-05-09",
+     "archived": false,
+     "tag": null
+    },
+    "OrestisStefanou/CoinbaseMcpServer": {
+     "pushed": "2026-08-22",
+     "archived": false,
+     "tag": null
+    }
+   }
   },
   "crypto-com": {
    "probes": {
@@ -247,7 +329,18 @@
      "bytes": 3298
     }
    },
-   "repos": {}
+   "repos": {
+    "crypto-com/cdcx-cli": {
+     "pushed": "2026-07-28",
+     "archived": false,
+     "tag": "v1.2.6"
+    },
+    "crypto-com/crypto-agent-trading": {
+     "pushed": "2026-08-29",
+     "archived": false,
+     "tag": null
+    }
+   }
   },
   "ctrader-spotware": {
    "probes": {
@@ -334,18 +427,46 @@
      "status": 404
     }
    },
-   "repos": {}
+   "repos": {
+    "spotware/ctrader-skills": {
+     "pushed": "2026-08-21",
+     "archived": false,
+     "tag": "v0.1.1"
+    },
+    "nawesan12/ctrader-mcp": {
+     "pushed": "2026-10-22",
+     "archived": false,
+     "tag": null
+    }
+   }
   },
   "degiro": {
    "probes": {
-    "page:none found": {
-     "error": "ERR_INVALID_URL"
+    "page:https://github.com/jaenster/degiro-mcp": {
+     "status": 200,
+     "hash": "321b4991e4d496a6",
+     "bytes": 6811
     }
    },
-   "repos": {}
+   "repos": {
+    "jaenster/degiro-mcp": {
+     "pushed": "2026-10-20",
+     "archived": false,
+     "tag": "v0.1.0"
+    },
+    "ivanrad07/degiro-mcp": {
+     "pushed": "2026-10-02",
+     "archived": false,
+     "tag": null
+    }
+   }
   },
   "deriv": {
    "probes": {
+    "mcp:https://mcp-api.deriv.com/mcp": {
+     "status": 200,
+     "alive": true
+    },
     "page:https://fxnewsgroup.com/forex-news/retail-forex/deriv-launches-tradersview-ai-based-market-intelligence-platform/": {
      "status": 200,
      "hash": "ba77ba524438c4a2",
@@ -362,6 +483,15 @@
     "openapi:https://tradersview.deriv.com/openapi.json": {
      "status": 404
     },
+    "llms:https://mcp-api.deriv.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://mcp-api.deriv.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://mcp-api.deriv.com/openapi.json": {
+     "status": 404
+    },
     "llms:https://fxnewsgroup.com/llms.txt": {
      "status": 404
     },
@@ -373,11 +503,16 @@
     },
     "page:https://tradersview.deriv.com/": {
      "status": 200,
-     "hash": "46dc26a6005b7d8e",
-     "bytes": 5081
+     "hash": "bfb879f9c8918913",
+     "bytes": 5062
     }
    },
    "repos": {
+    "deriv-com/deriv-api-plugin": {
+     "pushed": "2026-11-06",
+     "archived": false,
+     "tag": "v1.0.14"
+    },
     "raju-deriv/mcp-deriv-api-server": {
      "error": "not found / no access"
     }
@@ -459,6 +594,21 @@
      "pushed": "2026-04-29",
      "archived": false,
      "tag": "v1.1.4"
+    },
+    "etoro/etoro-mcp-plugin": {
+     "pushed": "2026-10-01",
+     "archived": false,
+     "tag": null
+    },
+    "orkblutt/etoro-mcp": {
+     "pushed": "2026-02-13",
+     "archived": false,
+     "tag": null
+    },
+    "florinel-chis/etoro-mcp": {
+     "pushed": "2026-07-17",
+     "archived": false,
+     "tag": "v0.2.0"
     }
    }
   },
@@ -473,6 +623,21 @@
    "repos": {
     "davdunc/mcp_etrade": {
      "pushed": "2025-09-08",
+     "archived": false,
+     "tag": null
+    },
+    "kerryjiang/OpenEtradeMcp": {
+     "pushed": "2026-10-03",
+     "archived": false,
+     "tag": null
+    },
+    "sblattj/etrade-mcp": {
+     "pushed": "2026-11-11",
+     "archived": false,
+     "tag": "v1.0.2"
+    },
+    "chrisguidry/etrade-mcp": {
+     "pushed": "2026-11-06",
      "archived": false,
      "tag": null
     }
@@ -490,8 +655,8 @@
     },
     "llms:https://snaptrade.com/llms-full.txt": {
      "status": 200,
-     "hash": "3fa446714476c11b",
-     "bytes": 26811
+     "hash": "b8d6c64932c6778f",
+     "bytes": 27123
     },
     "openapi:https://snaptrade.com/openapi.json": {
      "status": 404
@@ -503,6 +668,11 @@
    "repos": {
     "tylerflar/claude-fidelity-mcp": {
      "error": "not found / no access"
+    },
+    "jiaweitang22/claude-fidelity-mcp": {
+     "pushed": "2026-10-23",
+     "archived": false,
+     "tag": null
     },
     "jaketuring999/fidelity-mcp": {
      "pushed": "2026-10-14",
@@ -543,7 +713,13 @@
      "error": "ERR_INVALID_URL"
     }
    },
-   "repos": {}
+   "repos": {
+    "anaisbetts/stonex-mcp": {
+     "pushed": "2026-08-03",
+     "archived": false,
+     "tag": null
+    }
+   }
   },
   "gemini": {
    "probes": {
@@ -552,9 +728,13 @@
      "hash": "e3b0c44298fc1c14",
      "bytes": 0
     },
+    "mcp:https://api.gemini.com/mcp": {
+     "status": 200,
+     "alive": true
+    },
     "page:https://www.gemini.com/blog/introducing-agentic-trading-on-gemini-the-future-of-crypto-is-autonomous": {
      "status": 200,
-     "hash": "53f2f3d2f61ca75c",
+     "hash": "c3b85d5cfef21f47",
      "bytes": 5535
     },
     "llms:https://developer.gemini.com/llms.txt": {
@@ -568,6 +748,15 @@
      "bytes": 1309209
     },
     "openapi:https://developer.gemini.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://api.gemini.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://api.gemini.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://api.gemini.com/openapi.json": {
      "status": 404
     },
     "llms:https://api.sandbox.gemini.com/llms.txt": {
@@ -616,6 +805,26 @@
    "repos": {
     "Impa-Ventures/hyperliquid-mcp": {
      "pushed": "2025-03-25",
+     "archived": false,
+     "tag": null
+    },
+    "caiovicentino/hyperliquid-mcp-server": {
+     "pushed": "2025-11-10",
+     "archived": false,
+     "tag": null
+    },
+    "edkdev/hyperliquid-mcp": {
+     "pushed": "2025-10-27",
+     "archived": false,
+     "tag": null
+    },
+    "GigabrainGG/hyperliquid-mcp": {
+     "pushed": "2026-05-02",
+     "archived": false,
+     "tag": null
+    },
+    "dwellir-public/hyperliquid-skills": {
+     "pushed": "2026-10-20",
      "archived": false,
      "tag": null
     }
@@ -697,6 +906,16 @@
      "pushed": "2025-10-23",
      "archived": false,
      "tag": null
+    },
+    "patrickpxp/ibkr-mcp-server": {
+     "pushed": "2026-05-08",
+     "archived": false,
+     "tag": null
+    },
+    "jluzny/ibkr-mcp-rs": {
+     "pushed": "2026-11-10",
+     "archived": false,
+     "tag": null
     }
    }
   },
@@ -739,6 +958,16 @@
     }
    },
    "repos": {
+    "cejor6/kalshi-mcp-server": {
+     "pushed": "2026-11-08",
+     "archived": false,
+     "tag": "v0.1.12"
+    },
+    "kadengriffith/kalshi": {
+     "pushed": "2026-02-13",
+     "archived": false,
+     "tag": null
+    },
     "9crusher/mcp-server-kalshi": {
      "pushed": "2026-09-19",
      "archived": false,
@@ -894,6 +1123,21 @@
     }
    },
    "repos": {
+    "longbridge/skills": {
+     "pushed": "2026-11-08",
+     "archived": false,
+     "tag": null
+    },
+    "longbridge/longbridge-terminal": {
+     "pushed": "2026-11-11",
+     "archived": false,
+     "tag": "v0.31.2"
+    },
+    "longbridge/extras-skills": {
+     "pushed": "2026-07-13",
+     "archived": false,
+     "tag": "longbridge-lbti-v1.0.1"
+    },
     "longbridge/longbridge-mcp": {
      "pushed": "2026-11-11",
      "archived": false,
@@ -943,6 +1187,36 @@
   },
   "moomoo": {
    "probes": {
+    "mcp:https://mcp.moomoo.com/mcp": {
+     "status": 401,
+     "alive": true
+    },
+    "page:https://webapi.moomoo.com/oauth2/authorize/confirm": {
+     "status": 200,
+     "hash": "8fcea1dd0fd2089c",
+     "bytes": 6405
+    },
+    "llms:https://mcp.moomoo.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://mcp.moomoo.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://mcp.moomoo.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://webapi.moomoo.com/llms.txt": {
+     "status": 200,
+     "hash": "a9e4adba115c283e",
+     "bytes": 34998
+    },
+    "llms:https://webapi.moomoo.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://webapi.moomoo.com/openapi.json": {
+     "status": 404,
+     "soft404": true
+    },
     "page:https://github.com/MoomooOpen/moomoo-agent-hub": {
      "status": 200,
      "hash": "4738cee0bf45a921",
@@ -955,6 +1229,11 @@
      "archived": false,
      "tag": null
     },
+    "MoomooOpen/moomoo-agent-plugin": {
+     "pushed": "2026-09-28",
+     "archived": false,
+     "tag": null
+    },
     "Litash/moomoo-api-mcp": {
      "pushed": "2026-05-03",
      "archived": false,
@@ -964,6 +1243,11 @@
      "pushed": "2026-11-10",
      "archived": false,
      "tag": "v0.5.0"
+    },
+    "iwanbk/moomoo-mcp": {
+     "pushed": "2026-07-16",
+     "archived": false,
+     "tag": "v0.2"
     }
    }
   },
@@ -1071,6 +1355,11 @@
     }
    },
    "repos": {
+    "NT-NinjaTrader/mcp-skills": {
+     "pushed": "2026-11-06",
+     "archived": false,
+     "tag": null
+    },
     "ozmnf4/ninjatrader-mcp": {
      "pushed": "2026-04-05",
      "archived": false,
@@ -1096,6 +1385,11 @@
     }
    },
    "repos": {
+    "florinel-chis/oanda-mcp": {
+     "pushed": "2026-07-17",
+     "archived": false,
+     "tag": "v0.2.0"
+    },
     "aobathree/oanda-mcp": {
      "pushed": "2026-07-24",
      "archived": false,
@@ -1121,6 +1415,21 @@
      "pushed": "2026-11-10",
      "archived": false,
      "tag": null
+    },
+    "okx/agent-skills": {
+     "pushed": "2026-10-28",
+     "archived": false,
+     "tag": null
+    },
+    "okx/onchainos-skills": {
+     "pushed": "2026-11-07",
+     "archived": false,
+     "tag": "v4.6.9"
+    },
+    "okx/plugin-store": {
+     "pushed": "2026-09-29",
+     "archived": false,
+     "tag": "plugins/morpho-plugin@0.2.10"
     }
    }
   },
@@ -1137,6 +1446,31 @@
      "pushed": "2026-08-10",
      "archived": false,
      "tag": "v0.1.0"
+    },
+    "Polymarket/agent-skills": {
+     "pushed": "2026-02-19",
+     "archived": false,
+     "tag": null
+    },
+    "Polymarket/polymarket-cli": {
+     "pushed": "2026-05-26",
+     "archived": false,
+     "tag": "v0.1.5"
+    },
+    "Polymarket/polymarket-us-python": {
+     "pushed": "2026-10-09",
+     "archived": false,
+     "tag": null
+    },
+    "Polymarket/polymarket-us-typescript": {
+     "pushed": "2026-10-09",
+     "archived": false,
+     "tag": null
+    },
+    "Polymarket/agents": {
+     "pushed": "2024-11-05",
+     "archived": true,
+     "tag": null
     },
     "aryankeluskar/polymarket-mcp": {
      "pushed": "2026-08-07",
@@ -1214,6 +1548,26 @@
      "pushed": "2026-10-29",
      "archived": false,
      "tag": "v0.10.0"
+    },
+    "PublicDotCom/publicdotcom-agent-skill": {
+     "pushed": "2026-10-29",
+     "archived": false,
+     "tag": null
+    },
+    "PublicDotCom/publicdotcom-cli": {
+     "pushed": "2026-10-29",
+     "archived": false,
+     "tag": "v1.3.8"
+    },
+    "PublicDotCom/claw-skill-public-dot-com": {
+     "pushed": "2026-05-22",
+     "archived": false,
+     "tag": null
+    },
+    "PublicDotCom/publicdotcom-perplexity-skill": {
+     "pushed": "2026-05-22",
+     "archived": false,
+     "tag": null
     }
    }
   },
@@ -1288,7 +1642,23 @@
      "status": 404
     }
    },
-   "repos": {}
+   "repos": {
+    "verygoodplugins/robinhood-mcp": {
+     "pushed": "2026-07-29",
+     "archived": false,
+     "tag": "v0.1.2"
+    },
+    "rohitsingh-iitd/robinhood-mcp-server": {
+     "pushed": "2025-06-18",
+     "archived": false,
+     "tag": null
+    },
+    "Oft3r/agentic-trading-desk": {
+     "pushed": "2026-10-19",
+     "archived": false,
+     "tag": null
+    }
+   }
   },
   "saxo-bank": {
    "probes": {
@@ -1333,6 +1703,16 @@
      "pushed": "2026-11-11",
      "archived": false,
      "tag": null
+    },
+    "sudowealth/schwab-mcp": {
+     "pushed": "2025-06-02",
+     "archived": false,
+     "tag": null
+    },
+    "itsmostafa/schwab-mcp": {
+     "pushed": "2026-09-16",
+     "archived": false,
+     "tag": "v0.2.3"
     }
    }
   },
@@ -1487,6 +1867,16 @@
     }
    },
    "repos": {
+    "tigerfintech/tigeropen-skill": {
+     "pushed": "2026-10-22",
+     "archived": false,
+     "tag": null
+    },
+    "tigerfintech/tigeropen-skill-us": {
+     "pushed": "2026-08-04",
+     "archived": false,
+     "tag": null
+    },
     "tigerfintech/openapi-python-sdk": {
      "pushed": "2026-11-09",
      "archived": false,
@@ -1541,7 +1931,13 @@
      "bytes": 3504
     }
    },
-   "repos": {}
+   "repos": {
+    "dmikhailenko-hash/claude-mcp-plugin": {
+     "pushed": "2026-09-03",
+     "archived": false,
+     "tag": null
+    }
+   }
   },
   "tradestation": {
    "probes": {
@@ -1661,7 +2057,13 @@
      "bytes": 11657
     }
    },
-   "repos": {}
+   "repos": {
+    "abigaillhiggins/tradezero-mcp": {
+     "pushed": "2026-08-12",
+     "archived": false,
+     "tag": "v0.1.0"
+    }
+   }
   },
   "tradier": {
    "probes": {
@@ -1937,7 +2339,23 @@
      "bytes": 20909
     }
    },
-   "repos": {}
+   "repos": {
+    "adibhattar95/upstox-mcp-server": {
+     "pushed": "2025-09-10",
+     "archived": false,
+     "tag": null
+    },
+    "Manu3511/UPSTOX-MCP-Server": {
+     "pushed": "2026-07-01",
+     "archived": false,
+     "tag": null
+    },
+    "Finance-LLMs/Upstox-MCP-Server": {
+     "pushed": "2025-09-06",
+     "archived": false,
+     "tag": null
+    }
+   }
   },
   "vanguard": {
    "probes": {
@@ -1997,6 +2415,11 @@
    "repos": {
     "lwsinclair/wealthsimple-mcp-server": {
      "pushed": "2025-05-14",
+     "archived": false,
+     "tag": null
+    },
+    "addu390/ws": {
+     "pushed": "2026-10-03",
      "archived": false,
      "tag": null
     },
@@ -2428,7 +2851,13 @@
      "bytes": 17299
     }
    },
-   "repos": {}
+   "repos": {
+    "Truthifi/truthifi-mcp": {
+     "pushed": "2026-11-01",
+     "archived": false,
+     "tag": "v1.0.0"
+    }
+   }
   },
   "parlay": {
    "probes": {

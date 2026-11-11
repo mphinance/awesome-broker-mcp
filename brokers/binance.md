@@ -13,7 +13,7 @@ confidence: medium
 
 ## Overview
 
-Binance has no first-party MCP server. A search of the official Binance GitHub
+Binance has no first-party MCP server (it does publish first-party agent skills, see below). A search of the official Binance GitHub
 organization for 'mcp' still returns zero repositories (re-checked 2026-11-11). Numerous community implementations
 exist, of which TermiX-official/binance-mcp (97 stars, TypeScript) is confirmed live
 and supports placing spot market orders via Claude Desktop; its source also has TWAP and
@@ -43,6 +43,19 @@ staking, convert, algo trading), unverified.
 - Binance.US is a legally separate exchange; a community repo
   (nirholas/Binance-US-MCP) was seen in search results but was not fetched or
   verified.
+
+## First-party agent skills and CLI (binance org)
+
+Binance still ships no MCP server, but its own org does publish agent skills. README and
+file tree read 2026-11-11; stars and last push as of that date.
+
+| Repo | What it is | Stars | Last push | License |
+|---|---|---|---|---|
+| [`binance/binance-skills-hub`](https://github.com/binance/binance-skills-hub) | "Built by Binance" skills marketplace: 21 `SKILL.md` files, 14 under `skills/binance-web3/` (wallet tracker, token audit, trading signal, memes, prediction markets and others) and 7 under `skills/binance/` (the main `binance` skill, fiat, P2P, payment, onchain-pay, Square posting, Academy). Install with `npx skills add`; some endpoints need API credentials, and the README recommends scoped keys with IP whitelisting | 1,164 | 2026-10-26 | none listed by GitHub (README template shows MIT) |
+| [`binance/binance-cli`](https://github.com/binance/binance-cli) | Plain Binance API CLI (v2.x, profiles for prod, demo, testnet, signed requests). Not agent-specific and no MCP or skills content in the README | 75 | 2026-11-06 | none listed |
+
+Neither is archived. Skills are instructions your agent follows with your keys, not a vetted
+tool boundary like a registered MCP tool, so the key-scoping advice above still applies.
 
 ## Sources
 

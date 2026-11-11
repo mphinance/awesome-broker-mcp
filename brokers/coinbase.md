@@ -118,7 +118,23 @@ framing.
 - Coinbase's docs index (`llms.txt`) now also lists an **Agentic Wallet** suite (`awal` CLI, plus a
   separate Agentic Wallet MCP via `npx @coinbase/payments-mcp`) for x402 payments and, on the CLI,
   send and trade. The MCP variant only discovers and pays for services. Not covered further here.
+- **Agent skills caveats (docs/skills/coinbase.md, repos read as files, nothing executed):**
+  Coinbase's own `coinbase/agentic-wallet-skills` (`awal` CLI, onchain wallet, not the brokerage
+  account) has **no confirmation step and no default spend cap** on `send` and `trade`: a single
+  `npx awal send '$5.00' 0x...` moves real USDC at the agent's discretion. Separately, the
+  community `visusnet/coinbase-mcp-server` ships a `coinbase-trading` skill that runs **fully
+  autonomously** ("without confirmation"), and its `.claude/settings.json` **pre-allows**
+  `create_order`, `cancel_orders`, `edit_order`, `close_position`, `commit_convert_trade`,
+  `move_portfolio_funds` and other fund-moving tools, switching off Claude Code's permission
+  prompt for them. Create its API key without transfer or withdraw permission.
 - Aggregators that list Coinbase (Trade It and others) are a separate path from the above.
+
+## Other repos (not endorsed by Coinbase)
+
+READMEs read 2026-11-11; stars and pushes from the GitHub API the same day. Source code was not read.
+
+- **[visusnet/coinbase-mcp-server](https://github.com/visusnet/coinbase-mcp-server)** (community, local HTTP server on port 3005, or `npx coinbase-mcp-server`; 7 stars, last push 2026-05-09, MIT, not archived). Places real orders: the README claims 74 tools, including create, edit, cancel and preview orders, portfolios and fund moves between them, converts, and futures and perpetuals positions, plus indicator tools. It also ships a `/trade` Claude skill (1 `SKILL.md`) that runs an autonomous trading loop. Guardrails per the README: a `dry-run` mode for the skill, a "real money" warning, and a recommendation to use read-only or test keys; no server-side order approval is described. **Caution:** it needs a Coinbase CDP API key and EC private key in a `.env` on your machine, and the skill is designed to trade unattended. Tiny, new-ish repo with a one-person maintainer.
+- **[OrestisStefanou/CoinbaseMcpServer](https://github.com/OrestisStefanou/CoinbaseMcpServer)** (community, local, Python 3.13 with `uv`; 0 stars, last push 2026-08-22, **no license file**). Five tools: product search, portfolio list, portfolio breakdown, order history and `createCoinbaseOrder` (market orders only). A `READ_ONLY=true` environment variable disables the order tool, but it defaults to `false`. Credentials stay in the server environment and are not sent over MCP. **Caution:** unlicensed, zero stars, no track record, and it holds a Coinbase API key; if you try it, set `READ_ONLY=true`.
 
 ## Sources
 

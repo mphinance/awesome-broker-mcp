@@ -18,9 +18,8 @@ org), exposing the CLI's request/response commands as MCP tools. Since v0.5.0 (2
 server is its own binary, `kraken-mcp`, installed next to `kraken` (the old `kraken mcp`
 subcommand is gone). It serves 152 of the catalog's 188 commands in 15 groups, and
 docs.kraken.com now agrees with that count. Streams, interactive commands and
-`auth switch`/`auth reset` stay CLI-only. The project still calls itself alpha. It uses a service-scope model: market, account (read-only), paper
-trading, workspace (paper workspaces) and feedback are enabled by default,
-while trade, futures, earn, funding, and subaccount scopes must be explicitly opted
+`auth switch`/`auth reset` stay CLI-only. The project still calls itself alpha. It uses a service-scope model: the marketplace listings default to `market,paper,feedback`
+(a bare `kraken-mcp` adds `account` and `workspace`), while trade, futures, earn, funding, and subaccount scopes must be explicitly opted
 into. Only market and paper need no credentials. Dangerous tools (order placement, withdrawals, transfers,
 workspace promotion) now go to the operator through MCP elicitation; `acknowledged: true`
 set by the model only applies to clients that cannot show one. `--allow-dangerous` turns
@@ -34,7 +33,7 @@ financial arguments (amounts, assets, pairs, prices) for each call.
 ```bash
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/krakenfx/kraken-cli/releases/latest/download/kraken-cli-installer.sh | sh
 # then:
-claude mcp add --scope user kraken -- kraken-mcp -s market,account,paper
+claude mcp add --scope user kraken -- kraken-mcp -s market,paper,feedback
 ```
 
 Or in Claude Code: `/plugin marketplace add krakenfx/kraken-cli`, then
@@ -61,10 +60,11 @@ on xStocks or futures. Counts are from the v0.5.1 release notes; Kraken's own si
 - The `feedback` tool can upload a local file it names with no approval step (v0.5.1 docs
   warning). Drop `feedback` from `-s` for any agent that reads untrusted input.
 - Live order placement is off by default: you must add the 'trade' and/or 'futures'
-  service scopes explicitly. Docs say the default set (`market`, `account`, `paper`)
-  is read-only for live funds; the repo README's default also includes `workspace` and
-  `feedback`. `feedback` uploads text to Kraken, so drop it with an explicit `-s` list
-  if that matters.
+  service scopes explicitly. Default service sets differ by source (docs/skills/kraken.md):
+  every marketplace listing ships `-s market,paper,feedback`; a bare `kraken-mcp` with no `-s`
+  serves `market,account,paper,workspace,feedback`. Neither includes live trading. This page
+  previously said `market,account,paper`; that was wrong for both. `feedback` is in both
+  defaults and uploads text or a local file with no approval step (see the first caveat).
 - `--allow-dangerous` removes the per-call approval gate. With `-s all` it makes
   every live order, withdrawal and transfer tool callable with no confirmation. Do not
   combine them unless Kraken API key permissions are the only control you want.

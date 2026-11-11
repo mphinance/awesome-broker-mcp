@@ -119,6 +119,23 @@ there is less reason to run this one.
   skill text and OpenAPI document, not tested.
 - Not available to US retail.
 
+- Other first-party repo: [`etoro/etoro-mcp-plugin`](https://github.com/etoro/etoro-mcp-plugin),
+  a Cursor marketplace plugin (`.mcp.json` only, no code) pointing at the same
+  `https://mcp.public-api.etoro.com` endpoint; README read 2026-11-11. 1 star, last push
+  2026-10-01, no license listed, not archived. The README distinguishes it from the
+  separate "eToro API integration for Cursor" docs plugin. No new tools; just a client
+  wrapper.
+
+## Other community repos (not eToro's)
+
+README read 2026-11-11, no clone, so tool counts are README claims. None archived. Third-party
+code that touches eToro keys; the first-party hosted server above is the safer default.
+
+| Repo | What it is | Stars | Last push | License |
+|---|---|---|---|---|
+| [`orkblutt/etoro-mcp`](https://github.com/orkblutt/etoro-mcp) | Wraps the public API, 34 tools, README shows placing limit orders | 10 | 2026-02-13 | none listed |
+| [`florinel-chis/etoro-mcp`](https://github.com/florinel-chis/etoro-mcp) | Toolset-selectable server: 62 read tools; 5 trading tools behind `ETORO_MCP_ENABLE_TRADING` and 38 other write tools behind `ETORO_MCP_ENABLE_WRITES`; demo environment by default | 1 | 2026-07-17 | MIT |
+
 ## Sources
 
 Re-read on 2026-11-11: the skill file (v1.23.17, seventeen tools), builders.etoro.com/tools/mcp (still two tools) and the OpenAPI version (v1.400.0). The Agent Portfolios pages changed by a few bytes only.

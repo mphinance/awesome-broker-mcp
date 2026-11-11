@@ -22,6 +22,23 @@ cancellation, replacement and multi-leg option orders. Auth is OAuth 2.1 via bro
 manual key handling. It is also listed as an official connector in the Claude and ChatGPT
 directories.
 
+Official companions from the same `longbridge` GitHub org (found 2026-11-11, READMEs read):
+
+- [`longbridge/skills`](https://github.com/longbridge/skills): 13 Agent Skills (foundation,
+  market data, technical, derivatives, fundamentals, research, portfolio and account, quant,
+  watchlist, content, intel, earnings, value investing) for HK, US, A-share and SG markets.
+  MIT, 71 stars, last push 2026-11-08, not archived. The repo's `.mcp.json` points at the hosted
+  server; the skills also use the Longbridge CLI. Upgrading from v1.x (127 skills) needs the
+  repo's reinstall script, since `npx skills update` leaves the old ones behind.
+- [`longbridge/longbridge-terminal`](https://github.com/longbridge/longbridge-terminal): the
+  `longbridge` CLI plus TUI, "AI-native", covering quotes, portfolio and orders, with
+  `--format json` and an agent skill doc (`longbridge agent --skill`). Apache-2.0, 1,045
+  stars, last push 2026-11-11. Order buy/sell/cancel/replace and grid writes are dry runs
+  that print a three-digit confirmation code for `--execute`; the README tells agents to show
+  the preview and only run the printed command after the user confirms.
+- [`longbridge/extras-skills`](https://github.com/longbridge/extras-skills): one prompt-only,
+  non-trading skill (`longbridge-lbti`), MIT, 1 star. No broker access, listed for completeness.
+
 ## How to connect
 
 ```bash
@@ -77,6 +94,9 @@ subscriptions, price alerts, screeners and portfolio analytics.
 - Docs do not explicitly enumerate market coverage; availability depends on 'your
   region, account level, and granted OAuth scopes'. The repo scopes it to US and HK
   markets.
+- The org also hosts `openapi` (SDK, 470 stars) and `financial-services` and
+  `financial-services-plugins` (copies of Anthropic's finance plugins, not Longbridge
+  product); not listed.
 - A separate community server (baranwang/longbridge) appears in search results but was
   NOT verified — prefer the official one.
 - Requires a funded Longbridge account (or a paper trading account); region-gated (HK/SG
@@ -103,3 +123,5 @@ Checked directly on 2026-10-12:
 - <https://github.com/longbridge/longbridge-mcp> (README, v0.13.0 to v0.13.2 releases,
   `src/tools/trade.rs`, `src/tools/support/dry_run.rs`, `LAUNCHGUIDE.md`)
 - <https://mcp.longbridge.com/.well-known/oauth-protected-resource> (returns 200)
+- <https://github.com/longbridge/skills>, <https://github.com/longbridge/longbridge-terminal>,
+  <https://github.com/longbridge/extras-skills> (READMEs and licenses, 2026-11-11)

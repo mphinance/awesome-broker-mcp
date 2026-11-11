@@ -8,8 +8,8 @@
 <p align="center">
   <a href="https://awesome.re"><img src="https://awesome.re/badge-flat2.svg" alt="Awesome"></a>
   <img src="https://img.shields.io/badge/entries-66-1f6feb" alt="66 entries">
-  <img src="https://img.shields.io/badge/official%20servers-34-3fb950" alt="34 official">
-  <img src="https://img.shields.io/badge/confirmed%20no%20route-13-f85149" alt="13 confirmed none">
+  <img src="https://img.shields.io/badge/official%20servers-35-3fb950" alt="35 official">
+  <img src="https://img.shields.io/badge/confirmed%20no%20route-12-f85149" alt="12 confirmed none">
   <img src="https://img.shields.io/badge/last%20verified-2026--11--11-3fb950" alt="Last verified 2026-11-11">
   <a href="license"><img src="https://img.shields.io/badge/license-CC0--1.0-8957e5" alt="CC0-1.0"></a>
 </p>
@@ -47,11 +47,13 @@ corrections are [documented in place](brokers/etrade.md), not quietly edited.
 | If you want… | Use | Why |
 |---|---|---|
 | 🛡️ **The safest thing that still trades** | [Interactive Brokers](brokers/interactive-brokers.md) | The server *cannot* submit. You approve every order in IBKR's own UI. Architectural, not a setting. |
-| 🧪 **To experiment without risking money** | [Alpaca](brokers/alpaca.md) or [Kraken](brokers/kraken.md) | Paper/sandbox is the **default**, and you can leave trading tools off entirely, server-side. |
+| 🧪 **To experiment without risking money** | [Alpaca](brokers/alpaca.md) (local server) or [Kraken](brokers/kraken.md) | Paper/sandbox is the **default**, and you can leave trading tools off entirely, server-side. Alpaca's hosted endpoint has no such default: its live URL is live. |
 | 📊 **Analysis only, no execution** | [SnapTrade](aggregators/snaptrade.md) (portfolio server) / [Truthifi](aggregators/truthifi.md) | Connect SnapTrade's read-only portfolio endpoint, not its trading one; Truthifi has a few write tools. Most people wiring up an LLM want analysis — that needs no trading scope. |
 | 🌍 **Crypto** | [Kraken](brokers/kraken.md), [OKX](brokers/okx.md), [Bybit](brokers/bybit.md), [Gemini](brokers/gemini.md) | All official, all trade. Crypto is years ahead of traditional brokerage here. |
 | 🇮🇳 **India** | [Zerodha](brokers/zerodha-kite-connect.md), [Upstox](brokers/upstox.md) | Both official. Zerodha trades on the self-hosted build; Upstox is read-only. |
 | 🏦 **Fidelity / Vanguard / M1 / Wealthfront** | *Nothing good* | No official route. See [confirmed no MCP route](#-confirmed-no-mcp-route). |
+
+**🧰 Agent skills catalog:** see [docs/skills/](docs/skills/README.md) for what each broker's official and community agent skills do, and which guardrails are code versus prompt text.
 
 **🔎 Ask the sources directly:** the [awesome-broker-mcp source pack](https://notebook.google.com/notebook/7764266e-a289-4224-9cca-d0b278f7b7ca) is a public NotebookLM notebook of the primary docs behind these entries (broker MCP docs, API references, server repos). Chat with it, or open its briefing, mind map, infographic and audio overview. It answers from the sources and says "unconfirmed" when none back a claim.
 
@@ -113,7 +115,7 @@ place an order*.
 **"Has an MCP server" and "can trade" are different claims**, and the gap between them is
 where most of the confusion lives. [Webull](brokers/webull.md) ships two servers; the cloud one can only queue
 instructions that you confirm in the Webull app. [IG](brokers/ig.md), [Upstox](brokers/upstox.md) and
-[Crypto.com](brokers/crypto-com.md) are official but deliberately read-only.
+[Crypto.com](brokers/crypto-com.md)'s hosted server are official but deliberately read-only (Crypto.com's separate local `cdcx-cli` server can trade).
 [eToro](brokers/etoro.md)'s official server used to be docs-only and now trades, through signed two-step prepare/place tokens.
 
 ### Three traps worth knowing before you read the tables
@@ -142,7 +144,7 @@ say something careless:
 |---|---|---|
 | **Cannot execute, by design** | [IBKR](brokers/interactive-brokers.md) | The server physically can't submit. No env var turns it on. |
 | **Draft-first, tool-flow enforced** | [Trade It](aggregators/trade-agent.md) · [ConnectTrade](aggregators/connecttrade.md) | Must draft, show you, then a second tool call executes (ConnectTrade adds a 2-minute expiry and read/trade token scopes). A server-side step, but the confirm is still a tool call the assistant makes, so it is only as strong as your client's human-in-the-loop. |
-| **Paper / sandbox by default** | [Alpaca](brokers/alpaca.md) · [Kraken](brokers/kraken.md) · [Webull](brokers/webull.md) | Live trading is opt-in via an env var or scope. Server-side. |
+| **Paper / sandbox by default** | [Alpaca](brokers/alpaca.md) (local server only; hosted paper is a separate URL) · [Kraken](brokers/kraken.md) · [Webull](brokers/webull.md) | Live trading is opt-in via an env var or scope. Server-side. |
 | **Live on a tool call** | [Robinhood](brokers/robinhood.md) · [Tradier](brokers/tradier.md) · [tastytrade](brokers/tastytrade.md) (defaults to **production**) · most community servers | No approval step the broker enforces by default (Robinhood has an opt-in toggle, off for MCP accounts). Your client config is the only guardrail. |
 | **Live, and no paper mode exists** | [Public.com](brokers/public.md) | Preflight tools plus your client's approval prompt, OAuth scopes on the hosted server, and dedicated accounts as the real safeguard. Every confirmation is real money. Nothing to practise on. |
 
@@ -170,7 +172,7 @@ First-party. Built or hosted by the broker themselves.
 
 | Broker | Trades? | What it trades | Type |
 |---|---|---|---|
-| [Alpaca](brokers/alpaca.md) | ✅ Yes | Equities, ETFs, crypto, multi-leg options; fixed income quotes only. 🛡️ **Paper by default** | Local (`uvx`) |
+| [Alpaca](brokers/alpaca.md) | ✅ Yes | Equities, ETFs, crypto, multi-leg options; fixed income quotes only. 🛡️ **Paper by default on the local server**; hosted OAuth endpoints exist with separate live and paper URLs | Local (`uvx`) + Remote (hosted OAuth) |
 | [Interactive Brokers](brokers/interactive-brokers.md) | 📝 Draft only | Global, multi-asset. 🛡️ The server *cannot* submit — you approve every order in IBKR's own UI | Remote |
 | [Robinhood](brokers/robinhood.md) | ✅ Yes | Stocks, options, crypto (futures not listed). Dedicated MCP account; trade approvals exist but are **off by default** for external agents | Remote |
 | [Tradier](brokers/tradier.md) | ✅ Yes | Equities + multi-leg options | Remote |
@@ -181,7 +183,7 @@ First-party. Built or hosted by the broker themselves.
 | [eToro](brokers/etoro.md) | ✅ Yes | Official MCP opens and closes positions via two-step `prepare-*` / `place-*` tokens (about 2 min expiry), demo or real account chosen explicitly. Generic `execute-write` has no server-side confirm. Agent Portfolios is still **REST, not MCP** | Remote |
 | [Longbridge](brokers/longbridge.md) | ✅ Yes | US + HK equities, options, warrants. ~164 tools, OAuth 2.1. Most order writes are dry-run until you pass back a confirmation code (a mistake guard, not human approval); multi-leg appears ungated | Remote |
 | [Tiger Brokers](brokers/tiger-brokers.md) | ✅ Yes | Stocks, options, futures across US/HK/CN/SG. Only guardrail is the `TIGERMCP_READONLY` env var | Local (`uvx`) |
-| [moomoo / Futu](brokers/moomoo.md) | ✅ Yes | Full trading + data across HK/US/CN/SG/JP. ⚠️ Official route ships as **Agent Skills** driven by the `moomoo` CLI (OAuth login, no OpenD), not a standalone MCP server | Local |
+| [moomoo / Futu](brokers/moomoo.md) | ✅ Yes | Official hosted MCP at `mcp.moomoo.com/mcp` (OAuth; real and simulated orders, 4 skills in `moomoo-agent-plugin`), plus official **Agent Skills** driven by the `moomoo` CLI (no OpenD). Guardrails are skill text; no caps documented | Remote + Local |
 | [TradeZero](brokers/tradezero.md) | ✅ Yes | Official hosted MCP (launched 2026-08-08): 21 tools (14 read, 7 write), OAuth, no market data. Guardrails are client-side only | Remote |
 | [NinjaTrader](brokers/ninjatrader.md) / [Tradovate](brokers/tradovate.md) | ✅ Yes | Futures. One official hosted server (OAuth 2.1, 29 tools) covers both; can place orders | Remote |
 | [Kalshi](brokers/kalshi.md) | 👁️ No | Event contracts. Official hosted connector is read-only; order placement only via community servers | Remote |
@@ -197,9 +199,9 @@ First-party. Built or hosted by the broker themselves.
 | [Kraken](brokers/kraken.md) | ✅ Yes | Spot (1,400+ pairs), futures, tokenized stocks (xStocks not in the USA), forex. 🛡️ **Paper built in**; live is opt-in per scope | Local |
 | [OKX](brokers/okx.md) | ✅ Yes | Spot, swap, futures, options, grid bots | Local |
 | [Bybit](brokers/bybit.md) | ✅ Yes | Spot, derivatives, positions | Local |
-| [Gemini](brokers/gemini.md) | ✅ Yes | Full Gemini trading API surface | Local |
+| [Gemini](brokers/gemini.md) | ✅ Yes | Full Gemini trading API surface (local server). A hosted `api.gemini.com/mcp` also exists and calls itself read-only | Local (+ hosted, read-only) |
 | [Coinbase](brokers/coinbase.md) | ✅ Yes | Coinbase for Agents (hosted, OAuth): spot crypto, US equities and futures on your real account via Advanced Trade. Portfolio scoping and OAuth scopes, no forced confirm. Plus the onchain `cdp mcp` wallet server | Remote + local |
-| [Crypto.com](brokers/crypto-com.md) | 👁️ No | Market data only | Remote |
+| [Crypto.com](brokers/crypto-com.md) | ✅ Yes (local) / 👁️ No (hosted) | Hosted server is market data only. First-party local `cdcx-cli` (95 tools) trades; its `acknowledged` flag is model-supplied, and the CLI never prompts in JSON mode | Remote (read-only) + Local (trades) |
 
 ### 💱 Forex / CFD
 
@@ -239,7 +241,8 @@ effectively dead.
 | [Trade Republic](brokers/trade-republic.md) | 👁️ No | ⚠️ Reverse-engineers a private API; **may violate ToS** | Local |
 | [Fineco](brokers/fineco.md) | 👁️ No | Read-only | Local |
 | [Wealthsimple](brokers/wealthsimple.md) | 👁️ No | Public marketing content only — zero account access | Remote |
-| [Deriv](brokers/deriv.md) | 👁️ No | Read-only, and barely — 2 tools | Local |
+| [Deriv](brokers/deriv.md) | 👁️ No | Community repo: 2 read-only tools, upstream now 404. Official hosted `mcp-api.deriv.com/mcp` is docs and schema only and cannot trade | Local |
+| [DEGIRO](brokers/degiro.md) | ✅ Yes, behind a flag | ⚠️ **No official API.** `jaenster/degiro-mcp` uses DEGIRO's private web API (may breach terms, days old); order tools exist only with `DEGIRO_TRADING=true`. `ivanrad07/degiro-mcp` is read-only | Local |
 
 ## 🔗 Aggregators
 
@@ -280,7 +283,7 @@ Checked and found nothing. Not "unknown" — **confirmed negative**, which is th
 point of writing them down. If your broker is here, you've saved an afternoon.
 
 <details>
-<summary><b>13 brokers with no MCP route</b> — click to expand</summary>
+<summary><b>12 brokers with no MCP route</b> — click to expand</summary>
 
 <br>
 
@@ -294,7 +297,6 @@ point of writing them down. If your broker is here, you've saved an afternoon.
 | [Wealthfront](brokers/wealthfront.md) | Nothing. No public API either. |
 | [Betterment](brokers/betterment.md) | Nothing, official or community. |
 | [Stash](brokers/stash.md) | Nothing. |
-| [DEGIRO](brokers/degiro.md) | Nothing usable. |
 | [Hargreaves Lansdown](brokers/hargreaves-lansdown.md) | Nothing. |
 | [AMP Futures / Rithmic](brokers/amp-futures-rithmic.md) | Nothing for AMP or for Rithmic. |
 | [FOREX.com (StoneX)](brokers/forex-com-stonex.md) | REST + FIX APIs, but no MCP. |
@@ -309,10 +311,10 @@ official/community** — Alpaca and Kraken are both official *and* local.
 
 - **Remote / hosted** — paste a URL or add the connector, done. IBKR, Robinhood,
   Tradier, Webull Cloud (in-app-confirmed orders), eToro MCP, Longbridge, Upstox, IG,
-  ThinkMarkets, Crypto.com, TradeZero, NinjaTrader/Tradovate (shared hosted server), Kalshi (read-only), Public.com (`mcp.public.com/mcp`), Coinbase for Agents, SnapTrade,
+  ThinkMarkets, Crypto.com (market data), TradeZero, Alpaca (hosted OAuth), moomoo (hosted OAuth), Gemini (hosted, read-only), NinjaTrader/Tradovate (shared hosted server), Kalshi (read-only), Public.com (`mcp.public.com/mcp`), Coinbase for Agents, SnapTrade,
   Trade It, ConnectTrade, Parlay, Truthifi, Plaid.
 - **Local** — a process runs on your machine. Alpaca (`uvx`), Kraken, OKX, Bybit,
-  Gemini, TradeStation, Public.com (also hosted), Coinbase (`cdp mcp`, also hosted), Tiger, community eToro (`npx`),
+  Gemini (trading server), TradeStation, Crypto.com (`cdcx-cli`, trades), Public.com (also hosted), Coinbase (`cdp mcp`, also hosted), Tiger, community eToro (`npx`),
   moomoo (official route via the `moomoo` CLI; the community server needs OpenD, two processes), tastytrade, E*TRADE, Schwab, Saxo, NinjaTrader
   (bridges to an NT8 desktop install), Tradovate, Kalshi, Polymarket, and Webull's
   `webull-openapi-mcp` (direct execution).

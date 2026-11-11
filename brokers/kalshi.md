@@ -55,8 +55,25 @@ KALSHI_ENV=prod.
   (confirmed, but only 2 stars, pip install kalshi-trading-mcp), IQAIcom/mcp-kalshi,
   yakub268/kalshi-mcp, joinQuantish/kalshi-mcp all appeared in results. Star counts in
   the low double digits at best — treat all as hobby-grade for real-money use.
+- `kadengriffith/kalshi` advertises a `Skills/kalshi-predictions/` skill with a `SKILL.md`, but
+  **no `SKILL.md` exists anywhere in the repo** at the commit read (docs/skills/kalshi.md); what
+  ships is a single autonomous-trader prompt file plus a Python CLI that targets production by
+  default (`--demo` switches to demo). The README does not match the tree.
 - This server can move real money. The confirm=true gate and demo default are the
   author's own safety choices, not exchange-enforced guarantees.
+
+## Other community repos (READMEs read 2026-11-11)
+
+- [`cejor6/kalshi-mcp-server`](https://github.com/cejor6/kalshi-mcp-server): Python, on PyPI
+  and the MCP Registry, README claims 26 tools and 4 resources, RSA-PSS auth, a two-step
+  prepare then `kalshi_confirm_order` flow with safety caps, optional self-hosted OAuth proxy.
+  MIT per README badge, 3 stars, last push 2026-11-08, not archived. The README's own
+  confirmation flow is a mistake guard the model can complete itself, not human approval.
+- [`kadengriffith/kalshi`](https://github.com/kadengriffith/kalshi): one agent skill
+  (`kalshi-predictions`, Python CLI for markets, orderbooks, balances, trades) plus a prompt
+  workspace; not an MCP server. 0 stars, last push 2026-02-13, no license file detected.
+- The `Kalshi` GitHub org has only `kalshi-starter-code-python` (101 stars) and unrelated forks;
+  no first-party MCP or skills repo there.
 
 ## Sources
 
@@ -66,3 +83,4 @@ Checked directly on 2026-07-16; official connector docs re-read 2026-11-11:
 
 - <https://github.com/9crusher/mcp-server-kalshi>
 - <https://github.com/alexandermazza/kalshi-trading-mcp>
+- <https://github.com/cejor6/kalshi-mcp-server> and <https://github.com/kadengriffith/kalshi> (READMEs and metadata, 2026-11-11)

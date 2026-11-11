@@ -85,6 +85,15 @@ verified.
   and a purpose-built MCP wrapper would be more trustworthy than either community
   repo.
 
+## Other community repo (README read 2026-11-11)
+
+- [`florinel-chis/oanda-mcp`](https://github.com/florinel-chis/oanda-mcp): MCP server for the
+  v20 REST API. README claims 22 read tools always registered and 7 write tools registered
+  only when `OANDA_MCP_ENABLE_TRADING` is set, practice environment by default (live is opt-in
+  via `OANDA_ENV=live`). We did not check `list_tools` in source. 2 stars, last push
+  2026-07-17, not archived, no license file detected by GitHub. The `oanda` GitHub org itself
+  has only v20 SDKs and samples (last push 2021 to 2022), no MCP or skills repo.
+
 ## Sources
 
 Checked directly on 2026-07-16:
@@ -93,3 +102,4 @@ Checked directly on 2026-07-16:
 - <https://glama.ai/mcp/servers/aobathree/oanda-mcp>
 - <https://github.com/aobathree/oanda-mcp>
 - <https://github.com/BJLG-92/oanda-mcp-server>
+- <https://github.com/florinel-chis/oanda-mcp> (README and metadata, 2026-11-11; `gh repo list oanda` reviewed)
