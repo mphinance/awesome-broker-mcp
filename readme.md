@@ -10,13 +10,13 @@
   <img src="https://img.shields.io/badge/entries-66-1f6feb" alt="66 entries">
   <img src="https://img.shields.io/badge/official%20servers-30-3fb950" alt="30 official">
   <img src="https://img.shields.io/badge/confirmed%20no%20route-13-f85149" alt="13 confirmed none">
-  <img src="https://img.shields.io/badge/last%20verified-2026--10--09-3fb950" alt="Last verified 2026-10-09">
+  <img src="https://img.shields.io/badge/last%20verified-2026--10--12-3fb950" alt="Last verified 2026-10-12">
   <a href="license"><img src="https://img.shields.io/badge/license-CC0--1.0-8957e5" alt="CC0-1.0"></a>
 </p>
 
 <p align="center">
   <sub><b>The mphinance AI trading stack</b></sub><br>
-  <sub>🧠 <b>Brain</b> · <a href="https://github.com/mphinance/alpha-skills">alpha-skills</a> — 129 analysis skills that decide <i>what</i> to trade &nbsp;•&nbsp; 🖐️ <b>Hands</b> · this list — <i>where</i> an AI can actually place the order &nbsp;•&nbsp; 📡 <b>Intelligence</b> · <a href="https://tradermatrix.pro/?ref=MPHINANCE">TraderMatrix Pro</a> &nbsp;•&nbsp; 🔧 <b>Free Tools</b> · <a href="https://github.com/mphinance/momentum-mcp">momentum-mcp</a> — 73 open MCP tools, no paid feed required &nbsp;•&nbsp; 🤖 <b>Agent</b> · <a href="https://github.com/mphinance/trading-agent">Vesper</a> — a LangGraph trading agent for Webull; its vendored <code>broker-mcp-selector</code> skill is backed by this directory</sub>
+  <sub>🧠 <b>Brain</b> · <a href="https://github.com/mphinance/alpha-skills">alpha-skills</a> — 133 analysis skills that decide <i>what</i> to trade &nbsp;•&nbsp; 🖐️ <b>Hands</b> · this list — <i>where</i> an AI can actually place the order &nbsp;•&nbsp; 📡 <b>Intelligence</b> · <a href="https://tradermatrix.pro/?ref=MPHINANCE">TraderMatrix Pro</a> &nbsp;•&nbsp; 🔧 <b>Free Tools</b> · <a href="https://github.com/mphinance/momentum-mcp">momentum-mcp</a> — 73 open MCP tools, no paid feed required &nbsp;•&nbsp; 🤖 <b>Agent</b> · <a href="https://github.com/mphinance/trading-agent">Vesper</a> — a LangGraph trading agent for Webull; its vendored <code>broker-mcp-selector</code> skill is backed by this directory</sub>
 </p>
 
 ---
@@ -387,7 +387,7 @@ This list is the **hands** — it tells you *where* an AI agent can place an ord
 nothing about *what* to trade. That's a separate job, and there's a free, open-source
 answer for it:
 
-**[alpha-skills](https://github.com/mphinance/alpha-skills)** — 114 AI agent skills for
+**[alpha-skills](https://github.com/mphinance/alpha-skills)** — 133 AI agent skills for
 quant research: screeners (VCP, CANSLIM, PEAD), regime detectors, an edge-research
 pipeline, options and risk tooling. It ships a **`broker-mcp-selector`** skill built
 directly on this directory, so once a skill produces a plan, the agent can pick a broker
