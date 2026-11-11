@@ -69,7 +69,7 @@ available. All subject to what each brokerage and account allows.
   trade access.
 - Previews estimate cost for single-equity orders only; other orders get a "no quote"
   warning. A placed order is submitted to the brokerage, not necessarily filled.
-- Pricing is not covered on the MCP page (free Personal tier only is stated).
+- Pricing is not covered on the MCP page (free Personal tier only is stated). Both endpoints return 401 with OAuth metadata to an unauthenticated POST (probed 2026-11-11; scope `read` on portfolio, `read trade` on trading).
 - Community alternative for the underlying API:
   [`dangelov/mcp-snaptrade`](https://github.com/dangelov/mcp-snaptrade) — not
   independently verified, listed for reference only (not re-checked 2026-11-11).

@@ -47,6 +47,13 @@ as 'coming soon'; j0nl1 exposes no order tools at all.
   third-party binary. Sessions cached at ~/.trade-republic-mcp/session.json.
 - Both repos are low-traction (18 and 6 stars as of 2026-11-11; the visusnet repo's last push was 2026-02-03 and j0nl1's 2026-02-18, so neither has moved in ~8 months).
 
+## More community repos (checked 2026-11-11)
+
+READMEs read 2026-11-11; stars and last push as of that date. Neither repo is endorsed by Trade Republic, and both rely on the same undocumented web API as the servers above, with phone number, PIN and 2FA handed to a hobby project. Trade Republic has no GitHub org with MCP, skills or agent repos (the `TradeRepublic` org holds only iOS CI and UI libraries).
+
+- [`mattiad19/trade-republic-mcp`](https://github.com/mattiad19/trade-republic-mcp): local **read-only** MCP server, German README, macOS only (Keychain). Nine tools: auth status, portfolio, cash, existing orders, asset search and info, price, price history, order book. No buy, sell, cancel, transfer or savings-plan tools, and the README says that restriction is enforced at runtime. Phone, PIN and 2FA code are prompted in the terminal and not stored; only the cookie session is saved. 0 stars, last push 2026-11-01, MIT. New and unvetted.
+- [`wdaniel1993/tr-cli`](https://github.com/wdaniel1993/tr-cli): unofficial Python CLI (not MCP): push-approval login, portfolio, history, timeline, quotes, instrument details. No order commands listed. README warns never to script repeated logins and notes `429 TOO_MANY_REQUESTS` cooldowns. 0 stars, last push 2026-08-18, no license file. Its 11 `SKILL.md` files are OpenSpec dev-workflow tooling, not broker skills.
+
 ## Sources
 
 Checked directly on 2026-11-11 (stars and push dates re-pulled via GitHub API, no new pushes; earlier README check 2026-10-12: visusnet README re-read: orders still 'coming soon', the 'Autonomous Trading Agent' still 'Coming Soon', your-username install artifact still present; j0nl1 README shows no order tools; stars and push dates re-pulled via GitHub API):

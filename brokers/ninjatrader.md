@@ -45,14 +45,17 @@ Community: git clone https://github.com/ozmnf4/ninjatrader-mcp && npm install, c
 
 ## Trading scope
 
-Futures and other instruments tradable through a connected NinjaTrader 8 desktop
-installation (CME complex: ES, NQ, MES, MNQ, CL, GC, etc.). Order placement,
-modification and cancellation are supported by several servers.
+Official server: futures and event contracts through your Tradovate or NinjaTrader
+brokerage account; `place_order`, `modify_order`, `cancel_order` and `close_position` (no
+NinjaTrader 8 desktop needed). Community servers (below) instead bridge to a connected
+NinjaTrader 8 desktop installation (CME complex: ES, NQ, MES, MNQ, CL, GC, etc.).
 
 ## Safety / guardrails (official server)
 
-Each tool needs a specific account permission, enforced server-side (for example
-Orders: Full Access for `place_order`). Six of the seven write tools carry the MCP
+Each tool needs a specific account permission, and the docs say the server checks it on every
+call (for example Orders: Full Access for `place_order`; tools you lack permission for are
+hidden). Every order must also clear the account's pre-trade risk checks, and the consent
+screen has optional risk limits (off by default). Six of the seven write tools carry the MCP
 `destructiveHint` so most clients pause for approval; `create_alert` does not. Whether
 approval is required depends on your client settings. Demo and Live are separate
 endpoints with separate accounts. The docs say the agent cannot move funds. The server
@@ -67,16 +70,19 @@ read-only use depends on the permissions you approve on the consent screen.
   pre-release; the docs pages we read did not say so, so treat maturity as unconfirmed.
 - The official `NT-NinjaTrader/mcp-skills` plugin **ships a Live (real money) MCP server**
   (`mcp-live.tradovateapi.com/mcp`) alongside Demo in `mcp.json` and the Claude plugin manifest,
-  while its `AGENTS.md` says "This beta bundles the Demo (simulation) server only" (docs/skills/ninjatrader.md).
+  while its `AGENTS.md` says "This beta bundles the Demo (simulation) server only" (re-read
+  2026-11-11; docs/skills/ninjatrader.md). The README is split too: one line says the plugin
+  "declares the Demo MCP server", another says "The plugin bundles both servers" for Codex.
   Treat installing the plugin as adding a live-money endpoint. The "propose, never submit" rule
   is model-enforced skill text; beyond the account's server-side risk settings it is the main
   barrier on Live.
-- ozmnf4/ninjatrader-mcp shows only 1 commit on main despite 28 stars — treat maturity
+- ozmnf4/ninjatrader-mcp shows only 1 commit on main despite 36 stars, no license; treat maturity
   with caution.
 - Community servers bridge to the NT8 desktop app via a local add-on/port, not to a
   broker API directly. NinjaTrader must be running.
-- CrossTrade is a paid third party: MCP is gated to the Elite tier ($99/month per its llms.txt; REST/WebSocket
-  remain on Pro) and requires the CrossTrade Add-On v1.13.0+. It enforces OAuth scope
+- CrossTrade is a paid third party: MCP is gated to the Elite tier ($99/month per its llms.txt;
+  REST is on Pro at $49/month). Its llms.txt says the NT8 Add-On is needed for the NinjaScript and
+  backtest tools; the earlier "Add-On v1.13.0+" requirement is not in that file (unverified). It enforces OAuth scope
   at the transport — an mcp:read token cannot place an order, mcp:trade can.
 - EXCLUDED AS UNVERIFIABLE: a 'schroeder247' Rust server claiming 88 tools is listed
   on LobeHub and echoed by search summaries, but the GitHub URL 404s and it does not
@@ -88,7 +94,7 @@ read-only use depends on the permissions you approve on the consent screen.
 
 ## Sources
 
-Checked directly on 2026-07-16, official docs and CrossTrade llms.txt re-read 2026-11-11:
+Checked directly on 2026-07-16, official docs, endpoint probes (401 with OAuth metadata on both Demo and Live) and CrossTrade llms.txt re-read 2026-11-11:
 
 - <https://docs.ninjatrader.com/mcp> (plus /mcp/connect, /mcp/authentication, /mcp/tools, /mcp/safety)
 - <https://crosstrade.io/llms.txt>

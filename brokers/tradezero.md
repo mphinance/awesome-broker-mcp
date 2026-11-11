@@ -21,7 +21,9 @@ entry said no MCP exists; that is wrong as of 2026-08-08.
 > **Correction history.** The 2026-07-16 and 2026-10-09 versions said "no MCP server exists"
 > and routed readers to ConnectTrade. TradeZero's own docs now list a first-party MCP
 > (listed in its llms.txt as `MCP server: https://webapi.tradezero.com/mcp`). Nothing was
-> tested with credentials; this is read from TradeZero's docs.
+> tested with credentials; this is read from TradeZero's docs. An unauthenticated
+> `initialize` POST to the endpoint returns 401 with OAuth protected-resource metadata
+> (probed 2026-11-11).
 
 ## How to connect
 
@@ -61,8 +63,9 @@ charts, so you supply limit prices.
   placement.
 - Live orders are real and carry the same fees and risk as the TradeZero platforms;
   `accept_locate` incurs a fee. The guide calls six of the seven writes destructive.
-- Order submit is not final: `200 OK` can carry `orderStatus: "Rejected"`, so poll
-  `get_order` for a terminal state.
+- Order submit is not final: the guide says to poll `get_order` until a terminal status
+  (including `Rejected`) and not to cancel a Rejected order. (An earlier claim that a `200 OK`
+  can carry `orderStatus: "Rejected"` is not on the MCP guide; unverified.)
 
 ## Caveats
 
@@ -71,8 +74,8 @@ charts, so you supply limit prices.
   what we read.
 - TradeZero, Inc. does not accept customers from the US, Canada or Bahamas; the guide points
   those users to TradeZero America or TradeZero Canada.
-- The Trading API FAQ says the program is for self-directed traders on their own account and
-  warns against relying on fully unattended systems.
+- The docs legal disclaimer says TradeZero provides API tools for self-directed trading and
+  that clients "should not rely exclusively on unattended systems".
 - Still reachable via the [ConnectTrade aggregator](../aggregators/connecttrade.md) (equities,
   options, paper per its matrix) if you are a fintech platform; that route needs ConnectTrade
   platform credentials and is not the individual route.
@@ -90,5 +93,5 @@ Checked directly on 2026-11-11:
 - <https://developer.tradezero.com/docs/documentation/mcp> (tool list, setup, guardrails)
 - <https://developer.tradezero.com/docs/changelog> (MCP launch 2026-08-08)
 - <https://developer.tradezero.com/llms.txt> (MCP server line)
-- <https://developer.tradezero.com/docs/documentation>
+- <https://developer.tradezero.com/docs/documentation> (legal disclaimer)
 - <https://connecttrade.com/llms-full.txt> (capability matrix)

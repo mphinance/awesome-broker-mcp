@@ -83,3 +83,22 @@ the release notes every placement and replacement is dry-run first and any dry-r
 refuses the order; an unanswered order or cancel reports an unknown outcome and is never
 retried. The README also promotes a hosted guard-railed sibling, spicytrade
 (`https://spicy.trade/mcp`), which we did not evaluate. Not endorsed by tastytrade.
+
+## Other community repos (checked 2026-11-11)
+
+READMEs read 2026-11-11; stars and last push as of that date. None are endorsed by tastytrade. Every MCP server below holds tastytrade OAuth secrets and a refresh token (or, for `ozmnf4`, your username and password in a `.env`), so treat the tiny ones as unvetted code with account access. We read READMEs only, not source; tool counts and gates are the repos' own claims.
+
+| Repo | What it is | Stars, last push, license | Trading and guardrails (per README) |
+|---|---|---|---|
+| [`tastyware/tastytrade-cli`](https://github.com/tastyware/tastytrade-cli) | Python CLI (`tt`), not an MCP server. Options chains, portfolio, charts, watchlists | 78, 2026-08-10, MIT | Buys and sells stocks, options, futures and crypto, and replaces or cancels orders. No agent guardrails documented; disclaimer says not affiliated with tastytrade |
+| [`cmike444/tastytrade-mcp`](https://github.com/cmike444/tastytrade-mcp) | TypeScript, 72 tools, stdio or Streamable HTTP with bearer token and OAuth 2.1 server. Ships 3 `SKILL.md` files | 2, 2026-05-10, no license file | `create_order`, `create_complex_order`, replace, edit, cancel, plus `order_dry_run`. Sandbox via `TASTYTRADE_SANDBOX=true`, default is production. No enforced dry-run found in README |
+| [`bostrovsky/tastytrade_MCP_Server`](https://github.com/bostrovsky/tastytrade_MCP_Server) | Python, pipx install, Claude Desktop and ChatGPT bridge | 5, 2025-10-09, MIT | Market, limit, stop and stop-limit orders across stocks, options, futures and crypto. README claims two-step confirmation and audit logging; the "Security: Audited" badge is self-asserted. About 13 months since last push |
+| [`walkerhughes/tastytrade-mcp`](https://github.com/walkerhughes/tastytrade-mcp) | Python, 12 curated tools | 1, 2026-08-30, no license file | `preview_order`, `place_order`, `cancel_order`. `place_order` needs `TT_ENABLE_TRADING=true` and `confirm=true` per call |
+| [`a9lim/tasty-mcp`](https://github.com/a9lim/tasty-mcp) | Single-account server with a total-max-loss cap | 0, 2026-07-21, AGPL-3.0 | Hard cap on aggregate max loss (default $100, raising it needs an explicit consent flag), rejects short equity and naked short calls, closing orders always allowed, rate limit |
+| [`markvalderrama001-svg/tastytrade-mcp`](https://github.com/markvalderrama001-svg/tastytrade-mcp) | 42 tools, Worker and local suites, GEX and expected-move analytics. Self-described weekend project | 0, 2026-10-26, MIT | Dry-run first, `LIVE_TRADING_ENABLED=true` operator switch, per-order `confirm="CONFIRM"`, single placement chokepoint |
+| [`joncovington/tastytrade-mcp`](https://github.com/joncovington/tastytrade-mcp) | Python, OS-keyring credential storage | 0, 2026-06-24, MIT | Order tools only registered when `ENABLE_LIVE_TRADING` is set; `FORCE_DRY_RUN` and a deployed-buying-power cap available |
+| [`bharadwajpro/tastytrade-mcp`](https://github.com/bharadwajpro/tastytrade-mcp) | Reusable domain packages, REST plus DxLink streaming | 0, 2026-07-25, no license file | `TT_READ_ONLY=true` is the shipped default; trading needs `TT_ENABLE_TRADING=true`, dry-run first, `confirm=true` |
+| [`bholzer/tastytrade-mcp`](https://github.com/bholzer/tastytrade-mcp) | TypeScript on the official JS SDK, stdio, install via `npx` from the repo over SSH | 0, 2026-06-10, no license file | `create_order` is dry-run by default and needs `dry_run: false` to submit. Default environment is production |
+| [`ozmnf4/tastytrade-mcp`](https://github.com/ozmnf4/tastytrade-mcp) | Node, username and password plus API key in `.env` | 0, 2026-04-05, no license file | Place, modify and cancel orders. No guardrails documented; `TASTYTRADE_SANDBOX=true` opt-in |
+
+Caution: `ozmnf4` asks for your raw tastytrade password, and several others have no license file, which means no granted right to reuse the code. Prefer the first-party server above.

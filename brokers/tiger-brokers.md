@@ -74,6 +74,14 @@ Both under the `tigerfintech` org, not archived, no license file. READMEs read 2
 - [`tigerfintech/tigeropen-skill`](https://github.com/tigerfintech/tigeropen-skill): 7 `SKILL.md` skills, one per SDK language (Python, Java, TypeScript, Go, Rust, C++, C#). 17 stars, last push 2026-10-22. Install with `npx skills add tigerfintech/tigeropen-skill`. Ships a `DISCLAIMER.md` risk notice.
 - [`tigerfintech/tigeropen-skill-us`](https://github.com/tigerfintech/tigeropen-skill-us): 2 `SKILL.md` skills (Python, Java) for the TradeUP (US market) variant of the API: US stocks, ETFs and options. 0 stars, last push 2026-08-04.
 
+## Other community repos (checked 2026-11-11)
+
+The `tigerfintech` org (35 repos) holds SDKs, the two skills repos above and vendored third-party libraries; it has no separate MCP, agent or CLI repo. READMEs read 2026-11-11; stars and last push as of that date. Neither community repo is endorsed by Tiger. We read READMEs, not source.
+
+- [`yogyrahmawan/tiger-mcp`](https://github.com/yogyrahmawan/tiger-mcp): Go server for the Tiger Open API, **read-only**: the README says it never places, modifies or cancels orders (market data, depth, positions, assets, order history). You still hand it your Tiger credentials via environment variables. 1 star, last push 2026-07-04, MIT. Unvetted.
+- [`teratron/tigertrade-mcp`](https://github.com/teratron/tigertrade-mcp): **not Tiger Brokers.** It bridges the Tiger.com "Tiger Trade" desktop trading terminal, a different product. Write tools are only registered with `--enable-trading`, default `dry_run: true`, and require a confirm text. Trading features are still marked pending in its roadmap. 0 stars, last push 2026-05-19, no license file.
+- Name collisions: TigerGraph and Timescale "Tiger MCP" repos are databases, not brokers. `luxiaolei/tiger-mcp` (already noted above) was not re-read.
+
 ## Sources
 
 Re-checked 2026-11-11: the MCP docs page `.md` is unchanged in substance (updatedAt still 2026-08-11; same uvx config, `TIGERMCP_READONLY`, personal vs institutional env vars). The SDK repo has newer releases (v3.8.1 2026-11-04, v3.9.0 2026-11-05) but the MCP example directory's last commit is 2026-03-03 and PyPI `tigermcp` is still 0.1.7, so the SDK releases do not change the MCP server. The llms.txt byte change is not MCP-related.

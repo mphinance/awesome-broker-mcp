@@ -104,6 +104,15 @@ reported "live is the default," which is false in code. Both the summary and the
 - If you use these, set the environment variable **explicitly**. Do not rely on the
   fallback, and do not trust the config block in the README.
 
+## Other community servers (checked 2026-11-11)
+
+READMEs read 2026-11-11; stars and last push as of that date. None are endorsed by Trading 212, all use your Trading 212 API key (and secret), and none was read at source, so tool counts are the READMEs' claims. The tiny ones are unvetted code holding credentials that can place real orders.
+
+- [`enderekici/trading212-mcp`](https://github.com/enderekici/trading212-mcp): Node/TypeScript with Docker and Compose options. Market, limit, stop and stop-limit orders, pies, portfolio. 2 stars, last push 2026-02-27, MIT. Defaults to `TRADING212_ENVIRONMENT=demo`. No confirmation layer documented.
+- [`abaddon/trading212MCP`](https://github.com/abaddon83/trading212MCP): published on npm as `@abaddon83/trading212-mcp`; exposes every REST endpoint in the official OpenAPI spec, including the four `place_*_order` tools. 0 stars, last push 2026-07-14, no license file. Quickstart uses `demo`; sells are a negative quantity.
+- [`AjvoGod/trading212-mcp`](https://github.com/AjvoGod/trading212-mcp): **read-only by design**, no order tools (README states you cannot buy or sell). Portfolio analytics, dividends, FIFO holding periods. 0 stars, last push 2026-05-22, MIT. Its default environment is `live`.
+- [`sheikhomer/T212MCP`](https://github.com/sheikhomer/T212MCP): one read-only `GetPortfolio` tool over HTTP. 0 stars, last push 2025-11-02, no license file. Stale.
+
 ## Sources
 
 Re-checked 2026-11-11: Rohan repo metadata/README/commits via GitHub, `docs.trading212.com/api`

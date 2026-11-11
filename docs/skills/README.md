@@ -1,6 +1,6 @@
 # Broker agent skills
 
-**About 230 agent skills from 26 brokers and exchanges, read line by line.** Which ones can place a live order, which only talk to paper, and where the guardrail is real code instead of a polite sentence.
+**About 250 agent skills from 30 brokers and exchanges, read line by line.** Which ones can place a live order, which only talk to paper, and where the guardrail is real code instead of a polite sentence.
 
 An MCP server gives your agent hands. A skill tells it how to use them: when to trade, what to confirm, what never to touch. The tools are usually fine. The skill is where the safety rules live, and most of those rules are prose the model chooses to follow.
 
@@ -36,6 +36,10 @@ Scraped 2026-11-11. Every file linked below records repo URL, commit SHA, licens
 | Upstox | 1 | Yes | None | A `safety` config block that no code reads | MIT | [upstox](upstox.md) |
 | Webull | 1 (current), 1 (legacy), 9 (community) | Yes | Sandbox by env var | **Python guards: notional cap, symbol whitelist, audit log** | Apache-2.0 | [webull](webull.md), [legacy](webull-legacy.md), [community](webull-community.md) |
 | Zerodha | 1 | Yes | None | **Dry run by default, in code** | MIT | [zerodha](zerodha.md) |
+| Questrade (community, unvetted) | 1 | No, read-only | n/a | The server has no order tool | MIT | [questrade](questrade.md) |
+| Saxo Bank (community, unvetted) | 9 | SIM autonomous, LIVE off by default | SIM | **Server-side LIVE flag, allowlists, caps, kill switch, single-use approval** | None (manifest claims MIT) | [saxo-bank](saxo-bank.md) |
+| Schwab (community, unvetted) | 6, plus 1 (archived) | Yes | None | Archived CLI: config flag and preview digest. MCP server: a `confirmed` flag the model sets itself | MCP server none, CLI MIT | [schwab](schwab.md) |
+| Tastytrade (community, unvetted) | 3 | Yes, live by default | Sandbox via env var | Optional Claude Code hooks: plan, bracket, concentration cap. Partly self-attested | None (metadata claims MIT) | [tastytrade](tastytrade.md) |
 
 Counts are what we found in each repo, not marketing numbers. Where two counts appear, the second is a separate repo.
 
@@ -82,7 +86,7 @@ Shallow clone, read as plain files, commit SHA recorded. Nothing from any repo w
 
 ## Brokers with no skills found
 
-Tastytrade, Tradier, Interactive Brokers, Schwab, TradeStation, TradeZero, SnapTrade, Tradovate, and the official Robinhood. Evidence for each is in the survey notes in the entries themselves. Absence here means we searched the org and the entry, not that none exist anywhere.
+No official skills from Tastytrade, Tradier, Interactive Brokers, Schwab, TradeStation, TradeZero, SnapTrade, Tradovate, or Robinhood. Tastytrade, Schwab, Saxo and Questrade have unvetted community skills (see the scoreboard). Evidence for each is in the survey notes in the entries themselves. Absence here means we searched the org and the entry, not that none exist anywhere.
 
 ## Fix us
 

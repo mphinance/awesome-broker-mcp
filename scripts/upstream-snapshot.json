@@ -503,8 +503,8 @@
     },
     "page:https://tradersview.deriv.com/": {
      "status": 200,
-     "hash": "bfb879f9c8918913",
-     "bytes": 5062
+     "hash": "6c8a20dd6acb6b96",
+     "bytes": 5091
     }
    },
    "repos": {
@@ -1585,6 +1585,31 @@
      "archived": false,
      "tag": "v0.0.13"
     },
+    "agustinsacco/questrade-mcp": {
+     "pushed": "2026-11-08",
+     "archived": false,
+     "tag": null
+    },
+    "DrWheelicus/questrade-mcp-server": {
+     "pushed": "2026-10-25",
+     "archived": false,
+     "tag": "v0.3.2"
+    },
+    "agrigoryan/questrade-cli": {
+     "pushed": "2026-02-12",
+     "archived": false,
+     "tag": null
+    },
+    "harinivenkat02/QuestradeMCP": {
+     "pushed": "2026-04-18",
+     "archived": false,
+     "tag": null
+    },
+    "m-turnergane/qte-mcp-trading-engine": {
+     "pushed": "2026-09-09",
+     "archived": false,
+     "tag": null
+    },
     "mathuran/questrade-mcp": {
      "pushed": "2026-03-24",
      "archived": false,
@@ -1687,6 +1712,26 @@
      "pushed": "2026-07-07",
      "archived": false,
      "tag": null
+    },
+    "sigvardt/saxo-bank-mcp": {
+     "pushed": "2026-10-08",
+     "archived": false,
+     "tag": null
+    },
+    "SirAdlerBD/saxo-mcp": {
+     "pushed": "2026-09-16",
+     "archived": false,
+     "tag": null
+    },
+    "sajneb/saxo_mcp": {
+     "pushed": "2026-09-03",
+     "archived": false,
+     "tag": null
+    },
+    "forsmark/saxo-cli": {
+     "pushed": "2026-06-11",
+     "archived": false,
+     "tag": null
     }
    }
   },
@@ -1713,6 +1758,41 @@
      "pushed": "2026-09-16",
      "archived": false,
      "tag": "v0.2.3"
+    },
+    "pashpashpash/schwab-cli": {
+     "pushed": "2026-05-21",
+     "archived": false,
+     "tag": "latest"
+    },
+    "weig/schwab_cli": {
+     "pushed": "2026-10-26",
+     "archived": false,
+     "tag": null
+    },
+    "k1xme/schwab-mcp": {
+     "pushed": "2026-03-30",
+     "archived": false,
+     "tag": null
+    },
+    "chensirui2008/schwab-mcp": {
+     "pushed": "2026-11-06",
+     "archived": false,
+     "tag": "v0.3.0"
+    },
+    "tomasgesino/schwab-mcp": {
+     "pushed": "2026-03-23",
+     "archived": false,
+     "tag": null
+    },
+    "vsoneji/schwab-mcp": {
+     "pushed": "2025-12-16",
+     "archived": false,
+     "tag": null
+    },
+    "dcsoft4/schwab_cli": {
+     "pushed": "2026-07-11",
+     "archived": false,
+     "tag": null
     }
    }
   },
@@ -1765,6 +1845,56 @@
      "pushed": "2026-11-11",
      "archived": false,
      "tag": "v7.0.0"
+    },
+    "tastyware/tastytrade-cli": {
+     "pushed": "2026-08-10",
+     "archived": false,
+     "tag": "v1.5.0"
+    },
+    "cmike444/tastytrade-mcp": {
+     "pushed": "2026-05-10",
+     "archived": false,
+     "tag": null
+    },
+    "bostrovsky/tastytrade_MCP_Server": {
+     "pushed": "2025-10-09",
+     "archived": false,
+     "tag": "v1.4.3"
+    },
+    "walkerhughes/tastytrade-mcp": {
+     "pushed": "2026-08-30",
+     "archived": false,
+     "tag": null
+    },
+    "a9lim/tasty-mcp": {
+     "pushed": "2026-07-21",
+     "archived": false,
+     "tag": null
+    },
+    "markvalderrama001-svg/tastytrade-mcp": {
+     "pushed": "2026-10-26",
+     "archived": false,
+     "tag": null
+    },
+    "joncovington/tastytrade-mcp": {
+     "pushed": "2026-06-24",
+     "archived": false,
+     "tag": null
+    },
+    "bharadwajpro/tastytrade-mcp": {
+     "pushed": "2026-07-25",
+     "archived": false,
+     "tag": null
+    },
+    "bholzer/tastytrade-mcp": {
+     "pushed": "2026-06-10",
+     "archived": false,
+     "tag": null
+    },
+    "ozmnf4/tastytrade-mcp": {
+     "pushed": "2026-04-05",
+     "archived": false,
+     "tag": null
     }
    }
   },
@@ -1776,10 +1906,10 @@
     "page:https://www.thinkmarkets.com/uk/announcements/chelseaai-trade-through-your-ai-assistant/": {
      "status": 403
     },
-    "page:https://www.thinkmarkets.com/uk/help-centre/ai-trading/": {
+    "page:https://www.thinkmarkets.com/en/trading-academy/ai-trading/ai-account-permissions/": {
      "status": 403
     },
-    "page:https://www.thinkmarkets.com/en/trading-academy/ai-trading/ai-account-permissions/": {
+    "page:https://www.thinkmarkets.com/uk/help-centre/ai-trading/": {
      "status": 403
     },
     "mcp:https://www.financemagnates.com/forex/exclusive-thinkmarkets-launches-mcp-server-ai-can-execute-traders-but-not-access-funds/": {
@@ -1792,8 +1922,8 @@
     },
     "page:https://www.universenewsnetwork.com/2026/06/02/thinkmarkets-pairs-chelseaai-with-claude-to-bring-cfd-trading-to-ai-chats/": {
      "status": 200,
-     "hash": "8481743f870c65bd",
-     "bytes": 5680
+     "hash": "79d08a947dbdb444",
+     "bytes": 5704
     },
     "llms:https://www.thinkmarkets.com/llms.txt": {
      "status": 404,
@@ -1877,6 +2007,16 @@
      "archived": false,
      "tag": null
     },
+    "yogyrahmawan/tiger-mcp": {
+     "pushed": "2026-07-04",
+     "archived": false,
+     "tag": null
+    },
+    "teratron/tigertrade-mcp": {
+     "pushed": "2026-05-19",
+     "archived": false,
+     "tag": null
+    },
     "tigerfintech/openapi-python-sdk": {
      "pushed": "2026-11-09",
      "archived": false,
@@ -1905,6 +2045,16 @@
     },
     "your-username/trade-republic-bot": {
      "error": "not found / no access"
+    },
+    "mattiad19/trade-republic-mcp": {
+     "pushed": "2026-11-01",
+     "archived": false,
+     "tag": "v1.0.0"
+    },
+    "wdaniel1993/tr-cli": {
+     "pushed": "2026-08-18",
+     "archived": false,
+     "tag": null
     }
    }
   },
@@ -1949,13 +2099,25 @@
      "status": 401,
      "alive": true
     },
+    "page:https://www.tradestation.com/llms.txt": {
+     "status": 200,
+     "hash": "7b152d470997ea23",
+     "bytes": 7711
+    },
+    "page:https://developer.tradestation.com/llms.txt": {
+     "status": 200,
+     "hash": "dc59bd0b3774bdca",
+     "bytes": 2491
+    },
     "llms:https://www.tradestation.com/llms.txt": {
      "status": 200,
-     "hash": "c45e939224c251d5",
-     "bytes": 8457
+     "hash": "5fcbd3275609e523",
+     "bytes": 7734
     },
     "llms:https://www.tradestation.com/llms-full.txt": {
-     "status": 404
+     "status": 200,
+     "hash": "778809ca79ba927c",
+     "bytes": 19707
     },
     "openapi:https://www.tradestation.com/openapi.json": {
      "status": 404
@@ -1969,15 +2131,43 @@
     "openapi:https://mcp.tradestation.com/openapi.json": {
      "status": 404
     },
+    "llms:https://developer.tradestation.com/llms.txt": {
+     "status": 200,
+     "hash": "27acd76323055ad9",
+     "bytes": 2500
+    },
+    "llms:https://developer.tradestation.com/llms-full.txt": {
+     "status": 200,
+     "hash": "6f6a9c8e955b464b",
+     "bytes": 20485
+    },
+    "openapi:https://developer.tradestation.com/openapi.json": {
+     "status": 404
+    },
     "page:https://www.tradestation.com/platforms-and-tools/mcp/": {
      "status": 200,
-     "hash": "a9493a4ed9f74c64",
-     "bytes": 9137
+     "hash": "49f7dde1e7f38a09",
+     "bytes": 9172
     }
    },
    "repos": {
     "maven81g/tradestation_mcp": {
      "pushed": "2025-10-20",
+     "archived": false,
+     "tag": null
+    },
+    "theelderwand/tradestation-mcp": {
+     "pushed": "2026-02-07",
+     "archived": false,
+     "tag": "v1.0.0"
+    },
+    "jonathansudhakar1/tradestation-cli-mcp": {
+     "pushed": "2026-06-02",
+     "archived": false,
+     "tag": "v0.2.1"
+    },
+    "dersyshore7/tradestation-mcp-scanner": {
+     "pushed": "2026-07-30",
      "archived": false,
      "tag": null
     }
@@ -2080,16 +2270,26 @@
      "hash": "cfbacb603605e247",
      "bytes": 11
     },
-    "llms:https://docs.tradier.com/llms.txt": {
+    "page:https://docs.tradier.com/llms.txt": {
+     "status": 404
+    },
+    "mcp:https://tradier.com/individuals/mcp-server": {
      "status": 200,
-     "hash": "39f4785e90aa52c4",
-     "bytes": 12289
+     "alive": true
+    },
+    "mcp:https://support.tradier.com/kb/guide/en/tradiers-mcp-server-eoA0tv3GlS/Steps/4946334": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://docs.tradier.com/llms.txt": {
+     "status": 404
     },
     "llms:https://docs.tradier.com/llms-full.txt": {
      "status": 404
     },
     "openapi:https://docs.tradier.com/openapi.json": {
-     "status": 404
+     "status": 404,
+     "soft404": true
     },
     "llms:https://mcp.tradier.com/llms.txt": {
      "status": 404
@@ -2112,11 +2312,45 @@
      "status": 404,
      "soft404": true
     },
+    "llms:https://tradier.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://tradier.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://tradier.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://support.tradier.com/llms.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "llms:https://support.tradier.com/llms-full.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "openapi:https://support.tradier.com/openapi.json": {
+     "status": 404,
+     "soft404": true
+    },
     "page:https://docs.tradier.com/docs/tradier-mcp": {
-     "status": 429
+     "status": 200,
+     "hash": "5002b8bdc7705301",
+     "bytes": 151
     }
    },
-   "repos": {}
+   "repos": {
+    "fi222/tradier-mcp": {
+     "pushed": "2026-04-27",
+     "archived": false,
+     "tag": null
+    },
+    "pipeworx-io/mcp-tradier": {
+     "pushed": "2026-11-09",
+     "archived": false,
+     "tag": null
+    }
+   }
   },
   "trading212": {
    "probes": {
@@ -2229,6 +2463,24 @@
      "pushed": "2026-08-20",
      "archived": false,
      "tag": "v0.4.0"
+    },
+    "enderekici/trading212-mcp": {
+     "pushed": "2026-02-27",
+     "archived": false,
+     "tag": null
+    },
+    "abaddon83/trading212MCP": {
+     "error": "not found / no access"
+    },
+    "AjvoGod/trading212-mcp": {
+     "pushed": "2026-05-22",
+     "archived": false,
+     "tag": null
+    },
+    "sheikhomer/T212MCP": {
+     "pushed": "2025-11-02",
+     "archived": false,
+     "tag": null
     }
    }
   },
@@ -2458,8 +2710,8 @@
     },
     "page:https://github.com/webull-inc": {
      "status": 200,
-     "hash": "0e5e722f235f4721",
-     "bytes": 5816
+     "hash": "02747059897ee446",
+     "bytes": 5111
     }
    },
    "repos": {

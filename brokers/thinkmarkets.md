@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: remote (hosted, per-user generated URL)
 source_url: https://www.thinkmarkets.com/en/ai-trading/chelsea-ai/
-last_verified: 2026-10-09
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -43,11 +43,22 @@ Tool names visible on the product page include `partial_close_position` and
 - Acts only on your instruction in the conversation, no autonomous trading.
 - Every action goes into an in-platform audit log.
 - Demo accounts are supported, so you can test before connecting live.
+- Permissions are per ThinkTrader account (for example demo on full access, live on
+  read-only), and the scope is chosen in the assistant's connection flow. Auth is OAuth: the
+  assistant gets a token, never your username or password.
+- Changing scope or revoking means regenerating the configuration in **Connect MCP Client**;
+  the previous configuration is invalidated immediately. Regenerate if you think a config
+  leaked.
+- The audit log records timestamp, action type, instrument and outcome. It does not record
+  the conversation, and the AI cannot edit or delete it.
+- Full access includes a single instruction to close all positions. The permissions page says
+  every action requires your explicit instruction and nothing runs on a schedule or price
+  trigger.
 
 ## Caveats
 
 - **Cloudflare wall.** Every thinkmarkets.com page serves a bot challenge to curl and headless
-  Chromium; these pages were read in a normal desktop browser on 2026-10-09. The upstream
+  Chromium; these pages were read in a normal desktop browser on 2026-10-09 and again on 2026-11-11. The upstream
   check cannot watch them.
 - **Contradiction on ChatGPT.** The product page's FAQ says ChelseaAI works with Claude,
   ChatGPT, Gemini and Copilot, while the same page offers a waitlist for "when ChelseaAI
@@ -56,9 +67,14 @@ Tool names visible on the product page include `partial_close_position` and
 - ThinkTrader only. A CEO quote in trade press says it is not on MT4/MT5.
 - The "26 tools" figure comes from syndicated press coverage; no first-party page read lists
   a tool count.
-- The permissions page was not opened. One landing page listing "fund movements" and
-  "autonomous trading" under a Read-Only heading was reported by a search summary and not
-  reproduced on the pages read.
+- A configuration is tied to an account, not to an assistant. If you paste one config into two
+  assistants, both get the same scope; separate scopes per assistant are not supported.
+- The terms on the permissions page make the client responsible for every action taken through
+  the integration and include an indemnity in ThinkMarkets' favour. Read it before connecting
+  live.
+- The permissions page (read 2026-11-11) does not reproduce the earlier search-summary claim
+  that "fund movements" and "autonomous trading" sit under Read-Only. It lists both as never
+  exposed at any level.
 
 ## Sources
 
@@ -67,10 +83,14 @@ Read directly on 2026-10-09 (browser):
 - <https://www.thinkmarkets.com/uk/announcements/chelseaai-trade-through-your-ai-assistant/> (dated 2026-06-02)
 - <https://www.thinkmarkets.com/en/ai-trading/chelsea-ai/>
 
+Read directly on 2026-11-11 (browser):
+
+- <https://www.thinkmarkets.com/en/trading-academy/ai-trading/ai-account-permissions/> (published 2026-06-01)
+- <https://www.thinkmarkets.com/en/ai-trading/chelsea-ai/> (re-read; FAQ and waitlist wording unchanged)
+
 Found via search, not opened:
 
 - <https://www.thinkmarkets.com/uk/help-centre/ai-trading/>
-- <https://www.thinkmarkets.com/en/trading-academy/ai-trading/ai-account-permissions/>
 
 Press, checked directly on 2026-07-16:
 

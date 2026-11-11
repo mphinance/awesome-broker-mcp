@@ -79,18 +79,22 @@ order history.
   external agent you must turn it on yourself: Agent Settings → Safety Controls.
   Even with it off, Robinhood says "certain trades may still require your approval."
 - Dedicated, separately funded MCP account
-- Disconnect anytime from the app
-- Notification on every trade (from the earlier verification; not restated in the pages
-  read on 2026-10-09)
+- Disconnect anytime from the app (unverified: not stated on the agents page, onboarding or
+  trading articles re-read 2026-11-11; the onboarding article only describes disconnect and
+  reconnect as a troubleshooting step)
+- Notification on every trade (unverified: absent from all pages read 2026-11-11; orders do
+  appear in Activity and order history)
 
 ## Caveats
 
-- Robinhood's own disclosure: *"Robinhood does not control, supervise, monitor,
+- Robinhood's own disclosure (on the agents page, not the support articles): *"Robinhood does not control, supervise, monitor,
   recommend, or audit these AI agents."* Full responsibility sits with the user.
 - Read scope is wider than trade scope: connecting an external agent exposes your other
   accounts' numbers and history to that agent and its AI provider.
-- Built-in agents have their own token billing ($5 starting balance, then prepaid) and
-  Agent Apps subscriptions. Both apply only to Robinhood-hosted agents, not MCP.
+- Built-in agents reportedly have their own token billing ($5 starting balance, then prepaid) and
+  Agent Apps subscriptions, applying only to Robinhood-hosted agents, not MCP. Unverified: the
+  agents page and onboarding article read 2026-11-11 only link to "token usage billing" and
+  "agent apps" articles without figures.
   "Agent Loops" (scheduled continuous trading) is marked "Coming soon."
 - Tool names were read from the support page on 2026-11-11, but parameters were not.
   Not tested with a live account.

@@ -1,0 +1,2838 @@
+# Schwab community agent skills (k1xme/schwab-mcp and major/schwab-agent)
+
+> **Caution: unvetted community repos that handle brokerage credentials.** Neither project is Schwab's. Both hold your Schwab developer app key and secret plus an OAuth token on disk and can place live orders. We read the files. We did not run, install or connect anything. Read the code before you give either one a token.
+
+| | k1xme/schwab-mcp | major/schwab-agent |
+|---|---|---|
+| Repo | https://github.com/k1xme/schwab-mcp | https://github.com/major/schwab-agent |
+| Commit | `5a74c384d1f95d7b60b284c80f267255651751ad` (committed 2026-03-29) | `41fca06cf94654f93a459eb3c938666421e7fa40` (committed 2026-05-18) |
+| License | **None.** No `LICENSE` file and GitHub reports no license. | MIT (`LICENSE`, "Copyright (c) 2026 Major Hayden"; GitHub reports MIT) |
+| Status | Active at last push (2026-03-30) | **Archived.** The README says "This repository is archived and no longer maintained. Use `schwab-agent-rs` instead." We did not scrape the Rust successor. |
+| Date scraped | 2026-11-11 | 2026-11-11 |
+| Install | README: clone, `pip install -e ".[dev]"`, copy `.env.example` to `~/.schwab-mcp/.env`, `schwab-mcp auth`, `schwab-mcp serve`, then `claude plugin add ./plugin` (as written in the README). | README: `go install github.com/major/schwab-agent/cmd/schwab-agent@latest` (or a release binary), then `mkdir -p ~/.claude/skills/schwab-agent && ln -sf "$(pwd)/SKILL.md" ~/.claude/skills/schwab-agent/SKILL.md`. |
+| Skills | 6: `account`, `orders`, `quotes`, `market`, `instruments`, `chart-orders` | 1: `schwab-agent` |
+
+Method: shallow clones read as plain files. No script, hook, binary or CLI from either repo was executed.
+
+## License handling
+
+- **k1xme/schwab-mcp has no license**, so all rights are reserved. Per the [license policy](README.md#how-we-handle-licenses) this page has a detailed summary and short verbatim guardrail quotes, plus a link pinned to the commit: `https://github.com/k1xme/schwab-mcp/tree/5a74c384d1f95d7b60b284c80f267255651751ad/plugin/skills`.
+- **major/schwab-agent is MIT** and its one skill is a trading skill, so the full `SKILL.md` is reproduced at the bottom of this page, unmodified. It is 115 KB of generated CLI help text.
+
+## Summary table
+
+| Skill | What it does | Tools / CLI called | Capability | Guardrail text |
+|---|---|---|---|---|
+| `account` (k1xme) | Account list, active-account selection, balances, positions, transactions, preferences. Tells the model to fetch large results through a subagent. | MCP: `list_accounts`, `set_active_account`, `get_active_account`, `get_account`, `get_transactions`, `get_transaction`, `get_preferences` | Read, plus writes the active account hash to `~/.schwab-mcp/state.json` | "Never pass account number as `account_hash`. Always use `hashValue` from `list_accounts`." |
+| `orders` (k1xme) | Order JSON for equity, option, vertical, trailing stop, OCO, TRIGGER and credit-spread-with-closing-child orders. Place, view, list, cancel, replace. | MCP: `place_order`, `get_order`, `list_orders`, `list_all_orders`, `cancel_order`, `replace_order` (the server also exposes `preview_order`, which the skill never mentions) | **Live trade.** No paper mode. `preview_order` works on paper accounts only. | "Every mutating tool defaults to **dry run** (`confirmed=False`)." "Never pass `confirmed=True` on first call." Mutating tools are not to be run in subagents. |
+| `quotes` (k1xme) | Quotes, price history, option chains and expirations. | MCP: `get_quotes`, `get_price_history`, `get_option_expirations`, `get_option_chain` | Read | Subagent isolation to protect context. |
+| `market` (k1xme) | Market hours and top movers. | MCP: `get_market_hours`, `get_movers` | Read | None needed. |
+| `instruments` (k1xme) | Symbol, description and fundamentals search; CUSIP lookup. | MCP: `search_instruments`, `get_instrument` | Read | None needed. |
+| `chart-orders` (k1xme) | Plots filled orders as markers on a candlestick chart. | MCP: `list_orders`, `get_price_history`. Local: `chart_orders.py` via `.venv/bin/python`; `curl` to fetch `plotly.min.js`. | Read, plus local file writes | None. |
+| `schwab-agent` (major) | Full CLI reference: accounts, quotes, history, option chains, 11 technical indicators, order build, preview, place, cancel, replace for equities, options, spreads, condors, brackets, OCO. | CLI: `schwab-agent order {build,preview,place,cancel,replace,get,list}`, `account`, `position`, `quote`, `option`, `history`, `ta`, `auth {login,refresh,status}`, others | **Live trade**, gated by a config flag. No paper mode. | None in `SKILL.md`. The guard is in the binary. See below. |
+
+## Guardrails: what is model-enforced and what is code-enforced
+
+### k1xme/schwab-mcp
+
+- **Code:** `place_order`, `cancel_order` and `replace_order` take `confirmed: bool = False` and return a dry-run summary unless it is true (`src/schwab_mcp/tools/orders.py`).
+- **But the model supplies the flag.** There is no token, no digest, no check that a human saw the summary. An agent that passes `confirmed=True` on its first call places the order. The "two steps" rule and "Never skip step 1" are prose. The code default is a speed bump, not an interlock.
+- **No other limits:** no size cap, no symbol whitelist, no read-only mode, no paper switch.
+- **Server exposure:** the MCP server listens on `http://127.0.0.1:8099/mcp` with no authentication in the code we read (host and port override with `SCHWAB_MCP_HOST` and `SCHWAB_MCP_PORT`). Any local process can call `place_order` with `confirmed=True`. Do not bind it beyond loopback.
+- **Subagent rule:** the skills say to send reads to subagents and keep writes in the main conversation. That is a context-saving rule that also keeps confirmation visible; it is prose.
+
+### major/schwab-agent
+
+- **Code, two layers (README and `AGENTS.md`, verified in `internal/commands/order_helpers.go`):**
+  1. Mutating commands (`place`, `cancel`, `replace`) fail with a validation error unless `"i-also-like-to-live-dangerously": true` is set in `~/.config/schwab-agent/config.json`. Disabled by default.
+  2. `order preview --save-preview` stores the exact canonical payload locally; `order place --from-preview <digest>` re-submits that stored payload only. The digest binds account, operation, endpoint and order JSON, expires in 15 minutes, and is checked by SHA-256. The README calls it "a local safety reference, not a Schwab reservation or idempotency key".
+- **Weak points:** the flag lives in a config file the agent can read and probably edit, and `--from-preview` is optional (`--spec` places any JSON directly). Neither layer asks a human anything. They stop accidents, not an agent that decides to flip the flag.
+- **The skill itself says nothing about confirmation.** `grep` for "dangerous" and "confirm" in `SKILL.md` finds nothing, and "safety" appears once, in an example comment about stop-losses. An agent reading only the skill learns the commands and not the guard.
+
+## Secrets, tokens and files
+
+- **k1xme:** `~/.schwab-mcp/.env` (app key and secret), `tokens.db` (OAuth tokens, auto-refreshed by `schwabdev`), `state.json` (active account hash), and a rotating log `schwab-mcp.log` (5 MB, three backups, credentials redacted). Large responses are written to `/tmp/schwab-mcp/*.json`, and the skills tell the model to `Read` them. That puts account data in plain temp files.
+- **k1xme SessionEnd hook** (`plugin/hooks/hooks.json`): runs `rm -f /tmp/schwab-mcp/*.json /tmp/schwab-mcp/*.html` and then `find plugin/skills -maxdepth 2 ( -name '*.json' -o -name '*.html' ) ! -name 'config.json' ! -name 'entry_chart.html' -delete`. The `find` path is relative to the session's working directory, so it deletes matching files under any `plugin/skills` folder it finds there. Harmless in this repo; surprising anywhere else.
+- **k1xme `chart-orders` skill:** tells the model to run `.venv/bin/python plugin/skills/schwab-chart-orders/chart_orders.py`, but the directory is `chart-orders` (the path in the skill is wrong), and to `curl` `plotly.min.js` from `cdn.plot.ly` even though a copy ships in the repo.
+- **major:** `~/.config/schwab-agent/config.json` (`client_id`, `client_secret`, `callback_url`, the danger flag), `~/.config/schwab-agent/token.json`, both written with mode 0600 in 0700 directories, and preview payloads under `$XDG_STATE_HOME/schwab-agent/previews` (0700 and 0600). Env vars `SCHWAB_CLIENT_ID`, `SCHWAB_CLIENT_SECRET` and `SCHWAB_CALLBACK_URL` override the file. Default callback `https://127.0.0.1:8182`. `config.json` has a `base_url_insecure` option; leave it false.
+- **major `auth login`:** opens a browser or prints the authorization URL with `--no-browser`. Letting an agent run it puts the OAuth flow in its hands.
+- **Skill install step for major:** `ln -sf` replaces any existing `~/.claude/skills/schwab-agent/SKILL.md` without asking, as the README itself warns.
+
+## Per-skill notes
+
+### k1xme `account`
+
+3.6 KB. Active account is persisted across sessions, so a mistake sticks: a later `place_order` with no `account_hash` goes to whichever account was last set. The orders skill says to omit `account_hash` unless the user names another one.
+
+### k1xme `orders`
+
+10 KB, the only skill with write power. Notable content:
+
+- Order schemas include a TRIGGER credit spread whose child is a standing `NET_DEBIT` limit. The skill admits Schwab's API has no stop on multi-leg spreads and that the child "will fill immediately if the spread is already at or below that debit when the parent fills". That is a real trap, and the skill documents it.
+- `place_order` is listed as "Place / modify order" in the tool map; modification is actually `replace_order`.
+- Option symbols use the 21 character OCC padded format.
+- The skill says price is a string for equities and a number in the option examples; check against the live API before trusting either.
+
+### k1xme `quotes`, `market`, `instruments`
+
+1.3 to 4.2 KB each. Parameter tables and valid combinations only. They push responses into subagents and temp files.
+
+### k1xme `chart-orders`
+
+4.3 KB. Plotly chart of filled orders over candles. Needs epoch milliseconds for `get_price_history`. The script path and the CDN fetch are the two problems above.
+
+### major `schwab-agent`
+
+One root `SKILL.md`, 2,740 lines, generated from the CLI help tree. No prose guardrails, no confirmation protocol, no instruction to dry-run. It does include `order preview` and `order build` (build JSON without calling the API) and a `--from-preview` example, so a careful agent has the pieces. The install is a symlink of the file, not a plugin.
+
+## Verdict
+
+Two very different animals. k1xme is an HTTP MCP server whose only guard is a boolean the model sets itself, plus unauthenticated loopback exposure. major's CLI has a real, default-off write gate and a payload-bound preview flow, but the skill text never mentions either, and the project is archived. For live Schwab trading with an agent, assume nothing here protects you from the agent itself. Read-only use is the sane default; skip `place`, `cancel` and `replace` until you have written your own interlock.
+
+## Full SKILL.md for major/schwab-agent (MIT)
+
+Reproduced verbatim from `SKILL.md` at commit `41fca06cf94654f93a459eb3c938666421e7fa40` of https://github.com/major/schwab-agent, which is licensed under the MIT License ("Copyright (c) 2026 Major Hayden"). Copyright is held by its author; the text is unmodified. Em dashes, en dashes and other punctuation inside the block are the original's.
+
+~~~~markdown
+---
+name: schwab-agent
+description: Trade and inspect Charles Schwab accounts through the schwab-agent CLI. Use when an agent needs account lookup, market data, technical indicators, option chains, or order preview/build/place/cancel/replace workflows.
+---
+
+# schwab-agent
+
+CLI tool for AI agents to trade via Schwab APIs
+
+## Usage
+
+```bash
+Usage:
+  schwab-agent [command]
+
+Trading Commands
+  order       List, build, preview, place, cancel, and replace orders
+
+Market Data Commands
+  analyze     Combined quote and technical analysis for one or more symbols
+  history     Retrieve price history for a symbol
+  indicators  Technical indicators dashboard (shortcut for ta dashboard)
+  instrument  Search and look up instruments
+  market      Market hours and top movers
+  option      Option planning workflows
+  quote       Stock quote operations
+  ta          Technical analysis indicators
+
+Account Management Commands
+  account     Manage Schwab trading accounts
+  auth        Authentication commands
+  position    View positions across accounts
+
+Tool Commands
+  completion  Generate shell completion scripts
+  config-keys Show config keys and related flags
+  env-vars    Show supported environment variables
+  symbol      OCC symbol operations
+
+Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent [command] --help" for more information about a command.
+```
+
+## Commands
+
+### `schwab-agent`
+
+```bash
+Usage:
+  schwab-agent [command]
+
+Trading Commands
+  order       List, build, preview, place, cancel, and replace orders
+
+Market Data Commands
+  analyze     Combined quote and technical analysis for one or more symbols
+  history     Retrieve price history for a symbol
+  indicators  Technical indicators dashboard (shortcut for ta dashboard)
+  instrument  Search and look up instruments
+  market      Market hours and top movers
+  option      Option planning workflows
+  quote       Stock quote operations
+  ta          Technical analysis indicators
+
+Account Management Commands
+  account     Manage Schwab trading accounts
+  auth        Authentication commands
+  position    View positions across accounts
+
+Tool Commands
+  completion  Generate shell completion scripts
+  config-keys Show config keys and related flags
+  env-vars    Show supported environment variables
+  symbol      OCC symbol operations
+
+Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent [command] --help" for more information about a command.
+```
+
+### `schwab-agent account`
+
+```bash
+Usage:
+  schwab-agent account [flags]
+  schwab-agent account [command]
+
+Available Commands:
+  get         Get account details by hash value
+  list        List all accounts with nicknames and settings
+  numbers     List account numbers and hash values
+  resolve     Resolve an account identifier to full details
+  set-default Set the default account hash
+  summary     List compact account identifiers for agents
+  transaction List and look up account transactions
+
+Flags:
+      --account string   Account hash, account number, or nickname to use (overrides config default)
+
+Global Flags:
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent account [command] --help" for more information about a command.
+```
+
+### `schwab-agent account get`
+
+```bash
+Usage:
+  schwab-agent account get [hash] [flags]
+
+Examples:
+  schwab-agent account get
+  schwab-agent account get ABCDEF1234567890
+  schwab-agent account get --positions
+
+Flags:
+      --positions   Include current positions in the account response
+
+Global Flags:
+      --account string                  Account hash, account number, or nickname to use (overrides config default)
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent account list`
+
+```bash
+Usage:
+  schwab-agent account list [flags]
+
+Examples:
+  schwab-agent account list
+  schwab-agent account list --positions
+
+Flags:
+      --positions   Include current positions for each account
+
+Global Flags:
+      --account string                  Account hash, account number, or nickname to use (overrides config default)
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent account numbers`
+
+```bash
+Usage:
+  schwab-agent account numbers [flags]
+
+Examples:
+  schwab-agent account numbers
+
+Global Flags:
+      --account string                  Account hash, account number, or nickname to use (overrides config default)
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent account resolve`
+
+```bash
+Usage:
+  schwab-agent account resolve [account] [flags]
+
+Examples:
+  # Resolve by nickname
+  schwab-agent account resolve "My IRA"
+
+  # Resolve by account number
+  schwab-agent account resolve 12345678
+
+  # Resolve using the --account flag
+  schwab-agent account resolve --account "My IRA"
+
+  # Resolve using the default account from config
+  schwab-agent account resolve
+
+Global Flags:
+      --account string                  Account hash, account number, or nickname to use (overrides config default)
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent account set-default`
+
+```bash
+Usage:
+  schwab-agent account set-default <hash> [flags]
+
+Examples:
+  schwab-agent account set-default ABCDEF1234567890
+
+Global Flags:
+      --account string                  Account hash, account number, or nickname to use (overrides config default)
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent account summary`
+
+```bash
+Usage:
+  schwab-agent account summary [flags]
+
+Examples:
+  schwab-agent account summary
+  schwab-agent account summary --positions
+
+Flags:
+      --positions   Include compact current positions for each account
+
+Global Flags:
+      --account string                  Account hash, account number, or nickname to use (overrides config default)
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent account transaction`
+
+```bash
+Usage:
+  schwab-agent account transaction [flags]
+  schwab-agent account transaction [command]
+
+Available Commands:
+  get         Get a specific transaction by ID
+  list        List transactions for an account
+
+Global Flags:
+      --account string                  Account hash, account number, or nickname to use (overrides config default)
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent account transaction [command] --help" for more information about a command.
+```
+
+### `schwab-agent account transaction get`
+
+```bash
+Usage:
+  schwab-agent account transaction get <transaction-id> [flags]
+
+Examples:
+schwab-agent account transaction get 98765432101
+
+Global Flags:
+      --account string                  Account hash, account number, or nickname to use (overrides config default)
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent account transaction list`
+
+```bash
+Usage:
+  schwab-agent account transaction list [flags]
+
+Examples:
+  schwab-agent account transaction list
+  schwab-agent account transaction list --types TRADE --symbol AAPL
+  schwab-agent account transaction list --from 2025-01-01T00:00:00Z --to 2025-01-31T23:59:59Z
+
+Flags:
+      --from string     Start date (YYYY-MM-DDTHH:MM:SSZ)
+      --symbol string   Filter by symbol
+      --to string       End date (YYYY-MM-DDTHH:MM:SSZ)
+      --types string    Transaction type filter (TRADE, DIVIDEND, etc.)
+
+Global Flags:
+      --account string                  Account hash, account number, or nickname to use (overrides config default)
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent analyze`
+
+```bash
+Usage:
+  schwab-agent analyze SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent analyze AAPL
+  schwab-agent analyze AAPL NVDA
+  schwab-agent analyze AAPL --interval weekly --points 5
+  schwab-agent analyze AAPL MSFT NVDA --compact
+  schwab-agent analyze AAPL --latest-only
+
+Flags:
+      --compact           Return compact quote and TA fields for multi-symbol scans
+      --interval string   Data interval (daily, weekly, 1min, 5min, 15min, 30min) (default "daily")
+      --latest-only       Omit duplicate dashboard values rows when only latest context is needed
+      --points int        Number of TA output points (default 1; 0 = all) (default 1)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent auth`
+
+```bash
+Usage:
+  schwab-agent auth [flags]
+  schwab-agent auth [command]
+
+Available Commands:
+  login       Run the OAuth login flow
+  refresh     Refresh the current access token
+  status      Show token and config status
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent auth [command] --help" for more information about a command.
+```
+
+### `schwab-agent auth login`
+
+```bash
+Usage:
+  schwab-agent auth login [flags]
+
+Examples:
+  schwab-agent auth login
+  schwab-agent auth login --no-browser
+
+Flags:
+      --no-browser   Print the authorization URL in the JSON response instead of opening a browser
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent auth refresh`
+
+```bash
+Usage:
+  schwab-agent auth refresh [flags]
+
+Examples:
+  schwab-agent auth refresh
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent auth status`
+
+```bash
+Usage:
+  schwab-agent auth status [flags]
+
+Examples:
+  schwab-agent auth status
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent completion`
+
+```bash
+Usage:
+  schwab-agent completion [flags]
+  schwab-agent completion [command]
+
+Available Commands:
+  bash        Generate bash completion script
+  fish        Generate fish completion script
+  powershell  Generate powershell completion script
+  zsh         Generate zsh completion script
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent completion [command] --help" for more information about a command.
+```
+
+### `schwab-agent completion bash`
+
+```bash
+Usage:
+  schwab-agent completion bash [flags]
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent completion fish`
+
+```bash
+Usage:
+  schwab-agent completion fish [flags]
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent completion powershell`
+
+```bash
+Usage:
+  schwab-agent completion powershell [flags]
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent completion zsh`
+
+```bash
+Usage:
+  schwab-agent completion zsh [flags]
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent config-keys`
+
+```bash
+Usage:
+  schwab-agent config-keys [flags]
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent env-vars`
+
+```bash
+Usage:
+  schwab-agent env-vars [flags]
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent history`
+
+```bash
+Usage:
+  schwab-agent history [flags]
+  schwab-agent history [command]
+
+Aliases:
+  history, price-history
+
+Available Commands:
+  get         Get price history candles for a symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent history [command] --help" for more information about a command.
+```
+
+### `schwab-agent history get`
+
+```bash
+Usage:
+  schwab-agent history get SYMBOL [flags]
+
+Examples:
+  schwab-agent history get AAPL
+  schwab-agent history get AAPL --period-type month --period 3 --frequency-type daily --frequency 1
+  schwab-agent history get AAPL --period-type day --period 5 --frequency-type minute --frequency 15
+  schwab-agent history get AAPL --from 1735689600000 --to 1743379200000
+
+Flags:
+      --frequency string        Frequency value
+      --frequency-type string   Frequency type (minute, daily, weekly, monthly)
+      --from string             Start date (milliseconds since epoch)
+      --period string           Number of periods
+      --period-type string      Period type (day, month, year, ytd)
+      --to string               End date (milliseconds since epoch)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent indicators`
+
+```bash
+Usage:
+  schwab-agent indicators SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent indicators AAPL
+  schwab-agent indicators AAPL --points 5
+  schwab-agent indicators NVDA --interval weekly --points 10
+  schwab-agent indicators AAPL MSFT NVDA
+
+Flags:
+      --interval string   Data interval (daily, weekly, 1min, 5min, 15min, 30min) (default "daily")
+      --points int        Number of output points (default 1; 0 = all) (default 1)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent instrument`
+
+```bash
+Usage:
+  schwab-agent instrument [flags]
+  schwab-agent instrument [command]
+
+Available Commands:
+  get         Get instrument details by CUSIP
+  search      Search instruments by symbol or description
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent instrument [command] --help" for more information about a command.
+```
+
+### `schwab-agent instrument get`
+
+```bash
+Usage:
+  schwab-agent instrument get CUSIP [flags]
+
+Examples:
+  schwab-agent instrument get 037833100
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent instrument search`
+
+```bash
+Usage:
+  schwab-agent instrument search QUERY [flags]
+
+Examples:
+  schwab-agent instrument search AAPL
+  schwab-agent instrument search "Apple" --projection desc-search
+  schwab-agent instrument search AAPL --projection fundamental
+
+Flags:
+      --projection string   Search projection (symbol-search, symbol-regex, desc-search, desc-regex, search, fundamental) (default "symbol-search")
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent market`
+
+```bash
+Usage:
+  schwab-agent market [flags]
+  schwab-agent market [command]
+
+Available Commands:
+  hours       Get market hours for one or more markets (equity, option, bond, future, forex)
+  movers      Get top movers for an index ($SPX, $DJI, $COMPX, NYSE, NASDAQ, OTCBB, INDEX_ALL, EQUITY_ALL, OPTION_ALL, OPTION_PUT, OPTION_CALL)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent market [command] --help" for more information about a command.
+```
+
+### `schwab-agent market hours`
+
+```bash
+Usage:
+  schwab-agent market hours [market ...] [flags]
+
+Examples:
+  schwab-agent market hours
+  schwab-agent market hours equity
+  schwab-agent market hours equity option
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent market movers`
+
+```bash
+Usage:
+  schwab-agent market movers <index> [flags]
+
+Examples:
+  schwab-agent market movers '$SPX' --sort PERCENT_CHANGE_UP
+  schwab-agent market movers '$DJI' --sort VOLUME --frequency 5
+  schwab-agent market movers EQUITY_ALL --sort PERCENT_CHANGE_UP
+
+Flags:
+      --frequency string   Minimum percent change magnitude (0, 1, 5, 10, 30, 60)
+      --sort string        Sort order (VOLUME, TRADES, PERCENT_CHANGE_UP, PERCENT_CHANGE_DOWN)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent option`
+
+```bash
+Usage:
+  schwab-agent option [flags]
+  schwab-agent option [command]
+
+Available Commands:
+  chain       Get compact option chain for a symbol
+  contract    Get a single curated option contract with quote context
+  expirations List option expiration dates for a symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent option [command] --help" for more information about a command.
+```
+
+### `schwab-agent option expirations`
+
+```bash
+Usage:
+  schwab-agent option expirations <symbol> [flags]
+
+Examples:
+  schwab-agent option expirations AAPL
+  schwab-agent option expirations TSLA
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent option chain`
+
+```bash
+Usage:
+  schwab-agent option chain <symbol> [flags]
+
+Examples:
+  schwab-agent option chain AAPL
+  schwab-agent option chain AAPL --type CALL --dte 30
+  schwab-agent option chain AMD --type PUT --strike-range OTM --expiration 2026-06-19 --delta-min -0.25 --delta-max -0.15 --fields strike,delta,bid,ask,mid,openInterest,totalVolume,volatility,daysToExpiration
+  schwab-agent option chain AAPL --strike-count 5
+  schwab-agent option chain AAPL --strike-min 190 --strike-max 210
+
+Flags:
+      --delta-max float      Maximum option delta (inclusive)
+      --delta-min float      Minimum option delta (inclusive)
+      --dte int               Target days to expiration
+      --expiration string     Exact expiration date (YYYY-MM-DD)
+      --fields string         Comma-separated field names for column projection (e.g., strike, delta, bid, ask, mid, openInterest, totalVolume, volatility, daysToExpiration)
+      --order-type string     alias for --type (order type)
+      --strike float          Exact strike price
+      --strike-count int      Number of strikes around ATM
+      --strike-max float      Maximum strike price
+      --strike-min float      Minimum strike price
+      --strike-range string   Moneyness filter: ITM, NTM, OTM, SAK, SBK, SNK, ALL
+      --type string           Contract type: CALL, PUT, or ALL (default "ALL")
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent option contract`
+
+```bash
+Usage:
+  schwab-agent option contract <symbol> [flags]
+
+Examples:
+  schwab-agent option contract AAPL --expiration 2026-06-19 --strike 200 --call
+  schwab-agent option contract TSLA --expiration 2026-03-20 --strike 180 --put
+
+Flags:
+      --call                Select the call contract
+      --expiration string   Option expiration date (YYYY-MM-DD)
+      --put                 Select the put contract
+      --strike float        Option strike price
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order`
+
+```bash
+Usage:
+  schwab-agent order [flags]
+  schwab-agent order [command]
+
+Available Commands:
+  build       Build order request JSON without calling the API
+  cancel      Cancel an order
+  get         Get an order by ID
+  list        List orders (defaults to non-terminal statuses)
+  place       Place an order
+  preview     Preview an order from JSON spec or typed flags
+  replace     Replace an order with a new equity order spec
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent order [command] --help" for more information about a command.
+```
+
+### `schwab-agent order build`
+
+```bash
+Usage:
+  schwab-agent order build [flags]
+  schwab-agent order build [command]
+
+Available Commands:
+  back-ratio      Build a back-ratio spread order request
+  bracket         Build a bracket order request
+  butterfly       Build a butterfly spread order request
+  buy-with-stop   Build a buy-with-stop order request
+  calendar        Build a calendar spread order request (same strike, different expirations)
+  collar          Build a collar-with-stock order request (buy shares + buy put + sell call)
+  condor          Build a condor spread order request
+  covered-call    Build a covered call order request (buy shares + sell call)
+  diagonal        Build a diagonal spread order request (different strikes and expirations)
+  double-diagonal Build a double diagonal spread order request
+  equity          Build an equity order request
+  fts             Build a first-triggers-second order from two order specs
+  iron-condor     Build an iron condor order request
+  oco             Build a one-cancels-other order request for an existing position
+  option          Build an option order request
+  sell-covered-call Sell a covered call against existing shares
+  short-iron-condor Sell an opening iron condor
+  straddle        Build a straddle order request
+  strangle        Build a strangle order request
+  vertical        Build a vertical spread order request
+  vertical-roll   Build a vertical roll order request
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent order build [command] --help" for more information about a command.
+```
+
+### `schwab-agent order build back-ratio`
+
+```bash
+Usage:
+  schwab-agent order build back-ratio [flags]
+
+Examples:
+  schwab-agent order build back-ratio --underlying F --expiration 2026-06-18 --short-strike 12 --long-strike 14 --call --open --quantity 1 --long-ratio 2 --debit --price 0.20
+
+Flags:
+      --call                 Call back-ratio
+      --close                Closing position
+      --credit               Build as NET_CREDIT
+      --debit                Build as NET_DEBIT
+      --duration string      Order duration
+      --expiration string    Expiration date (YYYY-MM-DD)
+      --long-ratio float     Long contracts per short contract (default 2)
+      --long-strike float    Long option strike
+      --open                 Opening position
+      --price float          Net debit or credit amount
+      --put                  Put back-ratio
+      --quantity float       Short-leg contract quantity
+      --session string       Trading session
+      --short-strike float   Short option strike
+      --underlying string    Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build bracket`
+
+```bash
+Usage:
+  schwab-agent order build bracket [flags]
+
+Examples:
+  schwab-agent order build bracket --symbol NVDA --action BUY --quantity 10 --type MARKET --take-profit 150 --stop-loss 120
+  schwab-agent order build bracket --symbol AAPL --action BUY --quantity 10 --type LIMIT --price 180 --stop-loss 170
+
+Flags:
+      --action string        Order action
+      --duration string      Order duration
+      --instruction string   alias for --action (order instruction)
+      --order-type string    alias for --type (order type)
+      --price float          Entry price
+      --quantity float       Share quantity
+      --session string       Trading session
+      --stop-loss float      Stop-loss exit price
+      --symbol string        Equity symbol
+      --take-profit float    Take-profit exit price
+      --type string          Entry order type
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build butterfly`
+
+```bash
+Usage:
+  schwab-agent order build butterfly [flags]
+
+Examples:
+  schwab-agent order build butterfly --underlying F --expiration 2026-06-18 --lower-strike 10 --middle-strike 12 --upper-strike 14 --call --buy --open --quantity 1 --price 0.50
+
+Flags:
+      --buy                   Buy a long butterfly
+      --call                  Call butterfly
+      --close                 Closing position
+      --duration string       Order duration
+      --expiration string     Expiration date (YYYY-MM-DD)
+      --lower-strike float    Lower wing strike
+      --middle-strike float   Middle body strike
+      --open                  Opening position
+      --price float           Net debit or credit amount
+      --put                   Put butterfly
+      --quantity float        Wing contract quantity
+      --sell                  Sell a short butterfly
+      --session string        Trading session
+      --underlying string     Underlying symbol
+      --upper-strike float    Upper wing strike
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build buy-with-stop`
+
+```bash
+Usage:
+  schwab-agent order build buy-with-stop [flags]
+
+Examples:
+  # Buy 10 shares of AAPL at $150 with stop-loss at $140
+  schwab-agent order build buy-with-stop --symbol AAPL --quantity 10 --price 150 --stop-loss 140
+
+  # Market entry with stop-loss (no price validation)
+  schwab-agent order build buy-with-stop --symbol AAPL --quantity 10 --type MARKET --stop-loss 140
+
+  # With take-profit (creates OCO exit structure)
+  schwab-agent order build buy-with-stop --symbol AAPL --quantity 10 --price 150 --stop-loss 140 --take-profit 170
+
+Flags:
+  -d, --duration string     Entry duration (exit legs are always GTC)
+      --order-type string   alias for --type (order type)
+  -p, --price float         Entry limit price (required for LIMIT orders, omit for MARKET)
+  -q, --quantity float      Share quantity
+      --session string      Trading session
+      --stop-loss float     Stop trigger price - becomes market sell when hit
+  -s, --symbol string       Stock symbol (e.g., AAPL)
+      --take-profit float   Optional take-profit limit price
+  -t, --type string         Entry order type (LIMIT or MARKET, default LIMIT)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build calendar`
+
+```bash
+Usage:
+  schwab-agent order build calendar [flags]
+
+Examples:
+  schwab-agent order build calendar --underlying F --near-expiration 2026-05-16 --far-expiration 2026-07-17 --strike 12 --call --open --quantity 1 --price 0.50
+
+Flags:
+      --call                     Call calendar spread
+      --close                    Closing position
+      --duration string          Order duration
+      --far-expiration string    Far-term expiration date (YYYY-MM-DD)
+      --near-expiration string   Near-term expiration date (YYYY-MM-DD)
+      --open                     Opening position
+      --price float              Net debit amount
+      --put                      Put calendar spread
+      --quantity float           Number of contracts
+      --session string           Trading session
+      --strike float             Strike price (shared by both legs)
+      --underlying string        Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build collar`
+
+```bash
+Usage:
+  schwab-agent order build collar [flags]
+
+Examples:
+  schwab-agent order build collar --underlying F --put-strike 10 --call-strike 14 --expiration 2026-06-18 --quantity 1 --open --price 12.00
+
+Flags:
+      --call-strike float   Covered call strike price
+      --close               Closing position
+      --duration string     Order duration
+      --expiration string   Expiration date for both options (YYYY-MM-DD)
+      --open                Opening position
+      --price float         Net debit amount
+      --put-strike float    Protective put strike price
+      --quantity float      Number of contracts (1 contract = 100 shares)
+      --session string      Trading session
+      --underlying string   Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build condor`
+
+```bash
+Usage:
+  schwab-agent order build condor [flags]
+
+Examples:
+  schwab-agent order build condor --underlying F --expiration 2026-06-18 --lower-strike 10 --lower-middle-strike 12 --upper-middle-strike 14 --upper-strike 16 --call --buy --open --quantity 1 --price 0.75
+
+Flags:
+      --buy                         Buy a long condor
+      --call                        Call condor
+      --close                       Closing position
+      --duration string             Order duration
+      --expiration string           Expiration date (YYYY-MM-DD)
+      --lower-middle-strike float   Lower middle strike
+      --lower-strike float          Lower wing strike
+      --open                        Opening position
+      --price float                 Net debit or credit amount
+      --put                         Put condor
+      --quantity float              Contract quantity per strike
+      --sell                        Sell a short condor
+      --session string              Trading session
+      --underlying string           Underlying symbol
+      --upper-middle-strike float   Upper middle strike
+      --upper-strike float          Upper wing strike
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build covered-call`
+
+```bash
+Usage:
+  schwab-agent order build covered-call [flags]
+
+Examples:
+  schwab-agent order build covered-call --underlying F --expiration 2026-06-18 --strike 14 --quantity 1 --price 12.00
+
+Flags:
+      --duration string     Order duration
+      --expiration string   Expiration date (YYYY-MM-DD)
+      --price float         Net debit amount
+      --quantity float      Number of contracts (1 contract = 100 shares)
+      --session string      Trading session
+      --strike float        Call strike price
+      --underlying string   Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build sell-covered-call`
+
+```bash
+Usage:
+  schwab-agent order build sell-covered-call [flags]
+
+Examples:
+  schwab-agent order build sell-covered-call --underlying F --expiration 2026-06-18 --strike 14 --quantity 1 --type LIMIT --price 1.00
+  schwab-agent order preview sell-covered-call --underlying F --expiration 2026-06-18 --strike 14 --quantity 1 --type LIMIT --price 1.00 --save-preview
+  schwab-agent order place sell-covered-call --underlying F --expiration 2026-06-18 --strike 14 --quantity 1 --type LIMIT --price 1.00
+
+Flags:
+      --duration string     Order duration
+      --expiration string   Expiration date (YYYY-MM-DD)
+      --price float         Option price
+      --quantity float      Number of contracts
+      --session string      Trading session
+      --strike float        Option strike price
+      --type string         Order type
+      --underlying string   Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build diagonal`
+
+```bash
+Usage:
+  schwab-agent order build diagonal [flags]
+
+Examples:
+  schwab-agent order build diagonal --underlying F --near-strike 12 --far-strike 14 --near-expiration 2026-05-16 --far-expiration 2026-07-17 --call --open --quantity 1 --price 0.50
+
+Flags:
+      --call                     Call diagonal spread
+      --close                    Closing position
+      --duration string          Order duration
+      --far-expiration string    Far-term expiration date (YYYY-MM-DD)
+      --far-strike float         Strike price for the far-term (bought) leg
+      --near-expiration string   Near-term expiration date (YYYY-MM-DD)
+      --near-strike float        Strike price for the near-term (sold) leg
+      --open                     Opening position
+      --price float              Net debit amount
+      --put                      Put diagonal spread
+      --quantity float           Number of contracts
+      --session string           Trading session
+      --underlying string        Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build double-diagonal`
+
+```bash
+Usage:
+  schwab-agent order build double-diagonal [flags]
+
+Examples:
+  schwab-agent order build double-diagonal --underlying F --near-expiration 2026-06-18 --far-expiration 2026-07-17 --put-far-strike 9 --put-near-strike 10 --call-near-strike 14 --call-far-strike 15 --open --quantity 1 --price 0.80
+
+Flags:
+      --call-far-strike float    Far call long strike
+      --call-near-strike float   Near call short strike
+      --close                    Closing position
+      --duration string          Order duration
+      --far-expiration string    Far expiration for long legs (YYYY-MM-DD)
+      --near-expiration string   Near expiration for short legs (YYYY-MM-DD)
+      --open                     Opening position
+      --price float              Net debit or credit amount
+      --put-far-strike float     Far put long strike
+      --put-near-strike float    Near put short strike
+      --quantity float           Contract quantity
+      --session string           Trading session
+      --underlying string        Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build equity`
+
+```bash
+Usage:
+  schwab-agent order build equity [flags]
+
+Examples:
+  schwab-agent order build equity --symbol AAPL --action BUY --quantity 10 --type LIMIT --price 200 --duration DAY
+  schwab-agent order build equity --symbol AAPL --action SELL --quantity 10 --type STOP --stop-price 145
+  schwab-agent order build equity --symbol AAPL --action BUY --quantity 10 --type LIMIT --price 200 | schwab-agent order place --spec -
+
+Flags:
+      --action string                Order action
+      --activation-price float       Price that activates the trailing stop
+      --destination string           Order routing destination (INET, ECN_ARCA, CBOE, AMEX, PHLX, ISE, BOX, NYSE, NASDAQ, BATS, C2, AUTO)
+      --duration string              Order duration
+      --instruction string           alias for --action (order instruction)
+      --order-type string            alias for --type (order type)
+      --price float                  Limit price
+      --price-link-basis string      Price link reference price (MANUAL, BASE, TRIGGER, LAST, BID, ASK, ASK_BID, MARK, AVERAGE)
+      --price-link-type string       Price link offset type (VALUE, PERCENT, TICK)
+      --quantity float               Share quantity
+      --session string               Trading session
+      --special-instruction string   Special instruction (ALL_OR_NONE, DO_NOT_REDUCE, ALL_OR_NONE_DO_NOT_REDUCE)
+      --stop-link-basis string       Trailing stop reference price (LAST, BID, ASK, MARK)
+      --stop-link-type string        Trailing stop offset type (VALUE, PERCENT, TICK)
+      --stop-offset float            Trailing stop offset amount
+      --stop-price float             Stop price
+      --stop-type string             Trailing stop trigger type (STANDARD, BID, ASK, LAST, MARK)
+      --symbol string                Equity symbol
+      --type string                  Order type
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build fts`
+
+```bash
+Usage:
+  schwab-agent order build fts [flags]
+
+Examples:
+  schwab-agent order build fts --primary @entry.json --secondary @exit.json
+  schwab-agent order build fts --primary '{"orderType":"LIMIT",...}' --secondary '{"orderType":"STOP",...}'
+
+Flags:
+      --primary string     Primary order spec (inline JSON, @file, or - for stdin)
+      --secondary string   Secondary order spec (inline JSON, @file, or - for stdin)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build iron-condor`
+
+```bash
+Usage:
+  schwab-agent order build iron-condor [flags]
+
+Examples:
+  schwab-agent order build iron-condor --underlying F --expiration 2026-06-18 --put-long-strike 9 --put-short-strike 10 --call-short-strike 14 --call-long-strike 15 --open --quantity 1 --price 0.50
+
+Flags:
+      --call-long-strike float    Highest strike: call being bought (protection)
+      --call-short-strike float   Call being sold (premium)
+      --close                     Closing position
+      --duration string           Order duration
+      --expiration string         Expiration date (YYYY-MM-DD)
+      --open                      Opening position
+      --price float               Net credit or debit amount
+      --put-long-strike float     Lowest strike: put being bought (protection)
+      --put-short-strike float    Put being sold (premium)
+      --quantity float            Number of contracts
+      --session string            Trading session
+      --underlying string         Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build short-iron-condor`
+
+```bash
+Usage:
+  schwab-agent order build short-iron-condor [flags]
+
+Examples:
+  schwab-agent order build short-iron-condor --underlying F --expiration 2026-06-18 --put-long-strike 9 --put-short-strike 10 --call-short-strike 14 --call-long-strike 15 --quantity 1 --price 0.50
+  schwab-agent order preview short-iron-condor --underlying F --expiration 2026-06-18 --put-long-strike 9 --put-short-strike 10 --call-short-strike 14 --call-long-strike 15 --quantity 1 --price 0.50 --save-preview
+  schwab-agent order place short-iron-condor --underlying F --expiration 2026-06-18 --put-long-strike 9 --put-short-strike 10 --call-short-strike 14 --call-long-strike 15 --quantity 1 --price 0.50
+
+Flags:
+      --call-long-strike float    Highest strike: call being bought (protection)
+      --call-short-strike float   Call being sold (premium)
+      --duration string           Order duration
+      --expiration string         Expiration date (YYYY-MM-DD)
+      --price float               Net credit amount
+      --put-long-strike float     Lowest strike: put being bought (protection)
+      --put-short-strike float    Put being sold (premium)
+      --quantity float            Number of contracts
+      --session string            Trading session
+      --underlying string         Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build oco`
+
+```bash
+Usage:
+  schwab-agent order build oco [flags]
+
+Examples:
+  schwab-agent order build oco --symbol AAPL --action SELL --quantity 100 --take-profit 160 --stop-loss 140
+  schwab-agent order build oco --symbol TSLA --action BUY --quantity 10 --stop-loss 250
+
+Flags:
+      --action string        Exit action (SELL to close long, BUY to close short)
+      --duration string      Order duration
+      --instruction string   alias for --action (order instruction)
+      --quantity float       Share quantity
+      --session string       Trading session
+      --stop-loss float      Stop-loss exit price (stop order)
+      --symbol string        Equity symbol
+      --take-profit float    Take-profit exit price (limit order)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build option`
+
+```bash
+Usage:
+  schwab-agent order build option [flags]
+
+Examples:
+  schwab-agent order build option --underlying AAPL --expiration 2025-06-20 --strike 200 --call --action BUY_TO_OPEN --quantity 1 --type LIMIT --price 5.00
+  schwab-agent order build option --underlying AAPL --expiration 2025-06-20 --strike 190 --put --action SELL_TO_OPEN --quantity 1
+
+Flags:
+      --action string                Order action
+      --call                         Call option
+      --destination string           Order routing destination (INET, ECN_ARCA, CBOE, AMEX, PHLX, ISE, BOX, NYSE, NASDAQ, BATS, C2, AUTO)
+      --duration string              Order duration
+      --expiration string            Expiration date (YYYY-MM-DD)
+      --instruction string           alias for --action (order instruction)
+      --order-type string            alias for --type (order type)
+      --price float                  Limit price
+      --price-link-basis string      Price link reference price (MANUAL, BASE, TRIGGER, LAST, BID, ASK, ASK_BID, MARK, AVERAGE)
+      --price-link-type string       Price link offset type (VALUE, PERCENT, TICK)
+      --put                          Put option
+      --quantity float               Contract quantity
+      --session string               Trading session
+      --special-instruction string   Special instruction (ALL_OR_NONE, DO_NOT_REDUCE, ALL_OR_NONE_DO_NOT_REDUCE)
+      --strike float                 Strike price
+      --type string                  Order type
+      --underlying string            Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build straddle`
+
+```bash
+Usage:
+  schwab-agent order build straddle [flags]
+
+Examples:
+  schwab-agent order build straddle --underlying F --expiration 2026-06-18 --strike 12 --buy --open --quantity 1 --price 1.50
+  schwab-agent order build straddle --underlying F --expiration 2026-06-18 --strike 12 --sell --open --quantity 1 --price 1.50
+
+Flags:
+      --buy                 Buy the straddle (long, net debit)
+      --close               Closing position
+      --duration string     Order duration
+      --expiration string   Expiration date (YYYY-MM-DD)
+      --open                Opening position
+      --price float         Net debit or credit amount
+      --quantity float      Number of contracts
+      --sell                Sell the straddle (short, net credit)
+      --session string      Trading session
+      --strike float        Strike price (shared by call and put legs)
+      --underlying string   Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build strangle`
+
+```bash
+Usage:
+  schwab-agent order build strangle [flags]
+
+Examples:
+  schwab-agent order build strangle --underlying F --expiration 2026-06-18 --call-strike 14 --put-strike 10 --buy --open --quantity 1 --price 0.50
+  schwab-agent order build strangle --underlying F --expiration 2026-06-18 --call-strike 14 --put-strike 10 --sell --open --quantity 1 --price 0.50
+
+Flags:
+      --buy                 Buy the strangle (long, net debit)
+      --call-strike float   Strike price for the call leg
+      --close               Closing position
+      --duration string     Order duration
+      --expiration string   Expiration date (YYYY-MM-DD)
+      --open                Opening position
+      --price float         Net debit or credit amount
+      --put-strike float    Strike price for the put leg
+      --quantity float      Number of contracts
+      --sell                Sell the strangle (short, net credit)
+      --session string      Trading session
+      --underlying string   Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build vertical`
+
+```bash
+Usage:
+  schwab-agent order build vertical [flags]
+
+Examples:
+  # Bull call spread
+  schwab-agent order build vertical --underlying F --expiration 2026-06-18 --long-strike 12 --short-strike 14 --call --open --quantity 1 --price 0.50
+  # Bear put spread
+  schwab-agent order build vertical --underlying F --expiration 2026-06-18 --long-strike 14 --short-strike 12 --put --open --quantity 1 --price 0.50
+
+Flags:
+      --call                 Call spread
+      --close                Closing position
+      --duration string      Order duration
+      --expiration string    Expiration date (YYYY-MM-DD)
+      --long-strike float    Strike price of the option being bought
+      --open                 Opening position
+      --price float          Net debit or credit amount
+      --put                  Put spread
+      --quantity float       Number of contracts
+      --session string       Trading session
+      --short-strike float   Strike price of the option being sold
+      --underlying string    Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order build vertical-roll`
+
+```bash
+Usage:
+  schwab-agent order build vertical-roll [flags]
+
+Examples:
+  schwab-agent order build vertical-roll --underlying F --close-expiration 2026-06-18 --open-expiration 2026-07-17 --close-long-strike 12 --close-short-strike 14 --open-long-strike 13 --open-short-strike 15 --call --debit --quantity 1 --price 0.25
+
+Flags:
+      --call                       Call vertical roll
+      --close-expiration string    Expiration of the vertical being closed (YYYY-MM-DD)
+      --close-long-strike float    Long strike of the vertical being closed
+      --close-short-strike float   Short strike of the vertical being closed
+      --credit                     Build as NET_CREDIT
+      --debit                      Build as NET_DEBIT
+      --duration string            Order duration
+      --open-expiration string     Expiration of the vertical being opened (YYYY-MM-DD)
+      --open-long-strike float     Long strike of the vertical being opened
+      --open-short-strike float    Short strike of the vertical being opened
+      --price float                Net debit or credit amount
+      --put                        Put vertical roll
+      --quantity float             Contract quantity
+      --session string             Trading session
+      --underlying string          Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order cancel`
+
+```bash
+Usage:
+  schwab-agent order cancel [order-id] [flags]
+
+Examples:
+  schwab-agent order cancel 1234567890
+   schwab-agent order cancel --order-id 1234567890
+
+Flags:
+      --order-id string   Order ID
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order get`
+
+```bash
+Usage:
+  schwab-agent order get [order-id] [flags]
+
+Examples:
+  schwab-agent order get 1234567890
+  schwab-agent order get --order-id 1234567890
+
+Flags:
+      --order-id string   Order ID
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order list`
+
+```bash
+Usage:
+  schwab-agent order list [flags]
+
+Examples:
+  schwab-agent order list
+  schwab-agent order list --recent
+  schwab-agent order list --status all
+  schwab-agent order list --status WORKING --status PENDING_ACTIVATION
+  schwab-agent order list --status WORKING,FILLED,EXPIRED
+  schwab-agent order list --from 2025-01-01 --to 2025-01-31
+
+Flags:
+      --from string          Filter by entered time lower bound
+      --recent               Show recent order activity, including terminal statuses, from the last 24 hours unless --from is set
+      --status stringArray   Filter by order status (repeatable, use 'all' for unfiltered): WORKING, PENDING_ACTIVATION, FILLED, EXPIRED, CANCELED, REJECTED, etc.
+      --to string            Filter by entered time upper bound
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order place`
+
+```bash
+Usage:
+  schwab-agent order place [flags]
+  schwab-agent order place [command]
+
+Examples:
+  # Place from a JSON file
+  schwab-agent order place --spec @order.json
+  # Place the exact payload saved by a previous preview
+  schwab-agent order preview equity --account abc123 --symbol AAPL --action BUY --quantity 10 --type LIMIT --price 200 --save-preview
+  schwab-agent order place --from-preview <digest>
+  # Place from stdin (piped from order build)
+  schwab-agent order build equity --symbol AAPL --action BUY --quantity 10 --type LIMIT --price 200 | schwab-agent order place --spec -
+  # Place from inline JSON
+  schwab-agent order place --spec '{"orderType":"LIMIT",...}'
+
+Available Commands:
+  bracket       Place a bracket order
+  buy-with-stop Place a buy order with automatic stop-loss protection
+  equity        Place an equity order
+  oco           Place a one-cancels-other order for an existing position
+  option        Place an option order
+  sell-covered-call Sell a covered call against existing shares
+  short-iron-condor Sell an opening iron condor
+
+Flags:
+      --from-preview string   Place the exact order payload saved by order preview --save-preview
+      --spec string           Inline JSON, @file, or - for stdin
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent order place [command] --help" for more information about a command.
+```
+
+### `schwab-agent order place bracket`
+
+```bash
+Usage:
+  schwab-agent order place bracket [flags]
+
+Examples:
+  # Buy with both take-profit and stop-loss
+  schwab-agent order place bracket --symbol NVDA --action BUY --quantity 10 --type MARKET --take-profit 150 --stop-loss 120
+  # Buy with only a stop-loss safety net
+  schwab-agent order place bracket --symbol AAPL --action BUY --quantity 10 --type LIMIT --price 180 --stop-loss 170
+  # Buy with only a take-profit target
+  schwab-agent order place bracket --symbol TSLA --action BUY --quantity 5 --type MARKET --take-profit 300
+
+Flags:
+      --action string        Order action
+      --duration string      Order duration
+      --instruction string   alias for --action (order instruction)
+      --order-type string    alias for --type (order type)
+      --price float          Entry price
+      --quantity float       Share quantity
+      --session string       Trading session
+      --stop-loss float      Stop-loss exit price
+      --symbol string        Equity symbol
+      --take-profit float    Take-profit exit price
+      --type string          Entry order type
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order place buy-with-stop`
+
+```bash
+Usage:
+  schwab-agent order place buy-with-stop [flags]
+
+Examples:
+  # Buy 10 shares of AAPL at $150 with stop-loss at $140
+  schwab-agent order place buy-with-stop --symbol AAPL --quantity 10 --price 150 --stop-loss 140
+
+  # Market entry with stop-loss (no price validation)
+  schwab-agent order place buy-with-stop --symbol AAPL --quantity 10 --type MARKET --stop-loss 140
+
+  # With take-profit (creates OCO exit structure)
+  schwab-agent order place buy-with-stop --symbol AAPL --quantity 10 --price 150 --stop-loss 140 --take-profit 170
+
+Flags:
+  -d, --duration string     Entry duration (exit legs are always GTC)
+      --order-type string   alias for --type (order type)
+  -p, --price float         Entry limit price (required for LIMIT orders, omit for MARKET)
+  -q, --quantity float      Share quantity
+      --session string      Trading session
+      --stop-loss float     Stop trigger price - becomes market sell when hit
+  -s, --symbol string       Stock symbol (e.g., AAPL)
+      --take-profit float   Optional take-profit limit price
+  -t, --type string         Entry order type (LIMIT or MARKET, default LIMIT)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order place sell-covered-call`
+
+```bash
+Usage:
+  schwab-agent order place sell-covered-call [flags]
+
+Examples:
+  schwab-agent order build sell-covered-call --underlying F --expiration 2026-06-18 --strike 14 --quantity 1 --type LIMIT --price 1.00
+  schwab-agent order preview sell-covered-call --underlying F --expiration 2026-06-18 --strike 14 --quantity 1 --type LIMIT --price 1.00 --save-preview
+  schwab-agent order place sell-covered-call --underlying F --expiration 2026-06-18 --strike 14 --quantity 1 --type LIMIT --price 1.00
+
+Flags:
+      --duration string     Order duration
+      --expiration string   Expiration date (YYYY-MM-DD)
+      --price float         Option price
+      --quantity float      Number of contracts
+      --session string      Trading session
+      --strike float        Option strike price
+      --type string         Order type
+      --underlying string   Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order place short-iron-condor`
+
+```bash
+Usage:
+  schwab-agent order place short-iron-condor [flags]
+
+Examples:
+  schwab-agent order build short-iron-condor --underlying F --expiration 2026-06-18 --put-long-strike 9 --put-short-strike 10 --call-short-strike 14 --call-long-strike 15 --quantity 1 --price 0.50
+  schwab-agent order preview short-iron-condor --underlying F --expiration 2026-06-18 --put-long-strike 9 --put-short-strike 10 --call-short-strike 14 --call-long-strike 15 --quantity 1 --price 0.50 --save-preview
+  schwab-agent order place short-iron-condor --underlying F --expiration 2026-06-18 --put-long-strike 9 --put-short-strike 10 --call-short-strike 14 --call-long-strike 15 --quantity 1 --price 0.50
+
+Flags:
+      --call-long-strike float    Highest strike: call being bought (protection)
+      --call-short-strike float   Call being sold (premium)
+      --duration string           Order duration
+      --expiration string         Expiration date (YYYY-MM-DD)
+      --price float               Net credit amount
+      --put-long-strike float     Lowest strike: put being bought (protection)
+      --put-short-strike float    Put being sold (premium)
+      --quantity float            Number of contracts
+      --session string            Trading session
+      --underlying string         Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order place equity`
+
+```bash
+Usage:
+  schwab-agent order place equity [flags]
+
+Examples:
+  # Buy 10 shares at market price
+  schwab-agent order place equity --symbol AAPL --action BUY --quantity 10
+  # Buy with a limit price, good till cancel
+  schwab-agent order place equity --symbol AAPL --action BUY --quantity 10 --type LIMIT --price 150 --duration GTC
+  # Sell with a trailing stop ($2.50 offset)
+  schwab-agent order place equity --symbol AAPL --action SELL --quantity 10 --type TRAILING_STOP --stop-offset 2.50
+  # Sell with a stop-limit order
+  schwab-agent order place equity --symbol AAPL --action SELL --quantity 10 --type STOP_LIMIT --stop-price 145 --price 144
+
+Flags:
+      --action string                Order action
+      --activation-price float       Price that activates the trailing stop
+      --destination string           Order routing destination (INET, ECN_ARCA, CBOE, AMEX, PHLX, ISE, BOX, NYSE, NASDAQ, BATS, C2, AUTO)
+      --duration string              Order duration
+      --instruction string           alias for --action (order instruction)
+      --order-type string            alias for --type (order type)
+      --price float                  Limit price
+      --price-link-basis string      Price link reference price (MANUAL, BASE, TRIGGER, LAST, BID, ASK, ASK_BID, MARK, AVERAGE)
+      --price-link-type string       Price link offset type (VALUE, PERCENT, TICK)
+      --quantity float               Share quantity
+      --session string               Trading session
+      --special-instruction string   Special instruction (ALL_OR_NONE, DO_NOT_REDUCE, ALL_OR_NONE_DO_NOT_REDUCE)
+      --stop-link-basis string       Trailing stop reference price (LAST, BID, ASK, MARK)
+      --stop-link-type string        Trailing stop offset type (VALUE, PERCENT, TICK)
+      --stop-offset float            Trailing stop offset amount
+      --stop-price float             Stop price
+      --stop-type string             Trailing stop trigger type (STANDARD, BID, ASK, LAST, MARK)
+      --symbol string                Equity symbol
+      --type string                  Order type
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order place oco`
+
+```bash
+Usage:
+  schwab-agent order place oco [flags]
+
+Examples:
+  # Set take-profit and stop-loss for a long position
+  schwab-agent order place oco --symbol AAPL --action SELL --quantity 100 --take-profit 160 --stop-loss 140
+  # Protect a position with only a stop-loss
+  schwab-agent order place oco --symbol AAPL --action SELL --quantity 50 --stop-loss 140
+  # Close a short position with exits
+  schwab-agent order place oco --symbol TSLA --action BUY --quantity 10 --take-profit 200 --stop-loss 250
+
+Flags:
+      --action string        Exit action (SELL to close long, BUY to close short)
+      --duration string      Order duration
+      --instruction string   alias for --action (order instruction)
+      --quantity float       Share quantity
+      --session string       Trading session
+      --stop-loss float      Stop-loss exit price (stop order)
+      --symbol string        Equity symbol
+      --take-profit float    Take-profit exit price (limit order)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order place option`
+
+```bash
+Usage:
+  schwab-agent order place option [flags]
+
+Examples:
+  # Buy a call option to open
+  schwab-agent order place option --underlying AAPL --expiration 2025-06-20 --strike 200 --call --action BUY_TO_OPEN --quantity 1
+  # Sell a put at a limit price
+  schwab-agent order place option --underlying AAPL --expiration 2025-06-20 --strike 190 --put --action SELL_TO_OPEN --quantity 1 --type LIMIT --price 3.50
+  # Close an existing call position
+  schwab-agent order place option --underlying AAPL --expiration 2025-06-20 --strike 200 --call --action SELL_TO_CLOSE --quantity 1
+
+Flags:
+      --action string                Order action
+      --call                         Call option
+      --destination string           Order routing destination (INET, ECN_ARCA, CBOE, AMEX, PHLX, ISE, BOX, NYSE, NASDAQ, BATS, C2, AUTO)
+      --duration string              Order duration
+      --expiration string            Expiration date (YYYY-MM-DD)
+      --instruction string           alias for --action (order instruction)
+      --order-type string            alias for --type (order type)
+      --price float                  Limit price
+      --price-link-basis string      Price link reference price (MANUAL, BASE, TRIGGER, LAST, BID, ASK, ASK_BID, MARK, AVERAGE)
+      --price-link-type string       Price link offset type (VALUE, PERCENT, TICK)
+      --put                          Put option
+      --quantity float               Contract quantity
+      --session string               Trading session
+      --special-instruction string   Special instruction (ALL_OR_NONE, DO_NOT_REDUCE, ALL_OR_NONE_DO_NOT_REDUCE)
+      --strike float                 Strike price
+      --type string                  Order type
+      --underlying string            Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order preview`
+
+```bash
+Usage:
+  schwab-agent order preview [flags]
+  schwab-agent order preview [command]
+
+Examples:
+  schwab-agent order preview --spec @order.json
+  schwab-agent order preview equity --symbol AAPL --action BUY --quantity 10 --type LIMIT --price 200 --save-preview
+  schwab-agent order preview option --underlying AAPL --expiration 2026-06-20 --strike 200 --call --action BUY_TO_OPEN --quantity 1 --type LIMIT --price 5.00
+  schwab-agent order build equity --symbol AAPL --action BUY --quantity 10 --type LIMIT --price 200 | schwab-agent order preview --spec -
+
+Available Commands:
+  bracket       Preview a bracket order
+  buy-with-stop Preview a buy-with-stop order
+  equity        Preview an equity order
+  oco           Preview a one-cancels-other order
+  option        Preview an option order
+  sell-covered-call Preview a covered call against existing shares
+  short-iron-condor Preview an opening iron condor
+
+Flags:
+      --save-preview   Save this preview locally and return a digest for order place --from-preview
+      --spec string    Inline JSON, @file, or - for stdin
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent order preview [command] --help" for more information about a command.
+```
+
+### `schwab-agent order preview bracket`
+
+```bash
+Usage:
+  schwab-agent order preview bracket [flags]
+
+Examples:
+  schwab-agent order preview bracket --symbol NVDA --action BUY --quantity 10 --type MARKET --take-profit 150 --stop-loss 120
+	  schwab-agent order preview bracket --symbol AAPL --action BUY --quantity 10 --type LIMIT --price 180 --stop-loss 170
+
+Flags:
+      --action string        Order action
+      --duration string      Order duration
+      --instruction string   alias for --action (order instruction)
+      --order-type string    alias for --type (order type)
+      --price float          Entry price
+      --quantity float       Share quantity
+      --save-preview         Save this preview locally and return a digest for order place --from-preview
+      --session string       Trading session
+      --stop-loss float      Stop-loss exit price
+      --symbol string        Equity symbol
+      --take-profit float    Take-profit exit price
+      --type string          Entry order type
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order preview buy-with-stop`
+
+```bash
+Usage:
+  schwab-agent order preview buy-with-stop [flags]
+
+Examples:
+  # Buy 10 shares of AAPL at $150 with stop-loss at $140
+  schwab-agent order preview buy-with-stop --symbol AAPL --quantity 10 --price 150 --stop-loss 140
+
+  # Market entry with stop-loss (no price validation)
+  schwab-agent order preview buy-with-stop --symbol AAPL --quantity 10 --type MARKET --stop-loss 140
+
+  # With take-profit (creates OCO exit structure)
+  schwab-agent order preview buy-with-stop --symbol AAPL --quantity 10 --price 150 --stop-loss 140 --take-profit 170
+
+Flags:
+  -d, --duration string     Entry duration (exit legs are always GTC)
+      --order-type string   alias for --type (order type)
+  -p, --price float         Entry limit price (required for LIMIT orders, omit for MARKET)
+  -q, --quantity float      Share quantity
+      --save-preview        Save this preview locally and return a digest for order place --from-preview
+      --session string      Trading session
+      --stop-loss float     Stop trigger price - becomes market sell when hit
+  -s, --symbol string       Stock symbol (e.g., AAPL)
+      --take-profit float   Optional take-profit limit price
+  -t, --type string         Entry order type (LIMIT or MARKET, default LIMIT)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order preview sell-covered-call`
+
+```bash
+Usage:
+  schwab-agent order preview sell-covered-call [flags]
+
+Examples:
+  schwab-agent order build sell-covered-call --underlying F --expiration 2026-06-18 --strike 14 --quantity 1 --type LIMIT --price 1.00
+  schwab-agent order preview sell-covered-call --underlying F --expiration 2026-06-18 --strike 14 --quantity 1 --type LIMIT --price 1.00 --save-preview
+  schwab-agent order place sell-covered-call --underlying F --expiration 2026-06-18 --strike 14 --quantity 1 --type LIMIT --price 1.00
+
+Flags:
+      --duration string     Order duration
+      --expiration string   Expiration date (YYYY-MM-DD)
+      --price float         Option price
+      --quantity float      Number of contracts
+      --save-preview        Save this preview locally and return a digest for order place --from-preview
+      --session string      Trading session
+      --strike float        Option strike price
+      --type string         Order type
+      --underlying string   Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order preview short-iron-condor`
+
+```bash
+Usage:
+  schwab-agent order preview short-iron-condor [flags]
+
+Examples:
+  schwab-agent order build short-iron-condor --underlying F --expiration 2026-06-18 --put-long-strike 9 --put-short-strike 10 --call-short-strike 14 --call-long-strike 15 --quantity 1 --price 0.50
+  schwab-agent order preview short-iron-condor --underlying F --expiration 2026-06-18 --put-long-strike 9 --put-short-strike 10 --call-short-strike 14 --call-long-strike 15 --quantity 1 --price 0.50 --save-preview
+  schwab-agent order place short-iron-condor --underlying F --expiration 2026-06-18 --put-long-strike 9 --put-short-strike 10 --call-short-strike 14 --call-long-strike 15 --quantity 1 --price 0.50
+
+Flags:
+      --call-long-strike float    Highest strike: call being bought (protection)
+      --call-short-strike float   Call being sold (premium)
+      --duration string           Order duration
+      --expiration string         Expiration date (YYYY-MM-DD)
+      --price float               Net credit amount
+      --put-long-strike float     Lowest strike: put being bought (protection)
+      --put-short-strike float    Put being sold (premium)
+      --quantity float            Number of contracts
+      --save-preview              Save this preview locally and return a digest for order place --from-preview
+      --session string            Trading session
+      --underlying string         Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order preview equity`
+
+```bash
+Usage:
+  schwab-agent order preview equity [flags]
+
+Examples:
+  schwab-agent order preview equity --symbol AAPL --action BUY --quantity 10
+	  schwab-agent order preview equity --symbol AAPL --action BUY --quantity 10 --type LIMIT --price 150 --duration GTC
+
+Flags:
+      --action string                Order action
+      --activation-price float       Price that activates the trailing stop
+      --destination string           Order routing destination (INET, ECN_ARCA, CBOE, AMEX, PHLX, ISE, BOX, NYSE, NASDAQ, BATS, C2, AUTO)
+      --duration string              Order duration
+      --instruction string           alias for --action (order instruction)
+      --order-type string            alias for --type (order type)
+      --price float                  Limit price
+      --price-link-basis string      Price link reference price (MANUAL, BASE, TRIGGER, LAST, BID, ASK, ASK_BID, MARK, AVERAGE)
+      --price-link-type string       Price link offset type (VALUE, PERCENT, TICK)
+      --quantity float               Share quantity
+      --save-preview                 Save this preview locally and return a digest for order place --from-preview
+      --session string               Trading session
+      --special-instruction string   Special instruction (ALL_OR_NONE, DO_NOT_REDUCE, ALL_OR_NONE_DO_NOT_REDUCE)
+      --stop-link-basis string       Trailing stop reference price (LAST, BID, ASK, MARK)
+      --stop-link-type string        Trailing stop offset type (VALUE, PERCENT, TICK)
+      --stop-offset float            Trailing stop offset amount
+      --stop-price float             Stop price
+      --stop-type string             Trailing stop trigger type (STANDARD, BID, ASK, LAST, MARK)
+      --symbol string                Equity symbol
+      --type string                  Order type
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order preview oco`
+
+```bash
+Usage:
+  schwab-agent order preview oco [flags]
+
+Examples:
+  schwab-agent order preview oco --symbol AAPL --action SELL --quantity 100 --take-profit 160 --stop-loss 140
+	  schwab-agent order preview oco --symbol TSLA --action BUY --quantity 10 --stop-loss 250
+
+Flags:
+      --action string        Exit action (SELL to close long, BUY to close short)
+      --duration string      Order duration
+      --instruction string   alias for --action (order instruction)
+      --quantity float       Share quantity
+      --save-preview         Save this preview locally and return a digest for order place --from-preview
+      --session string       Trading session
+      --stop-loss float      Stop-loss exit price (stop order)
+      --symbol string        Equity symbol
+      --take-profit float    Take-profit exit price (limit order)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order preview option`
+
+```bash
+Usage:
+  schwab-agent order preview option [flags]
+
+Examples:
+  schwab-agent order preview option --underlying AAPL --expiration 2025-06-20 --strike 200 --call --action BUY_TO_OPEN --quantity 1
+	  schwab-agent order preview option --underlying AAPL --expiration 2025-06-20 --strike 190 --put --action SELL_TO_OPEN --quantity 1 --type LIMIT --price 3.50
+
+Flags:
+      --action string                Order action
+      --call                         Call option
+      --destination string           Order routing destination (INET, ECN_ARCA, CBOE, AMEX, PHLX, ISE, BOX, NYSE, NASDAQ, BATS, C2, AUTO)
+      --duration string              Order duration
+      --expiration string            Expiration date (YYYY-MM-DD)
+      --instruction string           alias for --action (order instruction)
+      --order-type string            alias for --type (order type)
+      --price float                  Limit price
+      --price-link-basis string      Price link reference price (MANUAL, BASE, TRIGGER, LAST, BID, ASK, ASK_BID, MARK, AVERAGE)
+      --price-link-type string       Price link offset type (VALUE, PERCENT, TICK)
+      --put                          Put option
+      --quantity float               Contract quantity
+      --save-preview                 Save this preview locally and return a digest for order place --from-preview
+      --session string               Trading session
+      --special-instruction string   Special instruction (ALL_OR_NONE, DO_NOT_REDUCE, ALL_OR_NONE_DO_NOT_REDUCE)
+      --strike float                 Strike price
+      --type string                  Order type
+      --underlying string            Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent order replace`
+
+```bash
+Usage:
+  schwab-agent order replace [order-id] [flags]
+  schwab-agent order replace [command]
+
+Examples:
+  schwab-agent order replace 1234567890 --symbol AAPL --action BUY --quantity 10 --type LIMIT --price 155.00 --duration DAY
+   schwab-agent order replace --order-id 1234567890 --symbol AAPL --action BUY --quantity 10 --type LIMIT --price 155.00 --duration DAY
+
+Available Commands:
+  option      Replace an order with a new option order spec
+
+Flags:
+      --action string                Order action
+      --activation-price float       Price that activates the trailing stop
+      --destination string           Order routing destination (INET, ECN_ARCA, CBOE, AMEX, PHLX, ISE, BOX, NYSE, NASDAQ, BATS, C2, AUTO)
+      --duration string              Order duration
+      --instruction string           alias for --action (order instruction)
+      --order-id string              Order ID
+      --order-type string            alias for --type (order type)
+      --price float                  Limit price
+      --price-link-basis string      Price link reference price (MANUAL, BASE, TRIGGER, LAST, BID, ASK, ASK_BID, MARK, AVERAGE)
+      --price-link-type string       Price link offset type (VALUE, PERCENT, TICK)
+      --quantity float               Share quantity
+      --session string               Trading session
+      --special-instruction string   Special instruction (ALL_OR_NONE, DO_NOT_REDUCE, ALL_OR_NONE_DO_NOT_REDUCE)
+      --stop-link-basis string       Trailing stop reference price (LAST, BID, ASK, MARK)
+      --stop-link-type string        Trailing stop offset type (VALUE, PERCENT, TICK)
+      --stop-offset float            Trailing stop offset amount
+      --stop-price float             Stop price
+      --stop-type string             Trailing stop trigger type (STANDARD, BID, ASK, LAST, MARK)
+      --symbol string                Equity symbol
+      --type string                  Order type
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent order replace [command] --help" for more information about a command.
+```
+
+### `schwab-agent order replace option`
+
+```bash
+Usage:
+  schwab-agent order replace option [order-id] [flags]
+
+Examples:
+  schwab-agent order replace option 1234567890 --underlying AAPL --expiration 2026-06-19 --strike 200 --call --action BUY_TO_OPEN --quantity 1 --type LIMIT --price 5.00
+   schwab-agent order replace option --order-id 1234567890 --underlying AAPL --expiration 2026-06-19 --strike 190 --put --instruction SELL_TO_OPEN --quantity 1 --order-type LIMIT --price 3.50
+
+Flags:
+      --action string                Order action
+      --call                         Call option
+      --destination string           Order routing destination (INET, ECN_ARCA, CBOE, AMEX, PHLX, ISE, BOX, NYSE, NASDAQ, BATS, C2, AUTO)
+      --duration string              Order duration
+      --expiration string            Expiration date (YYYY-MM-DD)
+      --instruction string           alias for --action (order instruction)
+      --order-id string              Order ID
+      --order-type string            alias for --type (order type)
+      --price float                  Limit price
+      --price-link-basis string      Price link reference price (MANUAL, BASE, TRIGGER, LAST, BID, ASK, ASK_BID, MARK, AVERAGE)
+      --price-link-type string       Price link offset type (VALUE, PERCENT, TICK)
+      --put                          Put option
+      --quantity float               Contract quantity
+      --session string               Trading session
+      --special-instruction string   Special instruction (ALL_OR_NONE, DO_NOT_REDUCE, ALL_OR_NONE_DO_NOT_REDUCE)
+      --strike float                 Strike price
+      --type string                  Order type
+      --underlying string            Underlying symbol
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent position`
+
+```bash
+Usage:
+  schwab-agent position [flags]
+  schwab-agent position [command]
+
+Available Commands:
+  list        List positions for one or all accounts
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent position [command] --help" for more information about a command.
+```
+
+### `schwab-agent position list`
+
+```bash
+Usage:
+  schwab-agent position list [flags]
+
+Examples:
+  schwab-agent position list
+	  schwab-agent position list --account ABCDEF1234567890
+	  schwab-agent position list --all-accounts
+	  schwab-agent position list --symbol AAPL --symbol MSFT
+	  schwab-agent position list --losers-only --sort pnl-asc
+	  schwab-agent position list --min-pnl -100 --max-pnl 500 --sort value-desc
+
+Flags:
+      --account string       Account hash, account number, or nickname (overrides config default)
+      --all-accounts         Show positions across all linked accounts
+      --losers-only          Show only positions with negative unrealized P&L
+      --max-pnl float        Maximum unrealized P&L to include when set
+      --min-pnl float        Minimum unrealized P&L to include when set
+      --sort string          Sort positions by pnl-desc, pnl-asc, or value-desc
+      --symbol stringArray   Filter by symbol (repeatable, comma-separated values allowed)
+
+Global Flags:
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent quote`
+
+```bash
+Usage:
+  schwab-agent quote [flags]
+  schwab-agent quote [command]
+
+Available Commands:
+  get         Get quotes for one or more symbols
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent quote [command] --help" for more information about a command.
+```
+
+### `schwab-agent quote get`
+
+```bash
+Usage:
+  schwab-agent quote get [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent quote get AAPL
+  schwab-agent quote get AAPL NVDA TSLA
+  schwab-agent quote get AAPL --fields quote,fundamental
+  schwab-agent quote get AAPL --fields fundamental --indicative
+  schwab-agent quote get --underlying AMZN --expiration 2026-05-15 --strike 270 --call
+
+Flags:
+      --call                 Call option
+      --expiration string    Expiration date (YYYY-MM-DD) for option quote
+      --fields stringArray   Quote fields to return (repeatable, default quote): quote, fundamental, extended, reference, regular
+      --indicative           Request indicative (non-tradeable) quotes
+      --put                  Put option
+      --strike float         Strike price for option quote
+      --underlying string    Underlying symbol for option quote
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent symbol`
+
+```bash
+Usage:
+  schwab-agent symbol [flags]
+  schwab-agent symbol [command]
+
+Available Commands:
+  build       Build an OCC option symbol from components
+  parse       Parse an OCC option symbol into components
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent symbol [command] --help" for more information about a command.
+```
+
+### `schwab-agent symbol build`
+
+```bash
+Usage:
+  schwab-agent symbol build [flags]
+
+Examples:
+  schwab-agent symbol build --underlying AAPL --expiration 2025-06-20 --strike 200 --call
+  schwab-agent symbol build --underlying TSLA --expiration 2025-12-19 --strike 350.50 --put
+
+Flags:
+      --call                Call option
+      --expiration string   Expiration date (YYYY-MM-DD)
+      --put                 Put option
+      --strike float        Strike price (e.g. 200, 450.50)
+      --underlying string   Underlying symbol (e.g. AAPL)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent symbol parse`
+
+```bash
+Usage:
+  schwab-agent symbol parse <symbol> [flags]
+
+Examples:
+  schwab-agent symbol parse "AAPL  250620C00200000"
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent ta`
+
+```bash
+Usage:
+  schwab-agent ta [flags]
+  schwab-agent ta [command]
+
+Available Commands:
+  adx           Average Directional Index
+  atr           Average True Range
+  bbands        Bollinger Bands
+  dashboard     Opinionated TA dashboard for agent trade analysis
+  ema           Exponential Moving Average
+  expected-move Expected price move from ATM straddle pricing
+  hv            Historical Volatility with regime classification
+  macd          Moving Average Convergence/Divergence
+  rsi           Relative Strength Index
+  sma           Simple Moving Average
+  stoch         Stochastic Oscillator
+  vwap          Volume Weighted Average Price
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+
+Use "schwab-agent ta [command] --help" for more information about a command.
+```
+
+### `schwab-agent ta adx`
+
+```bash
+Usage:
+  schwab-agent ta adx SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent ta adx AAPL
+  schwab-agent ta adx AAPL --period 14 --interval daily --points 10
+
+Flags:
+      --interval string   Data interval (daily, weekly, 1min, 5min, 15min, 30min) (default "daily")
+      --period int        Indicator period (default 14)
+      --points int        Number of output points (default 1; 0 = all) (default 1)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent ta atr`
+
+```bash
+Usage:
+  schwab-agent ta atr SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent ta atr AAPL
+  schwab-agent ta atr AAPL --period 14 --interval daily --points 10
+
+Flags:
+      --interval string   Data interval (daily, weekly, 1min, 5min, 15min, 30min) (default "daily")
+      --period int        Indicator period (default 14)
+      --points int        Number of output points (default 1; 0 = all) (default 1)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent ta bbands`
+
+```bash
+Usage:
+  schwab-agent ta bbands SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent ta bbands AAPL
+  schwab-agent ta bbands AAPL --period 20 --std-dev 2.0 --points 10
+  schwab-agent ta bbands AAPL --std-dev 1.5 --points 10
+
+Flags:
+      --interval string   Data interval (daily, weekly, 1min, 5min, 15min, 30min) (default "daily")
+      --period int        BBands period (default 20)
+      --points int        Number of output points (default 1; 0 = all) (default 1)
+      --std-dev float     Standard deviations (default 2)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent ta dashboard`
+
+```bash
+Usage:
+  schwab-agent ta dashboard SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent ta dashboard AAPL
+  schwab-agent ta dashboard AAPL --points 5
+  schwab-agent ta dashboard NVDA --interval weekly --points 10
+
+Flags:
+      --interval string   Data interval (daily, weekly, 1min, 5min, 15min, 30min) (default "daily")
+      --points int        Number of output points (default 1; 0 = all) (default 1)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent ta ema`
+
+```bash
+Usage:
+  schwab-agent ta ema SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent ta ema AAPL
+  schwab-agent ta ema AAPL --period 50 --interval daily --points 10
+  schwab-agent ta ema AAPL --period 12,26 --points 5
+
+Flags:
+      --interval string   Data interval (daily, weekly, 1min, 5min, 15min, 30min) (default "daily")
+      --period ints       Indicator period (repeatable or comma-separated) (default 20)
+      --points int        Number of output points (default 1; 0 = all) (default 1)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent ta expected-move`
+
+```bash
+Usage:
+  schwab-agent ta expected-move SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent ta expected-move AAPL
+  schwab-agent ta expected-move AAPL --dte 45
+
+Flags:
+      --dte int   Target days to expiration (default 30)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent ta hv`
+
+```bash
+Usage:
+  schwab-agent ta hv SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent ta hv AAPL
+  schwab-agent ta hv AAPL --period 20 --interval daily
+
+Flags:
+      --interval string   Data interval (daily, weekly, 1min, 5min, 15min, 30min) (default "daily")
+      --period int        Indicator period (default 20)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent ta macd`
+
+```bash
+Usage:
+  schwab-agent ta macd SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent ta macd AAPL
+  schwab-agent ta macd AAPL --fast 12 --slow 26 --signal 9 --points 10
+  schwab-agent ta macd NVDA --interval weekly --points 10
+
+Flags:
+      --fast int          Fast EMA period (default 12)
+      --interval string   Data interval (daily, weekly, 1min, 5min, 15min, 30min) (default "daily")
+      --points int        Number of output points (default 1; 0 = all) (default 1)
+      --signal int        Signal EMA period (default 9)
+      --slow int          Slow EMA period (default 26)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent ta rsi`
+
+```bash
+Usage:
+  schwab-agent ta rsi SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent ta rsi AAPL
+  schwab-agent ta rsi AAPL --period 14 --interval daily --points 10
+  schwab-agent ta rsi AAPL --period 9 --interval 5min --points 20
+
+Flags:
+      --interval string   Data interval (daily, weekly, 1min, 5min, 15min, 30min) (default "daily")
+      --period ints       Indicator period (repeatable or comma-separated) (default 14)
+      --points int        Number of output points (default 1; 0 = all) (default 1)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent ta sma`
+
+```bash
+Usage:
+  schwab-agent ta sma SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent ta sma AAPL
+  schwab-agent ta sma AAPL --period 50 --interval daily --points 10
+  schwab-agent ta sma AAPL --period 21,50,200 --points 1
+
+Flags:
+      --interval string   Data interval (daily, weekly, 1min, 5min, 15min, 30min) (default "daily")
+      --period ints       Indicator period (repeatable or comma-separated) (default 20)
+      --points int        Number of output points (default 1; 0 = all) (default 1)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent ta stoch`
+
+```bash
+Usage:
+  schwab-agent ta stoch SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent ta stoch AAPL
+  schwab-agent ta stoch AAPL --k-period 14 --smooth-k 3 --d-period 3 --points 10
+
+Flags:
+      --d-period int      Slow %D period (default 3)
+      --interval string   Data interval (daily, weekly, 1min, 5min, 15min, 30min) (default "daily")
+      --k-period int      Fast %K lookback period (default 14)
+      --points int        Number of output points (default 1; 0 = all) (default 1)
+      --smooth-k int      Slow %K smoothing period (default 3)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+### `schwab-agent ta vwap`
+
+```bash
+Usage:
+  schwab-agent ta vwap SYMBOL [SYMBOL...] [flags]
+
+Examples:
+  schwab-agent ta vwap AAPL
+  schwab-agent ta vwap AAPL --interval 5min --points 20
+
+Flags:
+      --interval string   Data interval (daily, weekly, 1min, 5min, 15min, 30min) (default "daily")
+      --points int        Number of output points (default 1; 0 = all) (default 1)
+
+Global Flags:
+  -a, --account string                  Override default account by hash, account number, or nickname
+      --config string                   Path to config file
+      --debug-options string[="text"]   Print resolved flag values and exit (text or json)
+      --token string                    Path to token file
+  -v, --verbose                         Enable debug logging to stderr
+```
+
+~~~~

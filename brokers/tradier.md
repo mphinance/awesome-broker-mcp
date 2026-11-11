@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: remote
 source_url: https://docs.tradier.com/docs/tradier-mcp
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 ---
 
 # Tradier
@@ -34,9 +34,16 @@ Brokerage account). Set `PAPER_TRADING: true` with a paper token to simulate fir
 
 ## Trading scope
 
-21 tools: single-leg and multi-leg options orders, equity orders, advanced order
-types (OCO, OTO, OTOCO), account position/balance retrieval, market data, order
-cancellation.
+21 tools, listed by the server itself (unauthenticated `tools/list`, 2026-11-11). **8 write,
+13 read.**
+
+- Write: `place_equity_order`, `place_option_order`, `place_multileg_option_order`,
+  `place_oco_order`, `place_oto_order`, `place_otoco_order`, `cancel_order`,
+  `add_to_watchlist`.
+- Read: `get_user_profile`, `get_market_quotes`, `get_watchlists`, `get_account_balances`,
+  `get_gainloss`, `get_orders`, `get_account_history`, `get_positions`,
+  `get_market_calendar`, `get_account_historical_balances`, `get_historical_data`,
+  `get_options_chain`, `get_company_profile`.
 
 ## Safety / guardrails
 
@@ -53,14 +60,15 @@ something Tradier enforces server-side.
   endpoint itself answers a POST `initialize` with 200 (checked 2026-10-09), so "building"
   looks like leftover intro text. Not tested with an account.
 
-- **Docs page gone (2026-11-11).** `https://docs.tradier.com/docs/tradier-mcp` now 307-redirects
-  to a Theneo "no project found" page and `https://docs.tradier.com/llms.txt` returns 404
-  (it existed earlier). The docs portal root renders an empty project, so this looks like
-  an unpublished or moved docs site, not a retired product. A web search snippet of the
-  old docs page says 22 tools (`search_tradier_docs` plus 21 brokerage tools); that is
-  search-result text, not something I read on the page, so the "21 tools" figure above
-  is unconfirmed. The endpoint, header names and tool list in this entry could not be
-  re-verified this round, which is why `last_verified` was not bumped.
+- **Docs page gone (2026-11-11).** `https://docs.tradier.com/docs/tradier-mcp` redirects to a
+  Theneo "no project found" page (confirmed again in a real browser) and
+  `https://docs.tradier.com/llms.txt` returns 404 (it existed earlier). The docs portal looks
+  unpublished or moved, not retired. What is verified instead: `https://mcp.tradier.com/mcp`
+  answers an unauthenticated POST `initialize` with 200 (`serverInfo` name `tradier`, version
+  `0.0.1`), and `tools/list` returns the 21 tools above. The server does not advertise a
+  `search_tradier_docs` tool, so the old "22 tools" figure from a search snippet is stale.
+  The `PAPER_TRADING` header name still comes from the old docs and is untested here.
+  Nothing was called with a token.
 - Still readable and first-party (2026-11-11): the product page
   <https://tradier.com/individuals/mcp-server> and the support article
   <https://support.tradier.com/kb/guide/en/tradiers-mcp-server-eoA0tv3GlS/Steps/4946334>.

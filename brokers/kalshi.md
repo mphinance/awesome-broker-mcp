@@ -15,11 +15,11 @@ confidence: high
 
 **Kalshi now runs an official hosted MCP connector** at `https://api.elections.kalshi.com/mcp`
 (Streamable HTTP, per [docs.kalshi.com/getting_started/mcp](https://docs.kalshi.com/getting_started/mcp)).
-It is **read-only for trading**: public market tools need no account; portfolio and price-alert
+It is **read-only for trading** (not strictly read-only: alert writes exist): public market tools need no account; portfolio and price-alert
 tools use OAuth (scopes `read::mcp_portfolio`, `read::mcp_alerts`, `write::mcp_alerts`, no API
 key pasted). The docs state it "does not place or cancel orders, transfer funds, or save trade
 drafts"; `get_market_links` returns links so you submit the order on Kalshi yourself. It
-covers prediction markets and perps, and can create, replace and delete price alerts.
+covers prediction markets and perps, and can create and delete price alerts (docs list `get_price_alerts`, `create_price_alert`, `delete_price_alert`; replace is not a separate tool).
 To place orders from an agent you still need a community server. Those are unusually mature
 for this category; the most credible is 9crusher/mcp-server-kalshi
 (32 stars, v0.2.4 on 2026-08-23, last push 2026-09-19), which wraps the Kalshi REST API and supports full order lifecycle. It
@@ -50,7 +50,7 @@ KALSHI_ENV=prod.
 - The official connector's account OAuth needs a client supporting OAuth Client ID Metadata
   Documents (CIMD) or one registered with Kalshi; dynamic client registration is not
   advertised, and a Kalshi API key is not an OAuth client secret (per its docs).
-- Official connector docs read 2026-11-11; we did not connect to it.
+- Official connector docs read 2026-11-11; we did not authenticate. An unauthenticated `initialize` POST returns 200 (`serverInfo` kalshi 0.1.0) and its instructions say "Links open Kalshi; no order execution" and "Confirm alert writes".
 - Community field is crowded and low-adoption: alexandermazza/kalshi-trading-mcp
   (confirmed, but only 2 stars, pip install kalshi-trading-mcp), IQAIcom/mcp-kalshi,
   yakub268/kalshi-mcp, joinQuantish/kalshi-mcp all appeared in results. Star counts in

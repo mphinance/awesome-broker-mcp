@@ -34,8 +34,10 @@ Community: npx -y @smithery/cli install @0xjmp/mcp-tradovate --client claude, or
 
 ## Trading scope
 
-Futures via the Tradovate API — market and limit orders with configurable
-time-in-force, plus order modify/cancel and position viewing.
+Official server: futures and event contracts, with `place_order`, `modify_order`, `cancel_order`
+and `close_position` (see the NinjaTrader entry). Community 0xjmp server: futures via the
+Tradovate API, market and limit orders with configurable time-in-force, plus order modify/cancel
+and position viewing.
 
 ## Caveats
 

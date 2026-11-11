@@ -21,7 +21,7 @@ ChatGPT, Codex, Perplexity, Grok and Meta Muse as supported clients.
 
 Notable for IRA support (most brokers here only cover taxable accounts) and for letting
 you open **separate brokerage accounts for AI agents** (multi-account support shipped
-2026-05-20).
+2026-05-19 per the API changelog).
 
 > ### ⚠️ There is no paper trading mode
 >
@@ -43,14 +43,14 @@ authenticated).
 codex mcp add public --url https://mcp.public.com/mcp   # Codex; then: codex mcp login public
 ```
 
-Verified live 2026-10-12: the endpoint answers `401` with a `WWW-Authenticate` header
+Re-probed 2026-11-11 (first verified 2026-10-12): the endpoint answers `401` with a `WWW-Authenticate` header
 pointing at OAuth protected-resource metadata, which advertises scopes `trading.read`,
 `trading.write`, `marketdata` and `openid`. Bearer tokens only, in the header.
 
 Per-client auth differs: ChatGPT/Codex, Claude, Perplexity and Grok use **OAuth**;
 **Meta Muse uses a Public API key** as the Bearer token (and Grok has an alternate Agent
 Skill path that also takes a key). API keys are generated in Account Settings →
-Security → API and are open to all Public members, no approval needed.
+Security → API (open to all members, no approval; not confirmed on the hosted pages re-read 2026-11-11, treat as unverified).
 
 **Local server (still supported).** Python, `uv` or `pip install publicdotcom-mcp-server`,
 configured with `PUBLIC_COM_SECRET` and `PUBLIC_COM_ACCOUNT_ID` in

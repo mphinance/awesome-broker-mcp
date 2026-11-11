@@ -179,7 +179,7 @@ First-party. Built or hosted by the broker themselves.
 | [tastytrade](brokers/tastytrade.md) | ✅ Yes | Quotes, option chains, order entry. ⚠️ **Defaults to production**; sandbox is opt-in. Dry-run-gated orders, `READ_ONLY` switch. A community server (`tasty-agent`) also exists | Local |
 | [Webull](brokers/webull.md) | 🔀 Both | Cloud MCP queues order instructions you confirm in the Webull app; `webull-openapi-mcp` (local) places orders directly. 🛡️ **Sandbox by default** | Remote + local |
 | [TradeStation](brokers/tradestation.md) | ✅ Yes | Equities + more. Needs a paid AI tier and a $10k balance | Remote |
-| [Public.com](brokers/public.md) | ✅ Yes | Stocks, ETFs, options, crypto, bonds; brokerage + IRA + business. Hosted OAuth server at `mcp.public.com/mcp`; prediction markets read-only. ⚠️ **No paper mode, all orders live** | Remote + local |
+| [Public.com](brokers/public.md) | ✅ Yes | Stocks, ETFs, options, crypto, bonds; brokerage + IRA + business. Hosted OAuth server at `mcp.public.com/mcp`. The local server (v0.10.0) can also buy event contracts; whether the hosted one exposes that is unconfirmed. ⚠️ **No paper mode, all orders live** | Remote + local |
 | [eToro](brokers/etoro.md) | ✅ Yes | Official MCP opens and closes positions via two-step `prepare-*` / `place-*` tokens (about 2 min expiry), demo or real account chosen explicitly. Generic `execute-write` has no server-side confirm. Agent Portfolios is still **REST, not MCP** | Remote |
 | [Longbridge](brokers/longbridge.md) | ✅ Yes | US + HK equities, options, warrants. ~164 tools, OAuth 2.1. Most order writes are dry-run until you pass back a confirmation code (a mistake guard, not human approval); multi-leg appears ungated | Remote |
 | [Tiger Brokers](brokers/tiger-brokers.md) | ✅ Yes | Stocks, options, futures across US/HK/CN/SG. Only guardrail is the `TIGERMCP_READONLY` env var | Local (`uvx`) |
@@ -253,7 +253,7 @@ everywhere," not a substitute for a broker's own trading server.
 |---|---|---|
 | [Trade It](aggregators/trade-agent.md) *(was Trade Agent)* | ✅ Yes — 🛡️ draft-first, explicit confirm | Robinhood, Schwab, E*TRADE, Webull, Public, tastytrade, Coinbase, Kraken |
 | [ConnectTrade](aggregators/connecttrade.md) | ✅ Yes — 🛡️ mandatory two-step confirm, scoped tokens. B2B: needs platform credentials | 21 brokers; 11 trade (Alpaca, IBKR, Lightspeed, moomoo, Public, tastytrade, TradeStation, Tradier, TradeZero, Webull, Sterling), 10 read-only (Schwab, Fidelity, 8 banks) |
-| [SnapTrade](aggregators/snaptrade.md) | 🔀 Both: read-only portfolio endpoint plus a separate trading endpoint (preview token, 5 min) | Robinhood, Schwab, Fidelity, Vanguard, E*TRADE, Alpaca, Tradier, Trading 212 |
+| [SnapTrade](aggregators/snaptrade.md) | 🔀 Both: read-only portfolio endpoint plus a separate trading endpoint (preview token, 5 min) | Not enumerated on the MCP docs page (ask `list_supported_brokerages`); the older list of Robinhood, Schwab, Fidelity and others is unverified |
 | [Truthifi](aggregators/truthifi.md) | 👁️ No — reads only; 2 non-financial write tools | 18,000+ institutions |
 | [Plaid](aggregators/plaid.md) | 👁️ No | Official, but developer diagnostics and Sandbox only, no account data |
 | [Teller](aggregators/teller.md) | 👁️ No | Community, read-only |
