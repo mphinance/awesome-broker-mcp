@@ -5,7 +5,7 @@ status: community
 trading: true
 server_type: local
 source_url: https://github.com/Impa-Ventures/hyperliquid-mcp
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: medium
 ---
 
@@ -47,7 +47,7 @@ market data tools (get_l2_book, get_candle_snapshot) — 13+ tools total.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-11-11 (README re-read, repo stats re-pulled: still 3 stars, 4 forks, last push 2025-03-25; org search for mcp still 0):
 
 - <https://github.com/Impa-Ventures/hyperliquid-mcp>
 - <https://github.com/orgs/hyperliquid-dex/repositories?q=mcp>

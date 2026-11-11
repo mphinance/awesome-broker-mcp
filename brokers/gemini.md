@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: local
 source_url: https://developer.gemini.com/agentic/agentic
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -13,8 +13,9 @@ confidence: high
 
 ## Overview
 
-Gemini launched official Agentic Trading built on MCP, integrating its full trading
-API so an AI agent can do anything the REST API can, including placing orders. The MCP
+Gemini launched official Agentic Trading built on MCP, integrating its trading
+API so an AI agent can place orders. Gemini's docs index (`developer.gemini.com/llms.txt`)
+now points MCP clients to `developer.gemini.com/tools` (MCP server and agent skills). The MCP
 server lives in the gemini/developer-platform repo (packages/mcp-server) and runs
 locally with keys held on the user's machine. Gemini also ships modular 'Trading
 Skills' (Get Market Data, Find the Spread, Retrieve Candles).
@@ -29,10 +30,12 @@ claude mcp add gemini -s user -e GEMINI_API_KEY=<key> -e GEMINI_API_SECRET=<secr
 
 ## Trading scope
 
-Full Gemini trading API surface. 40+ tools across six categories; the Orders category
-covers place/cancel orders, order status, and trade volume. Supports basic buy/sell
-through multi-leg positions, plus a sandbox and per-agent subaccounts with isolated
-balances.
+Gemini trading API surface. The repo README now says 50+ tools: market data, orders
+(`gemini_new_order`, cancel, cancel-all, status), funds, account (sub-accounts, roles,
+approved addresses), margin, staking, and prediction-market symbols/contracts/prices, plus
+WebSocket feeds and a native-OS price/balance alert daemon. A sandbox is supported
+(`GEMINI_API_BASE_URL=https://api.sandbox.gemini.com`). Master API keys (`master-` prefix)
+must also set `GEMINI_ACCOUNT`, or the server exits at startup.
 
 ## Caveats
 
@@ -44,6 +47,8 @@ balances.
   Google AI Studio key — a genuine footgun given the identical env var name.
 - Install requires cloning and building the repo; no confirmed one-line npx/global npm
   install was verified.
+- Recent repo activity (last commit 2026-11-05) moved prediction-market order and combo REST
+  calls onto the SDK and switched to millisecond-nonce signing.
 - Subaccounts with isolated balances are the recommended blast-radius control for
   agent trading here.
 - Notable as the first regulated US exchange to offer direct AI agent trading
@@ -51,7 +56,7 @@ balances.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-11-11:
 
 - <https://developer.gemini.com/agentic/agentic>
 - <https://github.com/gemini/developer-platform>

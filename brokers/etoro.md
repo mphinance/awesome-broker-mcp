@@ -5,7 +5,7 @@ status: official + community
 trading: true
 server_type: remote (official, hosted) / local (community)
 source_url: https://builders.etoro.com/tools/mcp
-last_verified: 2026-10-12
+last_verified: 2026-11-11
 confidence: medium
 ---
 
@@ -24,7 +24,7 @@ server was docs-only with two tools and could not place a trade. **That is no lo
 >   for MCP. That part stands: Agent Portfolios is REST.
 > - In July we then found the official MCP server and described it as docs-only
 >   (`get-all-routes` and `get-route-spec`). On 2026-10-12 the server's own skill file
->   (`https://mcp.public-api.etoro.com/skill`, version 1.21.1) documents **seventeen tools**,
+>   (`https://mcp.public-api.etoro.com/skill`, version 1.21.1 on 2026-10-12, 1.23.17 on 2026-11-11, still seventeen tools) documents **seventeen tools**,
 >   including real-account order placement. The builders.etoro.com MCP page still says
 >   "two tools", so eToro's own pages disagree with each other. We trust the server's
 >   skill file for the tool list, but see the caveats: we could not authenticate to
@@ -110,7 +110,7 @@ there is less reason to run this one.
 - **Don't reuse our old summary.** "eToro's official MCP server is docs-only" is out of
   date. Equally, "the official server trades" comes with the gating notes above.
 - Conflicting eToro pages: the MCP tool page says two tools; the server's skill file says
-  seventeen. The OpenAPI document is at v1.390.0 with 148 paths (July: v1.387.0, also 148).
+  seventeen. The OpenAPI document is at v1.400.0 with 148 paths (2026-10-12: v1.390.0; July: v1.387.0, also 148). The builders.etoro.com MCP page still says two tools as of 2026-11-11.
 - We could not authenticate, so the 17-tool list, the scope behavior and the token gate
   come from the skill file, not a live `tools/list` or order. The skill file also embeds
   an application `x-api-key` that eToro labels an identifier, not a secret; we do not
@@ -120,6 +120,8 @@ there is less reason to run this one.
 - Not available to US retail.
 
 ## Sources
+
+Re-read on 2026-11-11: the skill file (v1.23.17, seventeen tools), builders.etoro.com/tools/mcp (still two tools) and the OpenAPI version (v1.400.0). The Agent Portfolios pages changed by a few bytes only.
 
 Checked directly on 2026-10-12:
 

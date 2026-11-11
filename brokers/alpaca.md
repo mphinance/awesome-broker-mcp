@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: local
 source_url: https://alpaca.markets/mcp-server
-last_verified: 2026-10-12
+last_verified: 2026-11-11
 ---
 
 # Alpaca
@@ -37,7 +37,7 @@ uvx alpaca-mcp-server
 
 Or as a Claude MCP entry: `"command": "uvx", "args": ["alpaca-mcp-server"]`. A Docker
 build (clone the repo, `docker build`) is also documented; Docker defaults to stdio.
-Requires Python 3.10+ and `uv`. Current release is v2.4.0 (2026-10-12).
+Requires Python 3.10+ and `uv`. Current release is v2.4.1 (2026-11-04: certificate trust-store fix, spec syncs, dependency bumps; no tool changes noted in the release notes).
 
 Auth is API keys from the Alpaca dashboard — two env vars, `ALPACA_API_KEY` and
 `ALPACA_SECRET_KEY`. No `.env` file or extra init required.
@@ -92,7 +92,7 @@ better safety postures in this list.
 - Local-only. Hosting it remotely for mobile/ChatGPT means you are running a
   trading-capable server on a cloud box — your operational problem, not Alpaca's.
 - Distributed via PyPI/uvx and, since the repo moved to publishing from GitHub Releases,
-  tagged releases exist (v2.3.2 on 2026-09-15, v2.4.0 on 2026-10-12). Earlier text here
+  tagged releases exist (v2.3.2 on 2026-09-15, v2.4.0 on 2026-10-12, v2.4.1 on 2026-11-04). Earlier text here
   said no releases were published; that is out of date. 1,016 stars at last check.
 - The server sends a versioned `APCA-MCP-TRADING/<version>` User-Agent; set
   `ALPACA_MCP_USER_AGENT` to an empty string to opt out.
@@ -103,7 +103,7 @@ better safety postures in this list.
 
 ## Sources
 
-Checked directly on 2026-10-12:
+Checked directly on 2026-10-12 (release notes re-read for v2.4.1 on 2026-11-11):
 
 - <https://github.com/alpacahq/alpaca-mcp-server> (README, v2.3.2 and v2.4.0 release
   notes, PRs #90, #109, #126, #131 for the trust-boundary envelope, index-tool removal

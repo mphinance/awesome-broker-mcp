@@ -5,7 +5,7 @@ status: community
 trading: false
 server_type: local (stdio; uv or Docker)
 source_url: https://tradersview.deriv.com/
-last_verified: 2026-10-12
+last_verified: 2026-11-11
 confidence: medium
 ---
 
@@ -37,7 +37,10 @@ none — read-only, and barely that: 2 tools (`get_active_symbols`,
   Protocol mention, no order placement. It is a marketing/acquisition dashboard.
 - No official Deriv MCP server found anywhere (web, GitHub, npm).
 - The community repo is minimal and abandoned: 0 stars, 4 commits, last push
-  2025-01-07 (~21 months stale). Verified via GitHub API.
+  2025-01-07 (~22 months stale). As of 2026-11-11 `github.com/raju-deriv/mcp-deriv-api-server`
+  returns 404 (deleted or made private); copies survive as mirrors (for example
+  `mcp-research/raju-deriv__mcp-deriv-api-server`, `lwsinclair/raju-deriv_mcp-deriv-api-server`),
+  which are not Deriv's.
 - The `raju-deriv` GitHub handle suggests a Deriv employee, but the repo sits under a
   personal account, not a Deriv org — treat as community/personal, NOT official,
   despite aggregator sites (mcpmarket, skywork) mislabeling it "the official
@@ -48,7 +51,7 @@ none — read-only, and barely that: 2 tools (`get_active_symbols`,
 
 ## Sources
 
-Checked directly on 2026-10-12 (TradersView page re-fetched: still no MCP/Model Context Protocol text; repo stats re-pulled; developers.deriv.com and api.deriv.com llms.txt contain no MCP mention; npm search for deriv mcp finds no Deriv-published MCP package):
+Checked directly on 2026-11-11 (TradersView page and its llms.txt re-fetched, which describes a free market-analysis site with AI signals and news and no MCP or Model Context Protocol text; fxnewsgroup article has no MCP text either; original repo URL now 404; earlier checks: TradersView page re-fetched: still no MCP/Model Context Protocol text; repo stats re-pulled; developers.deriv.com and api.deriv.com llms.txt contain no MCP mention; npm search for deriv mcp finds no Deriv-published MCP package):
 
 - <https://tradersview.deriv.com/>
 - <https://github.com/raju-deriv/mcp-deriv-api-server>

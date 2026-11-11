@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: remote
 source_url: https://connecttrade.com/docs/mcp
-last_verified: 2026-10-09
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -50,7 +50,10 @@ claude mcp add --transport http connecttrade https://mcp.connecttrade.com/mcp \
   --header "Authorization: Bearer YOUR_JWT_HERE"
 ```
 
-When the JWT expires MCP calls return 401 and you re-mint. A sample client
+When the JWT expires MCP calls return 401 and you re-mint. The MCP guide says the JWT is
+valid for 1 hour (cache it, re-mint within about 5 minutes of expiry), but the REST docs in
+llms.txt and llms-full.txt (read 2026-11-11) say the user token is 15 minutes, with no
+refresh tokens. The two disagree, so plan for the shorter lifetime. A sample client
 (`ct-sample-mcp-client`, FastAPI + Claude API tool calling) is referenced in the guide.
 
 The REST + WebSocket API is also available directly: `https://api.connecttrade.com`,
@@ -69,6 +72,15 @@ The other 10 are **read-only connections** (accounts, positions, transactions): 
 Schwab, Fidelity, and eight banks (Bank of America, Capital One, Chase, Citi, PNC, TD Bank,
 U.S. Bank, Wells Fargo). Their llms.txt describes the API as covering equities, single-leg
 and multi-leg options, and futures, with order place, replace and cancel.
+
+As of 2026-11-11 the REST API (openapi.json went from 12 to 16 paths) also documents
+complex orders on `POST /orders` (`order_class` BRACKET, OTO or OCO; unsupported
+broker/instrument combinations return `UNSUPPORTED_ORDER_CLASS`), order-group endpoints
+(group members cannot be individually cancelled or replaced), connection repair
+(`POST /connections/{connection_id}/repair` for BROKEN connections; order calls on a broken
+connection return 409), and futures symbols like `ESU26`. These are REST features; the MCP
+guide still names only `create_order` and `confirm_trade`, so do not assume the MCP exposes
+them.
 
 ## Safety / guardrails
 
@@ -90,7 +102,7 @@ Documented in the integration guide:
   decision, so the control is as strong as your client's human-in-the-loop. The guide itself
   tells integrators to build "a confirmation flow for trades".
 - B2B only: needs platform credentials from ConnectTrade and an already-connected user.
-  Pricing is a separate page and was not read.
+  Per llms-full.txt (2026-11-11), pricing is Builder $19/month (month-to-month, 10 connected users), Growth $500/month (annual commitment, 500 users, $1.00/month per extra user) and Enterprise (custom).
 - Tool names beyond `create_order` and `confirm_trade` were not listed in the pages read, and
   the server was not exercised with credentials.
 - The broker matrix is ConnectTrade's own claim; individual broker capabilities were not
@@ -99,6 +111,8 @@ Documented in the integration guide:
   `/docs/mcp`, which is where to look, not the spec.
 
 ## Sources
+
+Re-read on 2026-11-11: <https://connecttrade.com/docs/mcp>, <https://connecttrade.com/llms.txt>, <https://connecttrade.com/llms-full.txt> (broker matrix unchanged: 21 brokers).
 
 Checked directly on 2026-10-09:
 

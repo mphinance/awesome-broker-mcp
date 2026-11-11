@@ -5,7 +5,7 @@ status: community
 trading: false
 server_type: local
 source_url: https://github.com/davdunc/mcp_etrade
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -66,8 +66,8 @@ Read it as a calculator the model may consult, not a control.
 
 ## Caveats
 
-- **One commit, ever.** "Initial release", 2025-09-08, never touched since. 6 stars, 0
-  open issues.
+- **One commit, ever.** "Initial release", 2025-09-08, never touched since. 8 stars at
+  2026-11-11 (up from 6); still no commits since.
 - `pyproject.toml` declares GPL-3.0 but there is **no LICENSE file**, so GitHub reports
   `license: null`. If licensing matters to you, this is unresolved.
 - Glama rates maintenance **D** and warns it "cannot currently be installed... due to

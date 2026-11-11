@@ -5,7 +5,7 @@ status: community
 trading: false
 server_type: local
 source_url: https://github.com/elcukro/bank-mcp
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: medium
 ---
 
@@ -14,7 +14,7 @@ confidence: medium
 ## Overview
 
 Teller has no first-party MCP server. It is supported as one provider inside a
-community multi-provider server, elcukro/bank-mcp (30 stars, latest v0.1.3 Feb 2026),
+community multi-provider server, elcukro/bank-mcp (54 stars, latest v0.1.3 Feb 2026, last push 2026-05-23),
 which bridges Plaid, Teller, Enable Banking, and Tink to MCP clients. Teller access is
 read-only by design: the server's BankProvider interface exposes only listAccounts,
 listTransactions, and getBalance, with no write, transfer, or payment-initiation
@@ -50,6 +50,6 @@ None.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-11-11 (README and GitHub API; Teller still listed as a US, mTLS provider, read-only BankProvider unchanged):
 
 - <https://github.com/elcukro/bank-mcp>

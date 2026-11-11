@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: remote (hosted) + local (self-host Go binary)
 source_url: https://github.com/zerodha/kite-mcp-server
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -47,6 +47,10 @@ on a self-hosted instance; the official hosted endpoint excludes trading tools
   own read-only instance.
 
 ## Sources
+
+Re-read 2026-11-11: README claims unchanged (hosted endpoint excludes destructive trading
+operations; EXCLUDED_TOOLS). Repo has 330 stars; latest tags are v0.4.0-dev pre-releases; latest
+commit on the default branch 2026-07-10 ("add authorize interstitial for legacy mcp login").
 
 Checked directly on 2026-07-16:
 

@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: remote
 source_url: https://docs.tradeit.app/mcp
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -33,18 +33,31 @@ and the repo `trade-agent-mcp` → `trade-it-mcp`.
 Hosted endpoints:
 
 - Streamable HTTP: `https://mcp.tradeit.app/mcp`
-- SSE: `https://mcp.tradeit.app/sse`
 
-Create an account at tradeit.app, start the Pro plan free trial, connect your brokerage,
-then point your MCP client at one of the URLs above. Auth via browser-based OAuth.
+The Installation page (read 2026-11-11) lists only this Streamable HTTP URL. The
+`/sse` endpoint we previously listed is no longer documented there; treat it as
+unverified. Setup is documented for ChatGPT (custom MCP server/plugin), Claude (custom
+connector; free Claude plans allow one), Claude Code (`claude mcp add --transport http
+tradeit https://mcp.tradeit.app/mcp`), Gemini CLI, Codex (via `mcp-remote`), and Muse.
+
+Create an account at tradeit.app, connect your brokerage, then point your MCP client at
+the URL. Auth is browser-based OAuth 2.0 by default; **API keys** (revocable) are an
+alternative. Plan gating (see Caveats) was last stated as Pro with a free trial.
 
 ## Trading scope
 
-**Brokers:** Robinhood, Charles Schwab, E\*TRADE, Webull, Public, tastytrade.
-**Crypto:** Coinbase, Kraken.
+**Brokers** (docs.tradeit.app/brokerages, 2026-11-11): Charles Schwab, E\*TRADE, Moomoo,
+Public, Robinhood, tastytrade, TradeStation (plus TradeStation Paper), Webull.
+**Crypto:** Coinbase, Kraken. (Moomoo and TradeStation are new relative to our earlier
+list. Take-profit/stop-loss and fractional support vary per brokerage; OCO is listed
+only for Robinhood.)
 
 Stock/crypto buy/sell, limit/stop orders, options spreads, straddles, multi-leg
-strategies.
+strategies. Nine MCP tools: `search_assets`, `get_accounts`, `get_holdings`,
+`get_trades`, `create_trade`, `create_options_trade`, `create_trade_link`,
+`execute_trade`, `cancel_trade`. `create_trade` accepts `take_profit` / `stop_loss`
+(not supported by all brokerages). Trade Links are shareable drafts that another user
+reviews and executes on their own brokerage.
 
 ## Safety / guardrails
 
@@ -70,13 +83,24 @@ impossible the way IBKR's design does. Good practice, not a hard gate.
 ## Caveats
 
 - Requires a Pro plan (free trial available) — not free-tier accessible.
-- Repo is active (27 commits, not archived).
+- Repo `trade-it-inc/trade-it-mcp` is not archived, 62 stars; last push 2026-10-15
+  (README and skill-docs updates: "Update to latest standards", "Add supported
+  brokerages list"; no tagged releases).
+- Holdings and trade data are cached daily; real-time `refresh: true` is for paid plans
+  (and partner-linked users) with a 1 request per minute per-account limit.
+- docs.tradeit.app now publishes `llms.txt` and `llms-full.txt` (both 200 on
+  2026-11-11; the full file also documents the REST API and Discord bot). No separate
+  openapi.json was checked.
+- The docs page still says a trade "is never submitted without explicit confirmation"
+  and `create_trade` docs say to obtain explicit approval before `execute_trade`;
+  still prompt-level.
 - Listings under the old "Trade Agent" name still circulate; they point at the same
   product.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-11-11 (repo, docs MCP overview, installation, brokerages, llms.txt):
 
 - <https://docs.tradeit.app/mcp>
+- <https://docs.tradeit.app/llms.txt>
 - <https://github.com/trade-it-inc/trade-it-mcp>

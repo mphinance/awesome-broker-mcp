@@ -5,7 +5,7 @@ status: official
 trading: false
 server_type: remote
 source_url: https://plaid.com/docs/resources/mcp/
-last_verified: 2026-10-12
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -45,7 +45,7 @@ None.
   results and is distinct from the official ones. I did not verify it; do not conflate
   it with Plaid's first-party offering.
 - The toolkit repo (github.com/plaid/ai-coding-toolkit, MIT, 31 stars, last push
-  2026-09-11) was fetched on 2026-10-12: its `/sandbox` directory holds the local MCP
+  2026-10-15) was fetched on 2026-11-11: its `/sandbox` directory holds the local MCP
   server (mock data, Sandbox access tokens, webhook simulation). Its README also links
   a Plaid CLI for reading your own financial data from a terminal; that CLI was not
   checked here and is not an MCP server.
@@ -56,7 +56,7 @@ None.
 
 ## Sources
 
-Checked directly on 2026-10-12 (docs page re-read: still exactly two servers, Dashboard tools unchanged at the five listed, scope `mcp:dashboard`; plaid.com/llms.txt scanned for MCP/agent entries, nothing new that is an MCP server):
+Checked directly on 2026-11-11 (docs page re-read: Dashboard server still Streamable HTTP, token endpoint production.plaid.com/oauth/token, client_credentials grant, access tokens expire after 15 minutes, Production-only; earlier note follows: docs page re-read: still exactly two servers, Dashboard tools unchanged at the five listed, scope `mcp:dashboard`; plaid.com/llms.txt scanned for MCP/agent entries, nothing new that is an MCP server):
 
 - <https://plaid.com/docs/resources/mcp/>
 - <https://plaid.com/llms.txt>

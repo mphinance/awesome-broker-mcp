@@ -5,7 +5,7 @@ status: official + community
 trading: true
 server_type: local
 source_url: https://github.com/tastytrade/tastytrade-mcp
-last_verified: 2026-10-09
+last_verified: 2026-11-11
 ---
 
 # tastytrade
@@ -13,11 +13,11 @@ last_verified: 2026-10-09
 ## Overview
 
 tastytrade now has a **first-party** server: [`tastytrade/tastytrade-mcp`](https://github.com/tastytrade/tastytrade-mcp)
-(GitHub org `tastytrade`, repo created 2026-08-14, last push 2026-09-29, 27 stars at check
-time). It wraps the tastytrade open API: quotes, option chains, balances, positions,
+(GitHub org `tastytrade`, repo created 2026-08-14, last push 2026-11-11, 37 stars at
+2026-11-11). It wraps the tastytrade open API: quotes, option chains, balances, positions,
 transactions, watchlists and order entry. A longer-running community server,
-[`ferdousbhai/tasty-agent`](https://github.com/ferdousbhai/tasty-agent) (v6.0.1 as of
-2026-06-01), predates it and is covered at the bottom.
+[`ferdousbhai/tasty-agent`](https://github.com/ferdousbhai/tasty-agent) (v7.0.0, a TypeScript
+rewrite released 2026-10-03), predates it and is covered at the bottom.
 
 ## How to connect
 
@@ -73,7 +73,13 @@ cancels are separate tools.
 
 ### Community server: `ferdousbhai/tasty-agent`
 
-Local (`uvx tasty-agent`) or Modal-hosted, OAuth 2.0. Multi-leg orders. Orders price off a
-quote-derived mid with **no custom limit prices**, bid/ask guardrail validation and tick
-alignment, dry-run mode, 2 requests/second. Not endorsed by tastytrade. Last verified
-2026-07-16; not re-checked on 2026-10-09 (60+ days old, so treat as aging).
+TypeScript as of v7.0.0 (2026-10-03, a rewrite of the earlier Python 6.x): local over stdio
+(`npx -y tasty-agent@7`) or as a remote server on Cloudflare Workers (bearer token via
+`MCP_BEARER_TOKEN`). The Python package, Modal deployment, local SSE/HTTP transports and
+`GTD` time-in-force are gone. OAuth with client secret plus personal-grant refresh token;
+`TASTYTRADE_API_BASE` points at the cert sandbox. Multi-leg orders priced from a
+quote-derived mid (no custom limit prices) with bid/ask guardrails and tick alignment. Per
+the release notes every placement and replacement is dry-run first and any dry-run warning
+refuses the order; an unanswered order or cancel reports an unknown outcome and is never
+retried. The README also promotes a hosted guard-railed sibling, spicytrade
+(`https://spicy.trade/mcp`), which we did not evaluate. Not endorsed by tastytrade.

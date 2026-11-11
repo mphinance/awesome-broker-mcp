@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: remote
 source_url: https://public.com/api/docs/templates/hosted-mcp
-last_verified: 2026-10-12
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -15,7 +15,7 @@ confidence: high
 
 Official **hosted** MCP server at `https://mcp.public.com/mcp`, plus an Apache-2.0
 **local** server ([`publicdotcom-mcp-server`](https://github.com/PublicDotCom/publicdotcom-mcp-server),
-v0.8.0, 2026-10-09) for people who would rather run it themselves. The hosted server
+v0.10.0, 2026-10-29) for people who would rather run it themselves. The hosted server
 launched 2026-06-25 and is now the headline path: Public lists Claude, Claude Code,
 ChatGPT, Codex, Perplexity, Grok and Meta Muse as supported clients.
 
@@ -68,15 +68,26 @@ Order types: market, limit, stop, stop-limit, plus OCO, OTO and bracket orders (
 and options). Tax-lot selection when closing positions. Brokerage, IRA and business
 accounts. US markets only.
 
-The local server exposes about 40 tools: roughly 30 read-only (quotes, chains, Greeks,
-history, tax lots, bond search, preflights) and 10 write tools (`place_order`,
-`place_multileg_order`, four vertical-spread helpers, `place_short_order`,
-`flatten_and_go_short`, `cancel_order`, `cancel_and_replace_order`). Read tools carry
-`readOnlyHint: true`; write tools do not.
+Newer order features (changelog, Aug to Oct 2026): bracket/OCO/OTO via `orderClass`,
+trailing stop-loss legs on bracket and OTO orders (2026-10-27), market-on-close and
+limit-on-close order types (2026-10-26), notional and fractional limit orders.
 
-**Prediction markets / event contracts are read-only over MCP.** You can browse
-categories, events, YES/NO prices and bars (`get_event_*`), but the server does not place
-event-contract orders. Public's prediction-markets product is a separate surface.
+The local server (v0.10.0 README) exposes 46 tools by my count of its tables: 35
+read-only (quotes, chains, Greeks, history, tax lots, bond search, event-contract
+browsing, preflights) and 11 write tools (`place_order`, `place_multileg_order`, four
+vertical-spread helpers, `place_short_order`, `buy_event_contract`,
+`flatten_and_go_short`, `cancel_order`, `cancel_and_replace_order`). `place_order`
+accepts the on-close types and bracket exits. Read tools carry `readOnlyHint: true`;
+write tools do not.
+
+**Prediction markets / event contracts: browsable, and now buyable on the local server.**
+The v0.9.0 release (2026-10-21, "recurring event-contract trading") and the v0.10.0
+README list `buy_event_contract` (YES or NO side, DAY limit order, at the ask by
+default) with `preflight_buy_event_contract`, plus `get_event_*`, `get_current_event`
+and `wait_for_settlement`. Public's API changelog added event-contract endpoints on
+2026-10-13 and says its prediction markets guide covers placing a first event contract
+order. Whether the hosted server exposes `buy_event_contract` was not verified. The
+earlier "read-only over MCP" claim here is stale.
 
 ## Safety / guardrails
 
@@ -126,10 +137,14 @@ Compare [IBKR](interactive-brokers.md), where the server cannot submit at all, a
 
 ## Sources
 
-Checked directly on 2026-10-12:
+Re-checked 2026-11-11: the llms.txt, the hosted-mcp page, the API changelog (entries
+through 2026-11-11, including new Order Updates and Trades WebSocket streams on
+2026-11-09 and 2026-11-11), and the GitHub releases and README for the local server.
+Others below were last read 2026-10-12.
 
-- <https://public.com/llms.txt> (lists `/mcp-trading`, `/api`, prediction markets, and
-  a Meta Muse guide; no `llms-full.txt` or `openapi.json`)
+- <https://public.com/llms.txt> (now a Yoast-generated list linking `/api` and
+  prediction markets; `/mcp-trading` and the Meta Muse guide are no longer listed; no
+  `llms-full.txt` or `openapi.json`)
 - <https://public.com/mcp-trading>
 - <https://public.com/api/docs/templates/hosted-mcp> and its `claude`, `chatgpt`,
   `grok`, `meta-muse` pages

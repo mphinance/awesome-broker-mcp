@@ -5,7 +5,7 @@ status: community
 trading: false
 server_type: remote
 source_url: https://github.com/lwsinclair/wealthsimple-mcp-server
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -52,7 +52,7 @@ none — public marketing/help content only, zero account access
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-11-11 (repo still lists the same five public-content tools; 0 stars, last push 2025-05-14):
 
 - <https://github.com/lwsinclair/wealthsimple-mcp-server>
 - <https://github.com/orgs/wealthsimple/repositories?q=mcp>

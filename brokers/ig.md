@@ -5,7 +5,7 @@ status: official
 trading: false
 server_type: remote (hosted; ChatGPT app only, no client-configurable URL)
 source_url: https://www.ig.com/au/trading-platforms/ai-assistant
-last_verified: 2026-10-09
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -57,6 +57,10 @@ transaction history, watchlists, portfolio metrics.
   2026-03-10). Do not treat it as official IG.
 
 ## Sources
+
+Re-read 2026-11-11 (no substantive change: ChatGPT live, Claude still "Coming Soon", "Authenticated and read-only"):
+
+- <https://www.ig.com/au/trading-platforms/ai-assistant>
 
 Checked directly on 2026-10-09:
 

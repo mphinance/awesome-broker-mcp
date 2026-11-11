@@ -1,11 +1,11 @@
 ---
 name: NinjaTrader
 region: US
-status: community
+status: official + community
 trading: true
-server_type: local (stdio/npx, bridges to NT8 desktop) — plus a third-party hosted remote option (CrossTrade)
-source_url: https://discourse.ninjatrader.com/t/model-context-protocol-mcp/4159
-last_verified: 2026-07-16
+server_type: remote (official, hosted by NinjaTrader), plus local community servers and a third-party hosted option (CrossTrade)
+source_url: https://docs.ninjatrader.com/mcp
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -13,17 +13,22 @@ confidence: high
 
 ## Overview
 
-No official NinjaTrader MCP server exists; a user request on the NinjaTrader community
-forum has no staff response. However this is the richest community ecosystem in the
-cluster, with ~10 MCP repos visible in GitHub's index. The most-starred is
-ozmnf4/ninjatrader-mcp (28 stars, JavaScript), which reads positions, places orders,
-accesses market data and reads NinjaScript indicator values. Separately, CrossTrade
-(an independent vendor, not affiliated with NinjaTrader Group) runs a production
+**NinjaTrader now has an official, first-party hosted MCP server**, documented at
+[docs.ninjatrader.com/mcp](https://docs.ninjatrader.com/mcp). It is remote (Streamable
+HTTP, OAuth 2.1, nothing to install), separate Demo and Live endpoints, and available only
+to Tradovate and NinjaTrader users. The docs list 29 tools covering portfolio, quotes and
+history, `estimate_order`, `place_order`, `modify_order`, `cancel_order`, `close_position`,
+risk settings and alerts, and say it trades futures and event contracts. (The older
+forum request thread had no staff reply; it is superseded.) Beyond that there is a
+large community ecosystem of ~10 MCP repos on GitHub, the most-starred being
+ozmnf4/ninjatrader-mcp (36 stars at 2026-11-11, JavaScript, single commit 2026-04-05),
+and CrossTrade (an independent vendor, not affiliated with NinjaTrader Group) runs a
 hosted MCP server at https://app.crosstrade.io/v1/api/mcp with OAuth 2.1 scopes.
 
 ## How to connect
 
 ```bash
+Official (Demo first): claude mcp add ninjatrader-demo --transport http https://mcp-demo.tradovateapi.com/mcp   # Live: https://mcp-live.tradovateapi.com/mcp, name ninjatrader-live. Authorize in a desktop browser.
 Community: git clone https://github.com/ozmnf4/ninjatrader-mcp && npm install, configure .env, add to Claude Code MCP config (local mode talks to NT8 desktop on port 7890; cloud mode uses the NinjaTrader Ecosystem API). Hosted: add https://app.crosstrade.io/v1/api/mcp as a remote MCP server and complete OAuth.
 ```
 
@@ -33,15 +38,27 @@ Futures and other instruments tradable through a connected NinjaTrader 8 desktop
 installation (CME complex: ES, NQ, MES, MNQ, CL, GC, etc.). Order placement,
 modification and cancellation are supported by several servers.
 
+## Safety / guardrails (official server)
+
+Each tool needs a specific account permission, enforced server-side (for example
+Orders: Full Access for `place_order`). Six of the seven write tools carry the MCP
+`destructiveHint` so most clients pause for approval; `create_alert` does not. Whether
+approval is required depends on your client settings. Demo and Live are separate
+endpoints with separate accounts. The docs say the agent cannot move funds. The server
+exposes `update_risk_settings` (daily loss auto-liquidation, position limits), so an agent
+with Risks: Full Access can change your risk limits. Trading is not read-only by default:
+read-only use depends on the permissions you approve on the consent screen.
+
 ## Caveats
 
-- No official first-party MCP server. The NinjaTrader forum thread asking for MCP
-  support shows no staff reply.
+- The official server's own docs were read on 2026-11-11; we did not connect to it or
+  place orders. CrossTrade's comparison page (vendor-written) describes it as beta and
+  pre-release; the docs pages we read did not say so, so treat maturity as unconfirmed.
 - ozmnf4/ninjatrader-mcp shows only 1 commit on main despite 28 stars — treat maturity
   with caution.
 - Community servers bridge to the NT8 desktop app via a local add-on/port, not to a
   broker API directly. NinjaTrader must be running.
-- CrossTrade is a paid third party: MCP is gated to the Elite tier (REST/WebSocket
+- CrossTrade is a paid third party: MCP is gated to the Elite tier ($99/month per its llms.txt; REST/WebSocket
   remain on Pro) and requires the CrossTrade Add-On v1.13.0+. It enforces OAuth scope
   at the transport — an mcp:read token cannot place an order, mcp:trade can.
 - EXCLUDED AS UNVERIFIABLE: a 'schroeder247' Rust server claiming 88 tools is listed
@@ -54,8 +71,10 @@ modification and cancellation are supported by several servers.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-07-16, official docs and CrossTrade llms.txt re-read 2026-11-11:
 
+- <https://docs.ninjatrader.com/mcp> (plus /mcp/connect, /mcp/authentication, /mcp/tools, /mcp/safety)
+- <https://crosstrade.io/llms.txt>
 - <https://github.com/ozmnf4/ninjatrader-mcp>
 - <https://github.com/search?q=ninjatrader+mcp&type=repositories>
 - <https://crosstrade.io/mcp-trading/ninjatrader-mcp-setup>

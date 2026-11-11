@@ -5,7 +5,7 @@ status: aggregator-only
 trading: true
 server_type: n/a
 source_url: https://lightspeed.com/trading/api-trading
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: medium
 ---
 
@@ -16,9 +16,11 @@ confidence: medium
 No MCP server exists for Lightspeed Trading (the US broker at lightspeed.com). A
 GitHub search for 'lightspeed trading mcp' returns 0 results, and Lightspeed's own API
 Trading page makes no mention of MCP, AI agents or Claude. Lightspeed does offer
-'Lightspeed Connect', an API trading product that can place and execute orders on US
-exchanges with multiple routing options and a certification environment for paper
-trading — a DIY-wrapper candidate, but not an MCP server.
+'Lightspeed Connect', an API trading product for US equities and options over a persistent
+WebSocket (WSS + JSON): order submit/cancel/replace, real-time order, execution, position
+and account updates, single- and multi-leg options up to four legs, and a Hard-to-Borrow
+Locate API. It has a Paper Trading Environment and a browser API Console. A DIY-wrapper
+candidate, but not an MCP server.
 
 ## Update 2026-10-09: reachable through ConnectTrade
 
@@ -48,11 +50,21 @@ None directly. Via ConnectTrade only: equities and options per its capability ma
 - Confidence is medium rather than high precisely because the name collision degrades
   search quality — a broker-specific repo under an unexpected name could plausibly be
   missed. The first-party page's silence on MCP is the strongest evidence.
-- REST/API only — Lightspeed Connect is a DIY-wrapper candidate. The page does not
-  specify whether it is REST, FIX or another protocol.
-- No first-party mention of MCP anywhere on the API Trading page.
+- Lightspeed Connect is a WebSocket + JSON API (the page mentions no REST or FIX), so a
+  wrapper would be built on an event-driven socket. Market data comes from your own source
+  or Lightspeed's partner Polygon.io. Live use needs completed testing and the production
+  onboarding process.
+- No first-party mention of MCP anywhere on the API Trading page (re-read 2026-11-11). The
+  page does advertise AI-ready documentation (Markdown, llms.txt) but that is docs, not an MCP.
+- ConnectTrade's llms-full.txt matrix (2026-11-11) still lists Lightspeed as equities and
+  options only: no futures, crypto, paper trading or transactions.
 
 ## Sources
+
+Re-read on 2026-11-11:
+
+- <https://lightspeed.com/trading/api-trading>
+- <https://connecttrade.com/llms-full.txt>
 
 Checked directly on 2026-07-16:
 

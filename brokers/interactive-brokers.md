@@ -5,7 +5,7 @@ status: official
 trading: draft-only
 server_type: remote
 source_url: https://claude.com/connectors/interactive-brokers
-last_verified: 2026-10-12
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -113,6 +113,9 @@ Local-process alternatives that predate the official connector, listed for refer
   locally. Not independently verified.
 
 ## Sources
+
+Re-read 2026-11-11: <https://claude.com/connectors/interactive-brokers> (same 10 tools, same
+connector URL and "never submits orders directly" wording; no change).
 
 Checked directly on 2026-10-12:
 

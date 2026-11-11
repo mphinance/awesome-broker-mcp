@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: remote (hosted)
 source_url: https://open.longbridge.com/docs/mcp
-last_verified: 2026-10-12
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -17,8 +17,7 @@ Longbridge runs an official hosted MCP server at https://mcp.longbridge.com
 (mcp.longbridge.cn for mainland China), with the source published at
 github.com/longbridge/longbridge-mcp — a Rust implementation self-described as the
 'Official MCP server for the Longbridge brokerage'. It is the most complete broker MCP
-in this cluster: 164 tools across 20 categories per the repo README (v0.13.2, released
-2026-10-12), including a Trade category with 15 tools covering order submission,
+in this cluster: 164 tools across 20 categories per the repo README (figure read 2026-10-12 at v0.13.2; latest release is now v0.16.4, 2026-11-11), including a Trade category with 15 tools covering order submission,
 cancellation, replacement and multi-leg option orders. Auth is OAuth 2.1 via browser, no
 manual key handling. It is also listed as an official connector in the Claude and ChatGPT
 directories.
@@ -71,8 +70,8 @@ subscriptions, price alerts, screeners and portfolio analytics.
 
 - Genuinely capable of live order placement — this is a real execution route, not a
   data-only connector. Gate accordingly.
-- Tool counts vary across sources (the docs page now says '160+ tools across six
-  capability areas'; the repo README says '164 tools' across 20 categories, a figure we
+- Tool counts vary across sources (the docs page now says '190+ tools across six
+  capability areas', up from '160+'; the repo README says '164 tools' across 20 categories, a figure we
   summed from its table). The count has grown fast (148 in July). Treat the exact number
   as approximate. The 28 fund tools are not in the README's category table.
 - Docs do not explicitly enumerate market coverage; availability depends on 'your
@@ -83,6 +82,14 @@ subscriptions, price alerts, screeners and portfolio analytics.
 - Requires a funded Longbridge account (or a paper trading account); region-gated (HK/SG
   entity vs mainland endpoint). We did not authenticate, so tool availability, scopes and
   the dry-run behavior were read from source and docs, not exercised on a live account.
+- Releases since v0.13.2 (GitHub, read 2026-11-11): v0.14.0 widened the dry-run
+  confirmation code to cover every order field that changes what is traded (previously a
+  code from a limit preview also placed other order types) and made unconfirmed writes
+  non-retryable. The PR notes that `dca_create`, `dca_update` and `submit_multileg_order`
+  still execute on the first call. v0.15.0 added Longbridge US account support for balance,
+  positions, orders and executions, plus an `fx_rate` tool. v0.16.0 added `get_me`. v0.16.1
+  to v0.16.4 are fixes (news source fields, path-id validation, auth, locales, a `signals`
+  filter rename). We did not re-count tools in the README after v0.13.2.
 - v0.13.0 moved quote data from WebSocket to HTTP REST (breaking, mostly relevant to
   self-hosters). v0.13.2 only fixes `limit`/`size` handling in news and topic search and
   rank lists.
@@ -92,6 +99,7 @@ subscriptions, price alerts, screeners and portfolio analytics.
 Checked directly on 2026-10-12:
 
 - <https://open.longbridge.com/docs/mcp> (and the `.md` source)
+- <https://github.com/longbridge/longbridge-mcp> (2026-11-11: releases v0.14.0 to v0.16.4, PR #171, `src/tools/trade.rs`)
 - <https://github.com/longbridge/longbridge-mcp> (README, v0.13.0 to v0.13.2 releases,
   `src/tools/trade.rs`, `src/tools/support/dry_run.rs`, `LAUNCHGUIDE.md`)
 - <https://mcp.longbridge.com/.well-known/oauth-protected-resource> (returns 200)

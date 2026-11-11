@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: remote (Cloud MCP) + local (OpenAPI MCP)
 source_url: https://github.com/webull-inc
-last_verified: 2026-10-12
+last_verified: 2026-11-11
 ---
 
 # Webull
@@ -92,9 +92,9 @@ Beyond that: notional limits by currency (`WEBULL_MAX_ORDER_NOTIONAL_USD` defaul
 whitelist enforcement (`WEBULL_SYMBOL_WHITELIST`), and audit logging
 (`WEBULL_AUDIT_LOG_FILE`) — all backed by `guards.py` / `audit.py` in the tree.
 
-**Maintenance**: Apache 2.0, 28 stars, 45 commits, latest release v1.2.4 (2026-09-12),
-last push 2026-09-12 (recent work: HK execution support, option leg-in/leg-out). The
-README now lists regions US, HK, JP, SG, MY, UK, MX, BR, ZA, and pins `fastmcp` 3.0.2
+**Maintenance**: Apache 2.0, 31 stars, latest release 1.2.6 (2026-10-26; 1.2.5 on
+2026-10-17 was "th mcp open", i.e. Thailand), last push 2026-11-11 (earlier work: HK execution
+support, option leg-in/leg-out). The README as last read (2026-10-12) lists regions US, HK, JP, SG, MY, UK, MX, BR, ZA, and pins `fastmcp` 3.0.2
 and `webull-openapi-python-sdk` 3.0.0. Actively developed but a young project, not
 battle-tested at scale. The earlier `webull-mcp-server` and `webull-agent-skills` repos
 in the same org are archived (2026-06-02); use the current ones.
@@ -102,8 +102,8 @@ in the same org are archived (2026-06-02); use the current ones.
 ## 3. OpenAPI Skills and CLI: **no longer an MCP server**
 
 `github.com/webull-inc/webull-openapi-skills`: an agent skill plus the `webull-skill`
-CLI, built on the official SDK, same org. Apache 2.0, 12 stars, 33 commits, latest
-release v1.2.1 (2026-09-12). It ships a Claude Code plugin manifest (added 2026-08).
+CLI, built on the official SDK, same org. Apache 2.0, 13 stars, latest
+release 1.2.3 (2026-10-26, "support marker and community"; 1.2.2 on 2026-10-17 added Thailand). It ships a Claude Code plugin manifest (added 2026-08).
 
 **Correction:** earlier versions of this page said the repo was "both a CLI and an MCP
 server" (its README once said *"This skill works as an MCP server"* with an `mcpServers`
@@ -117,7 +117,7 @@ symbol whitelist, audit log) and the same sandbox-by-default posture (`WEBULL_EN
 defaults to `uat`).
 
 There is also `github.com/webull-inc/webull-openapi-cli`, a Go CLI marked "Alpha
-Preview" (v1.0.4, 2026-09-12, 6 stars) with confirmation prompts and `--dry-run`. It is
+Preview" (v1.0.7, 2026-11-05, "single-leg option support", 7 stars) with confirmation prompts and `--dry-run`. It is
 a CLI, not an MCP server.
 
 ## How they relate
@@ -147,7 +147,8 @@ flowchart TD
 
 ## Sources
 
-Checked directly on 2026-10-12:
+Release metadata (mcp, skills, cli) re-checked 2026-11-11 via the GitHub API; the
+rest below was checked directly on 2026-10-12:
 
 - <https://developer.webull.com/apis/docs/AI-friendly-Resources/mcp/> (Cloud MCP endpoint table)
 - <https://github.com/webull-inc/webull-openapi-mcp> (README, releases, commits)

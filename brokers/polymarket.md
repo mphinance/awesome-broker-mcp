@@ -4,8 +4,8 @@ region: Global
 status: community
 trading: true
 server_type: local
-source_url: https://github.com/IQAIcom/mcp-polymarket
-last_verified: 2026-07-16
+source_url: https://github.com/BrainDAO/mcp-polymarket
+last_verified: 2026-11-11
 confidence: medium
 ---
 
@@ -15,8 +15,8 @@ confidence: medium
 
 No first-party Polymarket MCP server was found. The community field is large but
 fragmented, with at least six independent implementations of varying quality.
-IQAIcom/mcp-polymarket (18 stars, published as @iqai/mcp-polymarket on npm, actively
-released through v0.0.18 in May 2026) is trading-capable via an optional
+BrainDAO/mcp-polymarket (formerly IQAIcom; 20 stars, published as @iqai/mcp-polymarket on npm,
+latest release v0.1.0 on 2026-08-10, which migrated to Polymarket's V2 exchange and pUSD collateral) is trading-capable via an optional
 POLYMARKET_PRIVATE_KEY. Read-only alternatives exist for data-only use.
 
 ## How to connect
@@ -54,7 +54,7 @@ supplied; without it the server is read-only market data.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-07-16; repo, v0.1.0 release notes and README re-read 2026-11-11:
 
-- <https://github.com/IQAIcom/mcp-polymarket>
+- <https://github.com/BrainDAO/mcp-polymarket>
 - <https://github.com/aryankeluskar/polymarket-mcp>

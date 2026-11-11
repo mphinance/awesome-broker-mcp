@@ -5,7 +5,7 @@ status: community
 trading: false
 server_type: local
 source_url: https://github.com/morettimarco/fineco-mcp
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: medium
 ---
 
@@ -44,12 +44,14 @@ mutation, ever.'
   FinecoBank'; its README references a credential worker doing read-only Fineco login
   with session cookies, but does not document whether that is an official API or
   scraping — assume scraping and assume ToS risk.
-- Both repos are 1-star, early-stage, single-author projects (fineco-mcp has 2
+- Both repos are 2-star (as of 2026-11-11), early-stage, single-author projects (fineco-mcp has 2
   commits). Not production infrastructure.
 - gabrielerandelli/minus-tracker also surfaces in Fineco/DEGIRO MCP searches but is an
   Italian capital-gains (LIFO/FIFO) tax calculator, not a broker server.
 
 ## Sources
+
+Re-read 2026-11-11: fineco-mcp unchanged (5 tools, last push 2026-03-24). fineco-helper last push 2026-10-15 (docs cleanup); README still says read-only, owner-only behind Cloudflare Access, with rate-limited, gated live-refresh tools that use a real Fineco login (still not stated whether that is an official API).
 
 Checked directly on 2026-07-16:
 

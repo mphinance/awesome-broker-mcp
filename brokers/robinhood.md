@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: remote
 source_url: https://robinhood.com/us/en/support/articles/onboarding-an-external-agent/
-last_verified: 2026-10-09
+last_verified: 2026-11-11
 ---
 
 # Robinhood
@@ -50,8 +50,17 @@ it for you.
 
 Per Robinhood's *Trading with your agent* article: **long equities, options and crypto
 orders**. Order types: market (share-based), market (dollar-based), limit, stop limit,
-stop market. The tool list groups are account/portfolio, watchlist, market data,
-equities, options and crypto. **Futures are not listed.** Crypto additionally requires a
+stop market. The article states agents **cannot place multi-leg options orders** (do
+those manually in the app). The tool list, now expanded on the page (read 2026-11-11),
+has about 94 tool names in these groups: account/portfolio, watchlist, market data,
+equities (`review_equity_order`, `place_equity_order`, `cancel_equity_order`), options
+(`review_option_order`, `place_option_order`, `exercise_option`), crypto
+(`preview_crypto_order`, `place_crypto_order`), scanner, alerts, advanced orders
+(`place_advanced_order`, `review_advanced_order`; the page does not say what an
+"advanced order" is) and Legend charting. Each table marks built-in vs external agent
+availability, and a few rows (equity news, earnings transcript, Legend tools) are
+marked for only one column; I could not tell which from the extracted text.
+**Futures are not listed.** Crypto additionally requires a
 Robinhood Crypto account matching your MCP account and acceptance of the updated crypto
 agreement; the agent cannot open one.
 
@@ -62,7 +71,10 @@ order history.
 ## Safety / guardrails
 
 - **Trade approvals** (agent proposes, you place it in the app): **on by default for
-  built-in agents, off by default for MCP accounts.** The marketing page says "on by
+  built-in agents, off by default for MCP accounts.** The article now carries a note
+  that trade approvals are "still rolling out for MCP accounts" and "not all customers
+  have access." Tools `get_trade_approvals`, `decline_trade_approval` and
+  `get_trade_approval_setting` exist in the tool list. The marketing page says "on by
   default"; the support article says that applies to built-in agents only. For an
   external agent you must turn it on yourself: Agent Settings → Safety Controls.
   Even with it off, Robinhood says "certain trades may still require your approval."
@@ -80,10 +92,13 @@ order history.
 - Built-in agents have their own token billing ($5 starting balance, then prepaid) and
   Agent Apps subscriptions. Both apply only to Robinhood-hosted agents, not MCP.
   "Agent Loops" (scheduled continuous trading) is marked "Coming soon."
-- The tools list on the support page is collapsed, so exact tool names and parameters
-  were not read. Not tested with a live account.
-- Robinhood publishes **no `llms.txt` or `openapi.json`**. Those paths return an S3/CloudFront
-  `AccessDenied` 403, but so does any made-up path (checked 2026-10-09), so it is "absent",
-  not a bot wall. Watch the support articles instead:
+- Tool names were read from the support page on 2026-11-11, but parameters were not.
+  Not tested with a live account.
+- Crypto via agent is unavailable in some states including New York. Agents can trade
+  crypto but cannot transfer, stake or lend it (same article).
+- Robinhood now publishes **`https://robinhood.com/llms.txt`** (200 on 2026-11-11; it
+  previously did not exist). It is a marketing index: its only "Agentic Products" entry
+  is the Agentic Credit Card page, with no mention of the Trading MCP. No `openapi.json`
+  was checked this round. Watch the support articles instead:
   [onboarding](https://robinhood.com/us/en/support/articles/onboarding-an-external-agent/),
   [trading with your agent](https://robinhood.com/us/en/support/articles/trading-with-your-agent/).

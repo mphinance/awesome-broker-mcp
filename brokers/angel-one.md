@@ -5,7 +5,7 @@ status: community
 trading: true
 server_type: local (stdio, self-run Python)
 source_url: https://github.com/bhavesh0009/angel-one-mcp-server
-last_verified: 2026-10-12
+last_verified: 2026-11-11
 confidence: medium
 ---
 
@@ -56,7 +56,7 @@ wrappers only, no official server
 
 ## Sources
 
-Checked directly on 2026-10-12 (repo stars/commits/PyPI 'Coming Soon' status and the SmartAPI notice re-read; the notice's byte-level change did not touch the static-IP rules):
+Re-read 2026-11-11 (repo still 7 stars, 6 commits, last push 2025-07-26, PyPI still "Coming Soon"; SmartAPI notice still says static IP from 2026-04-01, market and IOC prohibited for algos, 10 OPS). Earlier: checked directly on 2026-10-12 (repo stars/commits/PyPI 'Coming Soon' status and the SmartAPI notice re-read; the notice's byte-level change did not touch the static-IP rules):
 
 - <https://github.com/bhavesh0009/angel-one-mcp-server>
 - <https://www.angelone.in/news/market-updates/what-s-changing-in-angel-one-s-smartapi-access-from-april-1-2026>

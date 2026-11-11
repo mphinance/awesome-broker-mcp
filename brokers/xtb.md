@@ -5,7 +5,7 @@ status: community
 trading: true
 server_type: local
 source_url: https://github.com/mcp-research/sharplygroup__xtb-mcp-server
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: low
 ---
 
@@ -60,6 +60,8 @@ longer published.
   at your own risk' with live accounts.
 
 ## Sources
+
+Re-checked 2026-11-11: upstream still HTTP 404, mirror still 1 star (last push 2025-03-01), npm @mseep/xtb-mcp-server still 0.1.2 (2025-04-17).
 
 Checked directly on 2026-07-16:
 

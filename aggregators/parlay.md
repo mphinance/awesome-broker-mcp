@@ -5,7 +5,7 @@ status: official
 trading: false
 server_type: remote
 source_url: https://github.com/parlay-run/parlay-mcp
-last_verified: 2026-10-09
+last_verified: 2026-11-11
 confidence: medium
 ---
 
@@ -21,7 +21,7 @@ deliberately not exposed. Run by the parlay.run project; the legal operator is u
 ## How to connect
 
 Endpoint: `https://mcp.parlay.run/mcp` (Streamable HTTP). A POST `initialize` answered 200 on
-2026-10-09 (server v0.2.0, protocol 2025-11-25).
+2026-11-11 (server v0.2.0, protocol 2025-11-25).
 
 **Claude.ai**: Settings → Connectors → Add custom connector → paste the URL → OAuth.
 

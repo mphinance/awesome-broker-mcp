@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: local (stdio, uvx)
 source_url: https://docs.itigerup.com/docs/mcp
-last_verified: 2026-10-12
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -68,6 +68,8 @@ slightly from the source read here.
   community repo luxiaolei/tiger-mcp.
 
 ## Sources
+
+Re-checked 2026-11-11: the MCP docs page `.md` is unchanged in substance (updatedAt still 2026-08-11; same uvx config, `TIGERMCP_READONLY`, personal vs institutional env vars). The SDK repo has newer releases (v3.8.1 2026-11-04, v3.9.0 2026-11-05) but the MCP example directory's last commit is 2026-03-03 and PyPI `tigermcp` is still 0.1.7, so the SDK releases do not change the MCP server. The llms.txt byte change is not MCP-related.
 
 Checked directly on 2026-10-12:
 

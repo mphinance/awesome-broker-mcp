@@ -5,7 +5,7 @@ status: none
 trading: false
 server_type: n/a
 source_url: none found
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -46,7 +46,7 @@ None.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-11-11 (viasocket page still a placeholder with "Request a new Action for Wealthfront"; Truthifi hub still lists Wealthfront):
 
 - <https://github.com/search?q=wealthfront+mcp&type=repositories>
 - <https://viasocket.com/mcp/wealthfront>

@@ -5,7 +5,7 @@ status: community
 trading: true
 server_type: local
 source_url: https://github.com/RohanAnandPandit/trading212-mcp-server
-last_verified: 2026-10-12
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -23,7 +23,7 @@ Basic Auth). This is a real API-backed path, not screen-scraping.
 Two servers were read at source (re-read 2026-10-12):
 
 1. [`RohanAnandPandit/trading212-mcp-server`](https://github.com/RohanAnandPandit/trading212-mcp-server)
-   MIT, 63 stars, 112 commits, last push 2026-10-10, not archived. Substantially
+   MIT, 66 stars, last push 2026-11-07 (a dependency/validation branch; `main`'s latest commit is 2026-10-23, "validate cached responses and maintain API model coverage"), not archived. Substantially
    rewritten since the July check (MCP Python SDK 2.x, package layout under
    `src/trading212_mcp/`, SQLite response cache, request validation); the changelog
    still says 0.2.0 "Unreleased," so it is installed from a git checkout (or
@@ -54,14 +54,20 @@ Equities and ETFs via Trading 212's API: market, limit, stop and stop-limit orde
 order cancellation, and pie management. Per Trading 212's API docs, the public API
 works only for **Invest and Stocks ISA** accounts (no CFD), orders execute only in the
 primary account currency, and it is still labelled beta. Demo is
-`https://demo.trading212.com/api/v0`, live is `https://live.trading212.com/api/v0`.
+`https://demo.trading212.com/api/v0`, live is `https://live.trading212.com/api/v0`
+(the bare base paths return 403 to a plain GET, but `/equity/account/summary` on demo
+returns 401 without credentials, so they are live API bases, not dead links).
 No official Trading 212 MCP server was found in its API docs (`llms.txt`); the main
 site is behind a Cloudflare challenge, so its marketing pages could not be read.
 
-**Read-only alternative:** [SnapTrade](../aggregators/snaptrade.md)'s hosted MCP covers
-Trading 212 and "cannot place trades, move money, or change account settings." Trading
-through SnapTrade would mean hand-coding against their raw REST API — an MCP-native
-path doesn't exist there.
+**SnapTrade alternative (changed):** [SnapTrade](../aggregators/snaptrade.md)'s docs (read
+2026-11-11) now describe two hosted MCP servers: a read-only **portfolio** server
+(`https://agent.snaptrade.com/mcp/portfolio`, with `https://mcp.snaptrade.com/mcp` kept
+as an alias) and a **trading** server (`https://agent.snaptrade.com/mcp/trading`) that
+can preview, place and cancel orders, gated by per-account trading access and a
+brokerage connection with trade access. Neither can move money. The MCP page I read does
+not mention Trading 212, so whether Trading 212 connections can trade through it was
+**not verified**. The earlier "cannot place trades, no MCP-native path" line is stale.
 
 ## Safety / guardrails
 
@@ -100,11 +106,13 @@ reported "live is the default," which is false in code. Both the summary and the
 
 ## Sources
 
-Checked directly on 2026-10-12 (both repos cloned, client, settings and tool
+Re-checked 2026-11-11: Rohan repo metadata/README/commits via GitHub, `docs.trading212.com/api`
+and `llms.txt` (unchanged substance), and SnapTrade's MCP docs. KyuRish repo last push
+is still 2026-08-20. Earlier check 2026-10-12 (both repos cloned, client, settings and tool
 registration read; Trading 212 API docs via `docs.trading212.com/llms.txt`, PyPI
 metadata for KyuRish):
 
 - <https://github.com/RohanAnandPandit/trading212-mcp-server>
 - <https://github.com/KyuRish/trading212-mcp-server>
-- <https://docs.snaptrade.com/docs/mcp-server> (not re-checked 2026-10-12)
+- <https://docs.snaptrade.com/docs/mcp-server> (re-read 2026-11-11)
 - <https://docs.trading212.com/api>

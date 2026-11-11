@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: remote + local
 source_url: https://docs.cdp.coinbase.com/ai-agents/coinbase-for-agents/coinbase-mcp
-last_verified: 2026-10-12
+last_verified: 2026-11-11
 ---
 
 # Coinbase
@@ -39,7 +39,9 @@ claude mcp add coinbase --transport http https://agents.coinbase.com/mcp
 then `/mcp` > coinbase > Authenticate and sign in with Coinbase. On Claude web/desktop,
 add a custom connector with that URL. No CDP API key is needed on the remote path. Coinbase
 **allowlists clients**: supported today are ChatGPT, Grok, Grok Bot, Muse, Perplexity
-Computer, Claude, Claude Code and Codex CLI. On the approval screen you choose which
+Computer, Hermes, Claude, Claude Code and Codex CLI. Dynamic Client Registration and Client ID
+Metadata Documents are supported, but Coinbase still approves clients by allowlist, so a
+successful registration does not grant every account, scope or tool. On the approval screen you choose which
 portfolios the agent can touch. An unauthenticated POST to the endpoint returns 401.
 
 **Coinbase for Agents (local CLI).** `npm i -g @coinbase/coinbase-cli` (Node 22+), create a
@@ -56,8 +58,10 @@ install the CLI, walk through API key creation, and verify the connection. Claud
 
 **Coinbase for Agents** (per the Coinbase MCP docs and agent skill): spot crypto (900+
 pairs), eligible US equities (`TICKER-QUOTE` ids such as `AAPL-USD`), and US derivatives
-(CFM dated futures, needs account approval, default portfolio only). Orders execute
+(CFM dated futures, needs account approval, default portfolio only; futures market orders take `base_size` in contracts).
+Isolated agent portfolios are spot crypto only. Orders execute
 through Coinbase Advanced Trade, so Advanced Trade fees and eligibility apply.
+Tool names carry a `coinbase_` prefix on the core server (for example `coinbase_portfolios_list`).
 Order tools: `orders_preview`, `orders_create`, `orders_list`, `orders_get`,
 `orders_fills`, `orders_edit`, `orders_cancel`, `orders_close_position`. Market and limit
 orders are documented; equities regular-hours market orders only, extended sessions take
@@ -111,11 +115,14 @@ framing.
   come from Coinbase's docs (`coinbase-mcp`, `coinbase-for-agents/skill.md`, `cdp-cli-mcp`),
   the OAuth protected-resource metadata, and an unauthenticated probe of the endpoint.
   The authoritative tool list is whatever `tools/list` returns on your connection.
+- Coinbase's docs index (`llms.txt`) now also lists an **Agentic Wallet** suite (`awal` CLI, plus a
+  separate Agentic Wallet MCP via `npx @coinbase/payments-mcp`) for x402 payments and, on the CLI,
+  send and trade. The MCP variant only discovers and pays for services. Not covered further here.
 - Aggregators that list Coinbase (Trade It and others) are a separate path from the above.
 
 ## Sources
 
-Checked directly on 2026-10-12:
+Checked directly on 2026-11-11 (docs re-read; OAuth scope list and the 401 on unauthenticated POST re-confirmed unchanged):
 
 - <https://docs.cdp.coinbase.com/ai-agents/coinbase-for-agents/coinbase-mcp> (markdown export)
 - <https://docs.cdp.coinbase.com/coinbase-for-agents/skill.md>

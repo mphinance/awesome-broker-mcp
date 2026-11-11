@@ -5,7 +5,7 @@ status: community
 trading: false
 server_type: local
 source_url: https://github.com/zachmelin/QuestradeMCP
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -33,6 +33,7 @@ none — every verified server is read-only
 
 ## Caveats
 
+- zachmelin/QuestradeMCP: 6 stars, latest release v0.0.13 (2026-06-10), no pushes since.
 - Unofficial. The zachmelin README carries an explicit disclaimer: not affiliated
   with, endorsed by, or supported by Questrade Inc.
 - Read-only. Mathuran/questrade-mcp (Deno/TypeScript) contains place_order and

@@ -5,7 +5,7 @@ status: community
 trading: true
 server_type: local
 source_url: https://github.com/jkoelker/schwab-mcp
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 ---
 
 # Charles Schwab
@@ -13,7 +13,7 @@ last_verified: 2026-07-16
 ## Overview
 
 Community server (`jkoelker/schwab-mcp`), self-hosted, not Schwab-provided. Actively
-developed: 227 commits, 58 stars, 4 watchers. **No official Schwab AI assistant with
+developed: about 352 commits, 69 stars, last push 2026-11-11. **No official Schwab AI assistant with
 MCP exists** — Schwab has an assistant expected H2 2026 per earlier reporting, but
 nothing MCP-shaped from Schwab itself was found in this repo or elsewhere.
 
@@ -31,7 +31,8 @@ Equities, options, complex strategies (bracket orders, OCO).
 
 ## Safety / guardrails
 
-**Read-only by default.** Trading requires explicit opt-in *plus* a Discord-bot
+**Read-only by default.** Trading requires explicit opt-in *plus* an approval backend: a Discord bot, or
+Signal via a local signal-cli REST daemon (one backend, not both). This is an
 approval workflow — an unusual extra layer versus every other server in this
 directory. Two-step order flow: preview first, then place by ID, specifically to
 prevent an LLM from hallucinating a different order than what was previewed. A

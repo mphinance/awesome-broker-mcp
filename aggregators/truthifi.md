@@ -5,7 +5,7 @@ status: official
 trading: false
 server_type: remote
 source_url: https://truthifi.com/mcp-tools
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -45,7 +45,9 @@ stating.**
 Truthifi's marketing page says "strictly read-only." Their more technical tools page is
 narrower and more accurate: *"Read-only by default. Nearly every tool only reads your
 data; the two write tools, `run_scan` and `create_asset_liability`, are clearly
-marked."* There is also a `delete_asset_liability`.
+marked."* As of 2026-11-11 the tools page lists 30 tools and names three write tools:
+`run_scan`, `create_asset_liability` and `delete_asset_liability`. `connect_account`,
+`fix_connections` and `upgrade` are action-oriented and the page does not detail them.
 
 So the server has write tools. **None of them trade, move money, or touch brokerage
 state** — they run scans and CRUD manually-entered assets/liabilities inside Truthifi's
@@ -67,7 +69,7 @@ MCP-specific).
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-11-11 (tools page now 30 tools, endpoint unchanged; the auth mechanism is not described on that page; the Claude connect hub says "over 18,000 US financial institutions"):
 
 - <https://truthifi.com/mcp-tools>
 - <https://truthifi.com/features/mcp>
