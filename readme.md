@@ -55,6 +55,8 @@ corrections are [documented in place](brokers/etrade.md), not quietly edited.
 
 **🧰 Agent skills catalog:** see [docs/skills/](docs/skills/README.md) for what each broker's official and community agent skills do, and which guardrails are code versus prompt text.
 
+**🏗️ Projects built on these:** see [docs/projects/](docs/projects/README.md) for demos, bots and guides (Alpaca, Kraken, OKX, Webull), with live or paper marked, plus the curated lists that already link these repos.
+
 **🔎 Ask the sources directly:** the [awesome-broker-mcp source pack](https://notebook.google.com/notebook/7764266e-a289-4224-9cca-d0b278f7b7ca) is a public NotebookLM notebook of the primary docs behind these entries (broker MCP docs, API references, server repos). Chat with it, or open its briefing, mind map, infographic and audio overview. It answers from the sources and says "unconfirmed" when none back a claim.
 
 **⚠️ Read [before you connect one to real money](#-before-you-connect-one-to-real-money) first.** Some of these place live

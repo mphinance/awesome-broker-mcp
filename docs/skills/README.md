@@ -88,6 +88,10 @@ Shallow clone, read as plain files, commit SHA recorded. Nothing from any repo w
 
 No official skills from Tastytrade, Tradier, Interactive Brokers, Schwab, TradeStation, TradeZero, SnapTrade, Tradovate, or Robinhood. Tastytrade, Schwab, Saxo and Questrade have unvetted community skills (see the scoreboard). Evidence for each is in the survey notes in the entries themselves. Absence here means we searched the org and the entry, not that none exist anywhere.
 
+## Built on these
+
+Demos, bots and guides that use these skills and servers, with live or paper marked: [docs/projects](../projects/README.md).
+
 ## Fix us
 
 Spot a skill we missed, a count that is off, or a repo that got a license? Open an issue or a PR. Include the commit SHA you looked at and what changed.
