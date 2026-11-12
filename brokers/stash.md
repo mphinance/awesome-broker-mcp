@@ -5,7 +5,7 @@ status: none
 trading: false
 server_type: n/a
 source_url: none found
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -46,6 +46,9 @@ None.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-07-16 and re-checked 2026-11-11:
 
-- <https://github.com/alash3al/stash>
+- <https://github.com/alash3al/stash> (GitHub API 2026-11-11: still a different product, an agent memory layer, Apache-2.0, last push 2026-06-14)
+- <https://www.stash.com/llms.txt> (read 2026-11-11: lists Invest, Bank, Retire, pricing and security pages; no developer API and no MCP mention)
+
+The other collision repos listed in Caveats were not re-read this session.

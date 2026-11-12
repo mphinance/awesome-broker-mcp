@@ -5,7 +5,7 @@ status: none
 trading: false
 server_type: n/a
 source_url: none found
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -42,7 +42,9 @@ None.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-07-16 and re-checked 2026-11-11:
 
 - <https://api.github.com/search/repositories?q=%22hargreaves+lansdown%22&sort=stars&order=desc>
 - <https://www.openbankingtracker.com/agentic-banking-and-mcp>
+- <https://www.hl.co.uk/llms.txt> and <https://www.hl.co.uk/> (read 2026-11-11: no MCP, AI agent, or developer API mention; the llms.txt lists only ISA, pension and savings product pages)
+- GitHub repository search for `hargreaves lansdown mcp` (2026-11-11): 0 results. The openbankingtracker page was not re-read this session.

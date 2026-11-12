@@ -5,7 +5,7 @@ status: community
 trading: false
 server_type: local (stdio)
 source_url: https://developer.oanda.com/
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: low
 ---
 
@@ -79,6 +79,7 @@ verified.
   Protocol" — that phrasing suggests it may be a REST service with claimed MCP
   compatibility rather than a genuine MCP server. Read the source before believing the
   MCP label, and never point it at a live account untested.
+- 2026-11-11 recheck: `developer.oanda.com` still lists only FIX, REST, REST-V20, MT4 and a Java SDK, with no MCP or AI agent mention (no `llms.txt`, 404). GitHub API: `aobathree/oanda-mcp` last push 2026-07-24 (0 stars, MIT); `BJLG-92/oanda-mcp-server` unchanged since 2025-05-31.
 - Both servers are unaffiliated one-person projects with no audit and no release
   versions.
 - Strong DIY-wrapper candidate: OANDA's v20 REST API is well documented and stable,
@@ -94,9 +95,13 @@ verified.
   2026-07-17, not archived, no license file detected by GitHub. The `oanda` GitHub org itself
   has only v20 SDKs and samples (last push 2021 to 2022), no MCP or skills repo.
 
+## Newer community repo seen 2026-11-11
+
+- [`hvilleg-dev/OANDA-MCP`](https://github.com/hvilleg-dev/OANDA-MCP) (0 stars, last push 2026-11-05, GitHub reports no license while the README badge says GPLv3). README says "7 MCP Tools (37 actions)" plus 35+ REST endpoints and calls it a Trading API server. It also sells a REST layer, so same caution as BJLG-92: tool registration and trading gating were not checked in source. Not endorsed by OANDA.
+
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-07-16 and re-checked 2026-11-11 (developer.oanda.com, GitHub API for the repos above):
 
 - <https://developer.oanda.com/>
 - <https://glama.ai/mcp/servers/aobathree/oanda-mcp>

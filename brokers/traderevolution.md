@@ -5,7 +5,7 @@ status: official
 trading: true
 server_type: unknown
 source_url: https://traderevolution.com/platform/mcp-server/
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: medium
 ---
 
@@ -42,8 +42,8 @@ the licensing broker offers.
   only says to "connect any MCP-compatible client" and links a contact form.
 - The 31-tool count and order-placement capability are the vendor's own marketing
   claims, unverified by any independent source or hands-on test.
-- Trade-press reporting of a January 2026 first-party rollout was not confirmed
-  against a first-party dated announcement.
+- Guardrails (vendor's own guide, read 2026-11-11): "All orders go through the same risk management checks as orders from any other front-end" and "AI agents cannot bypass server-side risk controls", citing margin validation, position limits and instrument restrictions. No human confirmation step is described. Auth is not described on either page, and neither lists pricing.
+- The product page says the server "is available to TraderEvolution platform users" and "builds on top of the Client API". Its structured data shows published 2025-06-01 and modified 2026-04-15, so the page predates the January 2026 trade-press claim below; that rollout date is still not confirmed against a first-party dated announcement.
 - Because access is broker-gated, this entry may be practically unreachable for most
   retail users despite being "official".
 
@@ -55,6 +55,7 @@ the licensing broker offers.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-07-16 and re-read 2026-11-11:
 
 - <https://traderevolution.com/platform/mcp-server/>
+- <https://traderevolution.com/learn/mcp-server-ai-trading/> (vendor guide; no endpoint or auth given)

@@ -5,7 +5,7 @@ status: none
 trading: false
 server_type: n/a
 source_url: none found
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: medium
 ---
 
@@ -40,6 +40,14 @@ None.
 - DIY-wrapper candidate: FOREX.com REST API supports full order execution against live
   streaming prices across ~80 markets, plus FIX for lower-level access. A custom MCP
   wrapper is the only route today.
+- Re-check 2026-11-11: forex.com (including `/llms.txt` and `/en-us/`) still returns HTTP 403 to a default curl, so it is walled and the first-party claim stays unverified. `developer.stonex.com` returned 200 but was not rendered (JS app), so it is also unverified. The GitHub search API for `forex.com mcp` returned 0 results and `stonex mcp` returned the two repos already noted. `last_verified` is deliberately not bumped.
+- **Real-browser check, 2026-11-11.** forex.com loads normally in a desktop browser (the 403 is
+  for scripted fetches only). `forex.com/llms.txt` serves the site's 404 page, so there is no
+  llms.txt, and a guessed API-trading URL also 404s, so the API landing page was not read
+  this round. A web search for a FOREX.com or StoneX MCP announcement found none; the
+  results were other vendors (cTrader, Axiory, Match-Trade, Fortex, Leverate). The "none"
+  status therefore rests on the llms.txt absence, the search, and no repo or press hit, not
+  on a read of an official API page.
 - If StoneX ships something, it would most likely appear at developer.stonex.com —
   worth re-checking that portal with a JS-capable fetch later.
 

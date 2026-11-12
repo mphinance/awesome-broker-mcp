@@ -5,7 +5,7 @@ status: none
 trading: false
 server_type: n/a
 source_url: none found
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -46,6 +46,9 @@ None.
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-07-16 and re-checked 2026-11-11:
 
-- <https://github.com/search?q=rithmic+mcp&type=repositories>
+- <https://github.com/search?q=rithmic+mcp&type=repositories> (re-run 2026-11-11 via the GitHub search API: still 0 results)
+- <https://www.rithmic.com/> and <https://www.ampfutures.com/> (homepages fetched 2026-11-11; no mention of MCP or Model Context Protocol; no `llms.txt` at either, the AMP one only redirects)
+
+The 2026-04-10 NinjaTrader restriction in Caveats was not re-read this session and is carried forward unverified.

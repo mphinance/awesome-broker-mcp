@@ -5,7 +5,7 @@ status: official
 trading: false
 server_type: remote (hosted)
 source_url: https://upstox.com/developer/api-documentation/mcp-integration/
-last_verified: 2026-07-16
+last_verified: 2026-11-11
 confidence: high
 ---
 
@@ -36,8 +36,9 @@ none — read-only by design
 - Requires an active, non-dormant Upstox trading account.
 - OAuth authorization must be re-done daily — Upstox requires daily reconnection for
   security, which makes it awkward for unattended/automated use.
-- No first-party public GitHub repo found for the server itself; it is a hosted
-  service, so the implementation is not auditable.
+- Endpoint probe 2026-11-11: an unauthenticated initialize POST to https://mcp.upstox.com/mcp returned HTTP 401 with a Bearer OAuth `www-authenticate` header and protected-resource metadata, consistent with the OAuth claim. No credentials were sent and no tools were called.
+- Correction: the earlier claim that no first-party repo exists is stale. The official `upstox` org has [`mcp-server-upstox-api`](https://github.com/upstox/mcp-server-upstox-api) (last push 2026-08-19, no license or description on the API). Its README is a clone-and-run local setup (Cloudflare Worker project, `localhost:8787`, you supply your own API key and secret). Its `src/tools` file list is read-only style (profile, funds and margin, holdings, positions, order book, order details, order history, trades, IPO and mutual fund getters; no place-order file). Source was not read, and it is not confirmed that this is the code behind the hosted server.
+- Separate from the MCP: the docs page now says a distinct `upstox-skill` (Claude Code and Codex agent skill, Python SDK, daily access token) can place and manage orders. Repo `upstox/upstox-skills` (last push 2026-06-09) describes "Order Execution: Place, modify, and manage live orders". That is a skill, not the MCP server, so `trading: false` for the MCP stands.
 
 ## Community repos (not endorsed by Upstox)
 
@@ -49,6 +50,10 @@ Upstox's own server is read-only, but at least one community server exposes an o
 
 ## Sources
 
-Checked directly on 2026-07-16:
+Checked directly on 2026-07-16 and re-read 2026-11-11:
 
-- <https://upstox.com/developer/api-documentation/mcp-integration/>
+- <https://upstox.com/developer/api-documentation/mcp-integration/> (confirms read-only quote, OAuth, daily re-authorization, plugin marketplace commands, active non-dormant account)
+- <https://mcp.upstox.com/mcp> (initialize probe, 401)
+- <https://github.com/upstox/mcp-server-upstox-api>, <https://github.com/upstox/upstox-skills>, <https://github.com/upstox/upstox-plugin-marketplace> (GitHub API and READMEs)
+
+The three community repos above were not re-checked this session, so their 2026-11-11 figures stand from the earlier pass.

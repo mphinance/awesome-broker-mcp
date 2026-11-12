@@ -40,6 +40,9 @@ Scraped 2026-11-11. Every file linked below records repo URL, commit SHA, licens
 | Saxo Bank (community, unvetted) | 9 | SIM autonomous, LIVE off by default | SIM | **Server-side LIVE flag, allowlists, caps, kill switch, single-use approval** | None (manifest claims MIT) | [saxo-bank](saxo-bank.md) |
 | Schwab (community, unvetted) | 6, plus 1 (archived) | Yes | None | Archived CLI: config flag and preview digest. MCP server: a `confirmed` flag the model sets itself | MCP server none, CLI MIT | [schwab](schwab.md) |
 | Tastytrade (community, unvetted) | 3 | Yes, live by default | Sandbox via env var | Optional Claude Code hooks: plan, bracket, concentration cap. Partly self-attested | None (metadata claims MIT) | [tastytrade](tastytrade.md) |
+| Oracle3 (community, unvetted) | 6 | CLI only (`live run`); the 13-tool MCP server has no live tools | Paper ledger in MCP, `paper run` in CLI | **No live tools in the MCP server.** Live gates are prose only | Apache-2.0 | [oracle3](oracle3.md) |
+| MetaTrader 5 (community, unvetted) | 1 (25 tools in code, README says 32) | Yes, live or demo | Whatever account is logged in | None. Skill says execute with no confirmation; SSE on `0.0.0.0` with no auth; password as CLI arg | MIT | [metatrader](metatrader.md) |
+| TradeMemory (community, unvetted) | 7 (memory, journaling, research) | No, memory MCP has no order tool | Brake defaults to Alpaca paper | **Optional proxy: allowlist, notional caps, bracket stop, daily-loss halt in the AGPL `mnemox-control` engine; fail-closed routing, stop-cancel refusal and single-use approval in repo code.** Bypassed if the agent can reach Alpaca directly | MIT, proxy extra depends on AGPL-3.0 | [tradememory](tradememory.md) |
 
 Counts are what we found in each repo, not marketing numbers. Where two counts appear, the second is a separate repo.
 
@@ -88,9 +91,9 @@ Shallow clone, read as plain files, commit SHA recorded. Nothing from any repo w
 
 No official skills from Tastytrade, Tradier, Interactive Brokers, Schwab, TradeStation, TradeZero, SnapTrade, Tradovate, or Robinhood. Tastytrade, Schwab, Saxo and Questrade have unvetted community skills (see the scoreboard). Evidence for each is in the survey notes in the entries themselves. Absence here means we searched the org and the entry, not that none exist anywhere.
 
-## Built on these
+## Cookbook
 
-Demos, bots and guides that use these skills and servers, with live or paper marked: [docs/projects](../projects/README.md).
+Demos, bots and guides that use these skills and servers, with live or paper marked: [docs/cookbook](../cookbook/README.md).
 
 ## Fix us
 

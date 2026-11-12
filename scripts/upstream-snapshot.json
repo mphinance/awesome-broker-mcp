@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-11",
+ "generated": "2026-11-12",
  "snapshot": {
   "alpaca": {
    "probes": {
@@ -78,6 +78,27 @@
   },
   "amp-futures-rithmic": {
    "probes": {
+    "llms:https://www.rithmic.com/llms.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "llms:https://www.rithmic.com/llms-full.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "openapi:https://www.rithmic.com/openapi.json": {
+     "status": 404,
+     "soft404": true
+    },
+    "llms:https://www.ampfutures.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://www.ampfutures.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://www.ampfutures.com/openapi.json": {
+     "status": 406
+    },
     "page:none found": {
      "error": "ERR_INVALID_URL"
     }
@@ -469,8 +490,8 @@
     },
     "page:https://fxnewsgroup.com/forex-news/retail-forex/deriv-launches-tradersview-ai-based-market-intelligence-platform/": {
      "status": 200,
-     "hash": "ba77ba524438c4a2",
-     "bytes": 7659
+     "hash": "6cf39c307eacac10",
+     "bytes": 7695
     },
     "llms:https://tradersview.deriv.com/llms.txt": {
      "status": 200,
@@ -503,8 +524,8 @@
     },
     "page:https://tradersview.deriv.com/": {
      "status": 200,
-     "hash": "6c8a20dd6acb6b96",
-     "bytes": 5091
+     "hash": "39cdc483987c16cb",
+     "bytes": 5105
     }
    },
    "repos": {
@@ -734,7 +755,7 @@
     },
     "page:https://www.gemini.com/blog/introducing-agentic-trading-on-gemini-the-future-of-crypto-is-autonomous": {
      "status": 200,
-     "hash": "c3b85d5cfef21f47",
+     "hash": "53f2f3d2f61ca75c",
      "bytes": 5535
     },
     "llms:https://developer.gemini.com/llms.txt": {
@@ -788,6 +809,22 @@
   },
   "hargreaves-lansdown": {
    "probes": {
+    "page:https://www.hl.co.uk/llms.txt": {
+     "status": 200,
+     "hash": "308ff187f402560d",
+     "bytes": 14200
+    },
+    "llms:https://www.hl.co.uk/llms.txt": {
+     "status": 200,
+     "hash": "5429f327c43e5e99",
+     "bytes": 14386
+    },
+    "llms:https://www.hl.co.uk/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://www.hl.co.uk/openapi.json": {
+     "status": 404
+    },
     "page:none found": {
      "error": "ERR_INVALID_URL"
     }
@@ -1390,6 +1427,11 @@
      "archived": false,
      "tag": "v0.2.0"
     },
+    "hvilleg-dev/OANDA-MCP": {
+     "pushed": "2026-11-05",
+     "archived": false,
+     "tag": "v4.2.0"
+    },
     "aobathree/oanda-mcp": {
      "pushed": "2026-07-24",
      "archived": false,
@@ -1798,6 +1840,22 @@
   },
   "stash": {
    "probes": {
+    "page:https://www.stash.com/llms.txt": {
+     "status": 200,
+     "hash": "a364dea1c29d88a7",
+     "bytes": 1226
+    },
+    "llms:https://www.stash.com/llms.txt": {
+     "status": 200,
+     "hash": "95b97e61c0033f27",
+     "bytes": 1230
+    },
+    "llms:https://www.stash.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://www.stash.com/openapi.json": {
+     "status": 404
+    },
     "page:none found": {
      "error": "ERR_INVALID_URL"
     }
@@ -2061,6 +2119,10 @@
   "traderevolution": {
    "probes": {
     "mcp:https://traderevolution.com/platform/mcp-server/": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://traderevolution.com/learn/mcp-server-ai-trading/": {
      "status": 200,
      "alive": true
     },
@@ -2592,6 +2654,11 @@
     }
    },
    "repos": {
+    "upstox/mcp-server-upstox-api": {
+     "pushed": "2026-08-19",
+     "archived": false,
+     "tag": null
+    },
     "adibhattar95/upstox-mcp-server": {
      "pushed": "2025-09-10",
      "archived": false,
@@ -2606,16 +2673,64 @@
      "pushed": "2025-09-06",
      "archived": false,
      "tag": null
+    },
+    "upstox/upstox-skills": {
+     "pushed": "2026-06-09",
+     "archived": false,
+     "tag": null
+    },
+    "upstox/upstox-plugin-marketplace": {
+     "pushed": "2026-07-27",
+     "archived": false,
+     "tag": null
     }
    }
   },
   "vanguard": {
    "probes": {
-    "page:pending": {
-     "error": "ERR_INVALID_URL"
+    "mcp:https://advisors.vanguard.com/docs/vanguard-advisor-tools-mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://mcp.vanguard.com/advisors": {
+     "status": 404,
+     "alive": false
+    },
+    "mcp:https://mcp.vanguard.com": {
+     "status": 404,
+     "alive": false
+    },
+    "llms:https://advisors.vanguard.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://advisors.vanguard.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://advisors.vanguard.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://mcp.vanguard.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://mcp.vanguard.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://mcp.vanguard.com/openapi.json": {
+     "status": 404
+    },
+    "page:https://advisors.vanguard.com/docs/vanguard-advisor-tools-mcp": {
+     "status": 200,
+     "hash": "bf86a8e6b01274b5",
+     "bytes": 32
     }
    },
-   "repos": {}
+   "repos": {
+    "Vanguard-oss/vanguard-advisor-tools": {
+     "pushed": "2026-09-16",
+     "archived": false,
+     "tag": null
+    }
+   }
   },
   "wealthfront": {
    "probes": {
@@ -2878,6 +2993,23 @@
   },
   "mx": {
    "probes": {
+    "mcp:https://docs.mx.com/mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://docs.mx.com/llms.txt": {
+     "status": 200,
+     "hash": "1054f3ff0560ada3",
+     "bytes": 21857
+    },
+    "llms:https://docs.mx.com/llms-full.txt": {
+     "status": 200,
+     "hash": "bdd5db2b987fece9",
+     "bytes": 1913935
+    },
+    "openapi:https://docs.mx.com/openapi.json": {
+     "status": 404
+    },
     "page:none found": {
      "error": "ERR_INVALID_URL"
     }
@@ -3148,6 +3280,72 @@
      "pushed": "2026-05-26",
      "archived": false,
      "tag": "v0.1.2"
+    }
+   }
+  },
+  "korea-investment": {
+   "probes": {
+    "page:https://apiportal.koreainvestment.com/intro": {
+     "status": 200,
+     "hash": "9b4e6436c8dbfb21",
+     "bytes": 2199
+    },
+    "page:https://docs.astral.sh/uv/": {
+     "status": 200,
+     "hash": "23fc7b82522aceb7",
+     "bytes": 6804
+    },
+    "page:https://apiportal.koreainvestment.com/about-howto": {
+     "status": 200,
+     "hash": "073785d039b6d27f",
+     "bytes": 1318
+    },
+    "mcp:https://registry.npmjs.org/@koreainvestment/kis-trading-mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://apiportal.koreainvestment.com/llms.txt": {
+     "status": 200,
+     "hash": "cec0e53eedb0b183",
+     "bytes": 4373
+    },
+    "llms:https://apiportal.koreainvestment.com/llms-full.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "openapi:https://apiportal.koreainvestment.com/openapi.json": {
+     "status": 404,
+     "soft404": true
+    },
+    "llms:https://docs.astral.sh/llms.txt": {
+     "status": 404
+    },
+    "llms:https://docs.astral.sh/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://docs.astral.sh/openapi.json": {
+     "status": 404
+    },
+    "llms:https://registry.npmjs.org/llms.txt": {
+     "status": 404
+    },
+    "llms:https://registry.npmjs.org/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://registry.npmjs.org/openapi.json": {
+     "status": 404
+    },
+    "page:https://github.com/koreainvestment/open-trading-api/tree/main/MCP/Kis%20Trading%20MCP": {
+     "status": 200,
+     "hash": "67c482afe4982e77",
+     "bytes": 14017
+    }
+   },
+   "repos": {
+    "koreainvestment/open-trading-api": {
+     "pushed": "2026-10-27",
+     "archived": false,
+     "tag": null
     }
    }
   }

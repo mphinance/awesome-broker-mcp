@@ -2,13 +2,13 @@
 
 <p align="center">
   <b>Which brokers can an AI actually trade through?</b><br>
-  <sub>66 brokers checked at the source. Including the ones with nothing.</sub>
+  <sub>67 brokers checked at the source. Including the ones with nothing.</sub>
 </p>
 
 <p align="center">
   <a href="https://awesome.re"><img src="https://awesome.re/badge-flat2.svg" alt="Awesome"></a>
-  <img src="https://img.shields.io/badge/entries-66-1f6feb" alt="66 entries">
-  <img src="https://img.shields.io/badge/official%20servers-35-3fb950" alt="35 official">
+  <img src="https://img.shields.io/badge/entries-67-1f6feb" alt="67 entries">
+  <img src="https://img.shields.io/badge/official%20servers-37-3fb950" alt="37 official">
   <img src="https://img.shields.io/badge/confirmed%20no%20route-12-f85149" alt="12 confirmed none">
   <img src="https://img.shields.io/badge/last%20verified-2026--11--11-3fb950" alt="Last verified 2026-11-11">
   <a href="license"><img src="https://img.shields.io/badge/license-CC0--1.0-8957e5" alt="CC0-1.0"></a>
@@ -51,11 +51,11 @@ corrections are [documented in place](brokers/etrade.md), not quietly edited.
 | 📊 **Analysis only, no execution** | [SnapTrade](aggregators/snaptrade.md) (portfolio server) / [Truthifi](aggregators/truthifi.md) | Connect SnapTrade's read-only portfolio endpoint, not its trading one; Truthifi has a few write tools. Most people wiring up an LLM want analysis — that needs no trading scope. |
 | 🌍 **Crypto** | [Kraken](brokers/kraken.md), [OKX](brokers/okx.md), [Bybit](brokers/bybit.md), [Gemini](brokers/gemini.md) | All official, all trade. Crypto is years ahead of traditional brokerage here. |
 | 🇮🇳 **India** | [Zerodha](brokers/zerodha-kite-connect.md), [Upstox](brokers/upstox.md) | Both official. Zerodha trades on the self-hosted build; Upstox is read-only. |
-| 🏦 **Fidelity / Vanguard / M1 / Wealthfront** | *Nothing good* | No official route. See [confirmed no MCP route](#-confirmed-no-mcp-route). |
+| 🏦 **Fidelity / Vanguard / M1 / Wealthfront** | *Nothing good* | No account route. Vanguard's official MCP is advisor-only public model-portfolio data (read-only, no accounts). See [confirmed no MCP route](#-confirmed-no-mcp-route). |
 
 **🧰 Agent skills catalog:** see [docs/skills/](docs/skills/README.md) for what each broker's official and community agent skills do, and which guardrails are code versus prompt text.
 
-**🏗️ Projects built on these:** see [docs/projects/](docs/projects/README.md) for demos, bots and guides (Alpaca, Kraken, OKX, Webull), with live or paper marked, plus the curated lists that already link these repos.
+**🍳 Cookbook:** see [docs/cookbook/](docs/cookbook/README.md) for broker-published recipes (ConnectTrade's API cookbook, Kraken's CLI walkthroughs, Public's templates and more), community demos and bots with live or paper marked, and the curated lists that already link these repos.
 
 **🔎 Ask the sources directly:** the [awesome-broker-mcp source pack](https://notebook.google.com/notebook/7764266e-a289-4224-9cca-d0b278f7b7ca) is a public NotebookLM notebook of the primary docs behind these entries (broker MCP docs, API references, server repos). Chat with it, or open its briefing, mind map, infographic and audio overview. It answers from the sources and says "unconfirmed" when none back a claim.
 
@@ -163,8 +163,8 @@ dependencies at all.
 **Where the landscape actually is:** crypto exchanges are well ahead of traditional
 brokers. Kraken, OKX, Bybit and Gemini all ship first-party servers with real
 execution. So does India (Zerodha, Upstox) and Asia broadly (Longbridge, Tiger). Most
-of the big US retail names — Fidelity, Vanguard, M1, Wealthfront, Betterment — have
-nothing at all.
+of the big US retail names (Fidelity, M1, Wealthfront, Betterment) have nothing at all,
+and Vanguard's only official server is advisor-only public model data.
 
 ## 🏛️ Official servers
 
@@ -189,6 +189,8 @@ First-party. Built or hosted by the broker themselves.
 | [TradeZero](brokers/tradezero.md) | ✅ Yes | Official hosted MCP (launched 2026-08-08): 21 tools (14 read, 7 write), OAuth, no market data. Guardrails are client-side only | Remote |
 | [NinjaTrader](brokers/ninjatrader.md) / [Tradovate](brokers/tradovate.md) | ✅ Yes | Futures. One official hosted server (OAuth 2.1, 29 tools) covers both; can place orders | Remote |
 | [Kalshi](brokers/kalshi.md) | 👁️ No | Event contracts. Official hosted connector is read-only; order placement only via community servers | Remote |
+| [Vanguard](brokers/vanguard.md) | 👁️ No | Official advisor tools MCP: one tool, `get_model_portfolios`, public US model-portfolio data, no sign-in, no client or account data. Handshake unconfirmed (endpoint did not answer us). Account access only via SnapTrade / Truthifi, read-only | Remote |
+| [Korea Investment & Securities](brokers/korea-investment.md) | ✅ Yes | Korean stocks, futures/options, bonds, plus overseas stocks. 8 dispatcher tools over about 166 operations. ⚠️ **Demo is the default, but real vs demo is a per-call parameter and only a prompt restricts live; no confirm step or order caps. Fetches code from the repo's main branch at run time** | Local |
 | [Zerodha](brokers/zerodha-kite-connect.md) | ✅ Yes | Indian equities, F&O, currency, commodities. Order placement only on the self-hosted build | Remote + local |
 | [Upstox](brokers/upstox.md) | 👁️ No | Read-only by design | Remote |
 
@@ -272,7 +274,6 @@ No direct server, official or community.
 
 | Broker | Route | Trading |
 |---|---|---|
-| [Vanguard](brokers/vanguard.md) | SnapTrade / Truthifi | ❌ None |
 | [Lightspeed](brokers/lightspeed.md) | ConnectTrade MCP (platform credentials) | ✅ Yes, via ConnectTrade |
 
 > Fidelity and Trading 212 used to sit here. Both were wrong — each has a direct
