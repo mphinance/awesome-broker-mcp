@@ -4,6 +4,8 @@
 
 An MCP server gives your agent hands. A skill tells it how to use them: when to trade, what to confirm, what never to touch. The tools are usually fine. The skill is where the safety rules live, and most of those rules are prose the model chooses to follow.
 
+**Start here:** [the best-of list](best-of.md) (a short, job-sorted pick of 30 skills on top of this scoreboard) and [the Gate rung scale](ENFORCEMENT.md) (how to tell a code gate from a polite sentence, G0 to G5).
+
 Scraped 2026-11-11. Every file linked below records repo URL, commit SHA, license, install command, a summary table, and a flag on each rule: **code-enforced** (the CLI or server blocks you) or **model-enforced** (the skill asks nicely).
 
 ## The scoreboard
@@ -55,15 +57,16 @@ Counts are what we found in each repo, not marketing numbers. Where two counts a
 
 ## What is actually enforced
 
-Almost every guardrail is a paragraph in `SKILL.md`. The short list of ones that do not depend on the model behaving:
+Almost every guardrail is a paragraph in `SKILL.md`. The short list of ones that do not depend on the model behaving, each tagged with its [Gate rung](ENFORCEMENT.md). The rung is about approval. Limits and Bypass are separate fields, defined on that page.
 
-- **Longbridge:** the CLI generates a single-use confirmation code for an order. A model cannot invent one.
-- **eToro:** the server signs a prepare token and checks it on place. No token, no order.
-- **Webull:** notional cap, quantity cap, symbol whitelist and an audit log, in Python. Market orders skip the notional cap, and `--quiet` skips the prompt.
-- **Zerodha Kite CLI:** dry run by default. Approval is still on the model.
-- **moomoo CLI:** dry run plus a 3 digit `--execute` code. The code is deterministic and shows in the preview, so an agent can read it and resubmit. A typo guard, not a human gate.
-- **OKX:** a `--confirm` preview on fixed-term earn only.
-- **Binance:** the prediction scaffold's `budget_usd` and dry-run default only.
+- **Longbridge: G3** for orders. The CLI generates a single-use confirmation code for an order. A model cannot invent one. It can still pass the code back without asking you, so this is integrity, not authority. `dca` and fund orders have no dry run and sit at G0.
+- **eToro: G3.** The server signs a prepare token and checks it on place. No token, no order. Nothing in the token proves a human said yes. The generic `execute-write` route is G0.
+- **Webull: Limits-only, no approval rung above G0.** Notional cap, quantity cap, symbol whitelist and an audit log, in Python, read from a `.env` the agent can read (agent-editable: Y). Market orders skip the notional cap, and `--quiet` skips the prompt.
+- **Zerodha Kite CLI: G1.** Dry run by default. The `--confirm` that ends it is a plain flag, so approval is still on the model.
+- **moomoo CLI: G2.** Dry run plus a 3 digit `--execute` code. The code is deterministic and shows in the preview, so an agent can read it and resubmit. A typo guard, not a human gate.
+- **MEXC: G4.** The CLI prompts on a terminal and refuses unattended writes (exit 10). `--yes` bypasses it, and the agent can append it.
+- **OKX: G2 at best, and the docs do not settle it.** A `--confirm` preview on fixed-term earn only. The doc describes a flag that turns a preview into an execution and does not say it is bound to the previewed order, so G3 is not claimed.
+- **Binance: Limits plus G1, on one scaffold only.** The prediction scaffold's `budget_usd` and dry-run default. The doc calls them script logic, not prompt text. Whether the agent can edit the budget is unsettled.
 
 Everything else on the scoreboard is the model following instructions.
 
