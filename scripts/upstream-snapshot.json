@@ -307,6 +307,16 @@
      "pushed": "2026-08-22",
      "archived": false,
      "tag": null
+    },
+    "rangertaha/coinbase-mcp": {
+     "pushed": "2026-07-15",
+     "archived": false,
+     "tag": "v0.1.0"
+    },
+    "jramkissoon/mcp-coinbase": {
+     "pushed": "2026-09-23",
+     "archived": false,
+     "tag": null
     }
    }
   },
@@ -524,8 +534,8 @@
     },
     "page:https://tradersview.deriv.com/": {
      "status": 200,
-     "hash": "39cdc483987c16cb",
-     "bytes": 5105
+     "hash": "b233f918ad420969",
+     "bytes": 5134
     }
    },
    "repos": {
@@ -671,8 +681,8 @@
     },
     "llms:https://snaptrade.com/llms.txt": {
      "status": 200,
-     "hash": "47afeff47dd199ca",
-     "bytes": 22019
+     "hash": "d660baf740185aa7",
+     "bytes": 21934
     },
     "llms:https://snaptrade.com/llms-full.txt": {
      "status": 200,
@@ -755,7 +765,7 @@
     },
     "page:https://www.gemini.com/blog/introducing-agentic-trading-on-gemini-the-future-of-crypto-is-autonomous": {
      "status": 200,
-     "hash": "53f2f3d2f61ca75c",
+     "hash": "c3b85d5cfef21f47",
      "bytes": 5535
     },
     "llms:https://developer.gemini.com/llms.txt": {
@@ -1230,8 +1240,8 @@
     },
     "page:https://webapi.moomoo.com/oauth2/authorize/confirm": {
      "status": 200,
-     "hash": "8fcea1dd0fd2089c",
-     "bytes": 6405
+     "hash": "d1ae8aa29faa2dd6",
+     "bytes": 2331
     },
     "llms:https://mcp.moomoo.com/llms.txt": {
      "status": 404
@@ -1722,6 +1732,16 @@
     },
     "Oft3r/agentic-trading-desk": {
      "pushed": "2026-10-19",
+     "archived": false,
+     "tag": null
+    },
+    "nirholas/robinhood-mcp": {
+     "pushed": "2026-11-10",
+     "archived": false,
+     "tag": "v0.1.1"
+    },
+    "EklavyaSehraway/Robinhood-Mcp-Trader": {
+     "pushed": "2026-07-13",
      "archived": false,
      "tag": null
     }
@@ -2674,6 +2694,21 @@
      "archived": false,
      "tag": null
     },
+    "venkateshTechmates/UpstoxMcp": {
+     "pushed": "2026-05-15",
+     "archived": false,
+     "tag": null
+    },
+    "rahul91-ai/upstox-custom-mcp": {
+     "pushed": "2026-08-23",
+     "archived": false,
+     "tag": null
+    },
+    "Sambhram1/upstox-skill": {
+     "pushed": "2026-04-08",
+     "archived": false,
+     "tag": null
+    },
     "upstox/upstox-skills": {
      "pushed": "2026-06-09",
      "archived": false,
@@ -2825,8 +2860,8 @@
     },
     "page:https://github.com/webull-inc": {
      "status": 200,
-     "hash": "02747059897ee446",
-     "bytes": 5111
+     "hash": "3629c6f5f796e4b1",
+     "bytes": 5178
     }
    },
    "repos": {
@@ -3346,6 +3381,936 @@
      "pushed": "2026-10-27",
      "archived": false,
      "tag": null
+    }
+   }
+  },
+  "5paisa": {
+   "probes": {
+    "mcp:https://5paisa.com/technology/mcp-ai-trading-assistant": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://tradebetter.5paisa.com/t/introducing-5paisa-mcp-your-ai-companion-for-smarter-portfolio-management/310": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://5paisa.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://5paisa.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://5paisa.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://tradebetter.5paisa.com/llms.txt": {
+     "status": 200,
+     "hash": "d8f77df253943498",
+     "bytes": 1873
+    },
+    "llms:https://tradebetter.5paisa.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://tradebetter.5paisa.com/openapi.json": {
+     "status": 404
+    },
+    "page:https://5paisa.com/technology/mcp-ai-trading-assistant": {
+     "status": 200,
+     "hash": "7e44b401650205f7",
+     "bytes": 25120
+    }
+   },
+   "repos": {}
+  },
+  "axi": {
+   "probes": {
+    "mcp:https://www.axi.com/int/trading-platforms/mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://mcp.axi.com/mcp": {
+     "status": 401,
+     "alive": true
+    },
+    "mcp:https://www.axi.com/int/blog/company-news/axi-launches-mcp-integration-mt5-claude": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://www.axi.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://www.axi.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://www.axi.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://mcp.axi.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://mcp.axi.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://mcp.axi.com/openapi.json": {
+     "status": 404
+    },
+    "page:https://www.axi.com/int/trading-platforms/mcp": {
+     "status": 200,
+     "hash": "464c1a82f444a16b",
+     "bytes": 10715
+    }
+   },
+   "repos": {}
+  },
+  "axiory": {
+   "probes": {
+    "page:https://axiory.com/who-we-are/company-news/it-s-not-impossible-axiory-ai-bridges-the-gap": {
+     "error": "fetch failed"
+    },
+    "page:https://etfexpress.com/2026/03/18/axiory-unveils-platform-built-for-ai-agents-to-trade-global-markets/": {
+     "status": 200,
+     "hash": "1e7d8e50666c5b02",
+     "bytes": 9212
+    },
+    "llms:https://axiory.com/llms.txt": {
+     "error": "fetch failed"
+    },
+    "llms:https://axiory.com/llms-full.txt": {
+     "error": "fetch failed"
+    },
+    "openapi:https://axiory.com/openapi.json": {
+     "error": "fetch failed"
+    },
+    "llms:https://axiory.ai/llms.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "llms:https://axiory.ai/llms-full.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "openapi:https://axiory.ai/openapi.json": {
+     "status": 404,
+     "soft404": true
+    },
+    "llms:https://etfexpress.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://etfexpress.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://etfexpress.com/openapi.json": {
+     "status": 502
+    }
+   },
+   "repos": {}
+  },
+  "bingx": {
+   "probes": {
+    "page:https://github.com/BingX-API/api-ai-skills": {
+     "status": 200,
+     "hash": "e7fd4d9b482d5fd2",
+     "bytes": 13156
+    }
+   },
+   "repos": {
+    "BingX-API/api-ai-skills": {
+     "pushed": "2026-11-10",
+     "archived": false,
+     "tag": null
+    }
+   }
+  },
+  "bitget": {
+   "probes": {
+    "llms:https://registry.modelcontextprotocol.io/llms.txt": {
+     "status": 404
+    },
+    "llms:https://registry.modelcontextprotocol.io/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://registry.modelcontextprotocol.io/openapi.json": {
+     "status": 200,
+     "hash": "9a5d1abbbfc4645b",
+     "bytes": 50271,
+     "version": "1.0.0",
+     "title": "Official MCP Registry",
+     "paths": 30
+    },
+    "page:https://github.com/Bitget-AI/agent-mcp": {
+     "status": 200,
+     "hash": "ed5786b1d12b3aff",
+     "bytes": 21062
+    }
+   },
+   "repos": {
+    "Bitget-AI/agent-mcp": {
+     "pushed": "2026-09-01",
+     "archived": false,
+     "tag": null
+    },
+    "Bitget-AI/agent_hub": {
+     "pushed": "2026-06-30",
+     "archived": false,
+     "tag": null
+    }
+   }
+  },
+  "capital-com": {
+   "probes": {
+    "page:https://capital.com/en-int/trading-platforms/ai-integration": {
+     "status": 200,
+     "hash": "872d90bf981a32cd",
+     "bytes": 20661
+    },
+    "mcp:https://capital.com/en-ae/press/we-enable-mcp-server-plugin-giving-traders-real-time-account-access-from-within-their-ai-research-environments": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://capital.com/llms.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "llms:https://capital.com/llms-full.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "openapi:https://capital.com/openapi.json": {
+     "status": 404,
+     "soft404": true
+    },
+    "page:https://github.com/capital-com-sv/capital-mcp": {
+     "status": 200,
+     "hash": "c04f8745cf2732c4",
+     "bytes": 20307
+    }
+   },
+   "repos": {
+    "capital-com-sv/capital-mcp": {
+     "pushed": "2026-10-02",
+     "archived": false,
+     "tag": null
+    }
+   }
+  },
+  "dhan": {
+   "probes": {
+    "mcp:https://mcp.dhan.co/mcp": {
+     "status": 401,
+     "alive": true
+    },
+    "mcp:https://docs.dhanhq.co/mcp/": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://mcp.dhan.co/llms.txt": {
+     "status": 404
+    },
+    "llms:https://mcp.dhan.co/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://mcp.dhan.co/openapi.json": {
+     "status": 404
+    },
+    "llms:https://docs.dhanhq.co/llms.txt": {
+     "status": 200,
+     "hash": "91ec294b475683b0",
+     "bytes": 2764
+    },
+    "llms:https://docs.dhanhq.co/llms-full.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "openapi:https://docs.dhanhq.co/openapi.json": {
+     "status": 404,
+     "soft404": true
+    },
+    "page:https://mcp.dhan.co/mcp": {
+     "status": 401
+    }
+   },
+   "repos": {}
+  },
+  "dukascopy": {
+   "probes": {
+    "mcp:https://demo-mcp.dukascopy.com/mcp": {
+     "status": 401,
+     "alive": true
+    },
+    "llms:https://ai.dukascopy.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://ai.dukascopy.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://ai.dukascopy.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://demo-mcp.dukascopy.com/llms.txt": {
+     "status": 401
+    },
+    "llms:https://demo-mcp.dukascopy.com/llms-full.txt": {
+     "status": 401
+    },
+    "openapi:https://demo-mcp.dukascopy.com/openapi.json": {
+     "status": 401
+    },
+    "page:https://ai.dukascopy.com/": {
+     "status": 200,
+     "hash": "b212aef18f387756",
+     "bytes": 6424
+    }
+   },
+   "repos": {}
+  },
+  "freedom24": {
+   "probes": {
+    "mcp:https://tradernet.com/mcp/tn": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://tradernet.com/tradernet-api/mcp": {
+     "status": 401,
+     "alive": true
+    },
+    "llms:https://tradernet.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://tradernet.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://tradernet.com/openapi.json": {
+     "status": 403
+    },
+    "page:https://github.com/tradernet-api/tradernet-mcp-claude": {
+     "status": 200,
+     "hash": "7ef7eedeb7a2472c",
+     "bytes": 11315
+    }
+   },
+   "repos": {
+    "tradernet-api/tradernet-mcp-claude": {
+     "pushed": "2026-08-05",
+     "archived": false,
+     "tag": null
+    }
+   }
+  },
+  "fundednext": {
+   "probes": {
+    "mcp:https://fundednext.com/mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://mcp.fundednext.com": {
+     "status": 401,
+     "alive": true
+    },
+    "llms:https://fundednext.com/llms.txt": {
+     "status": 200,
+     "hash": "a43b4b1d7fefe92e",
+     "bytes": 150006
+    },
+    "llms:https://fundednext.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://fundednext.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://mcp.fundednext.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://mcp.fundednext.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://mcp.fundednext.com/openapi.json": {
+     "status": 404
+    },
+    "page:https://fundednext.com/mcp": {
+     "status": 200,
+     "hash": "797f93debaeef3a2",
+     "bytes": 7017
+    }
+   },
+   "repos": {}
+  },
+  "fyers": {
+   "probes": {
+    "mcp:https://support.fyers.in/portal/en/kb/articles/what-connections-are-available-with-fyers-mcp": {
+     "status": 400,
+     "alive": true
+    },
+    "mcp:https://mcp.fyers.in/mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://support.fyers.in/llms.txt": {
+     "status": 404
+    },
+    "llms:https://support.fyers.in/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://support.fyers.in/openapi.json": {
+     "status": 404
+    },
+    "llms:https://mcp.fyers.in/llms.txt": {
+     "status": 404
+    },
+    "llms:https://mcp.fyers.in/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://mcp.fyers.in/openapi.json": {
+     "status": 404
+    },
+    "page:https://support.fyers.in/portal/en/kb/articles/what-connections-are-available-with-fyers-mcp": {
+     "status": 200,
+     "hash": "e3b0c44298fc1c14",
+     "bytes": 0
+    }
+   },
+   "repos": {}
+  },
+  "gate-io": {
+   "probes": {
+    "mcp:https://api.gatemcp.ai/mcp": {
+     "status": 503,
+     "alive": false
+    },
+    "mcp:https://api.gatemcp.ai/mcp/exchange": {
+     "status": 503,
+     "alive": false
+    },
+    "mcp:https://api.gatemcp.ai/mcp/dex": {
+     "status": 503,
+     "alive": false
+    },
+    "mcp:https://api.gatemcp.ai/mcp/info": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://api.gatemcp.ai/llms.txt": {
+     "status": 404
+    },
+    "llms:https://api.gatemcp.ai/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://api.gatemcp.ai/openapi.json": {
+     "status": 404
+    },
+    "page:https://github.com/gate/gate-mcp": {
+     "status": 200,
+     "hash": "66efcb4a5ca82a42",
+     "bytes": 22302
+    }
+   },
+   "repos": {
+    "gate/gate-mcp": {
+     "pushed": "2026-11-04",
+     "archived": false,
+     "tag": null
+    },
+    "gate/gate-skills": {
+     "pushed": "2026-11-05",
+     "archived": false,
+     "tag": null
+    },
+    "gate/gate-cli": {
+     "pushed": "2026-11-05",
+     "archived": false,
+     "tag": "v0.9.4"
+    }
+   }
+  },
+  "groww": {
+   "probes": {
+    "mcp:https://groww.in/updates/groww-mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://mcp.groww.in/mcp": {
+     "status": 401,
+     "alive": true
+    },
+    "llms:https://groww.in/llms.txt": {
+     "status": 404
+    },
+    "llms:https://groww.in/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://groww.in/openapi.json": {
+     "status": 404
+    },
+    "llms:https://mcp.groww.in/llms.txt": {
+     "status": 404
+    },
+    "llms:https://mcp.groww.in/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://mcp.groww.in/openapi.json": {
+     "status": 404
+    },
+    "page:https://groww.in/updates/groww-mcp": {
+     "status": 200,
+     "hash": "921d410a4fee144e",
+     "bytes": 13733
+    }
+   },
+   "repos": {}
+  },
+  "htx": {
+   "probes": {
+    "page:https://github.com/htx-exchange/htx-skills-hub": {
+     "status": 200,
+     "hash": "9e2859b39de6d411",
+     "bytes": 7144
+    }
+   },
+   "repos": {
+    "htx-exchange/htx-skills-hub": {
+     "pushed": "2026-10-26",
+     "archived": false,
+     "tag": "v2.0.0"
+    }
+   }
+  },
+  "kotak-neo": {
+   "probes": {
+    "mcp:https://www.kotakneo.com/platform/kotak-neo-mcp/": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://neo.kotaksecurities.com/mcp-server/mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://www.kotakneo.com/llms.txt": {
+     "status": 200,
+     "hash": "452771f91e1ccd4b",
+     "bytes": 19031
+    },
+    "llms:https://www.kotakneo.com/llms-full.txt": {
+     "status": 200,
+     "hash": "35f34d93b6a47e54",
+     "bytes": 364987
+    },
+    "openapi:https://www.kotakneo.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://neo.kotaksecurities.com/llms.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "llms:https://neo.kotaksecurities.com/llms-full.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "openapi:https://neo.kotaksecurities.com/openapi.json": {
+     "status": 404,
+     "soft404": true
+    },
+    "page:https://www.kotakneo.com/platform/kotak-neo-mcp/": {
+     "status": 200,
+     "hash": "4c9ebd2c3472012a",
+     "bytes": 20393
+    }
+   },
+   "repos": {}
+  },
+  "luno": {
+   "probes": {
+    "page:https://github.com/luno/luno-mcp": {
+     "status": 200,
+     "hash": "8117d361048b5ada",
+     "bytes": 14360
+    }
+   },
+   "repos": {
+    "luno/luno-mcp": {
+     "pushed": "2026-10-30",
+     "archived": false,
+     "tag": "v0.6.3"
+    }
+   }
+  },
+  "mexc": {
+   "probes": {
+    "page:https://github.com/mexcdevelop/mexc-cli": {
+     "status": 200,
+     "hash": "9ba470df06696cab",
+     "bytes": 12857
+    }
+   },
+   "repos": {
+    "mexcdevelop/mexc-cli": {
+     "pushed": "2026-11-06",
+     "archived": false,
+     "tag": "v0.0.24"
+    }
+   }
+  },
+  "revolut-x": {
+   "probes": {
+    "page:https://github.com/revolut-engineering/revolut-agent-skills": {
+     "status": 200,
+     "hash": "cc4689b86cba688c",
+     "bytes": 6865
+    }
+   },
+   "repos": {
+    "revolut-engineering/revolut-agent-skills": {
+     "pushed": "2026-05-15",
+     "archived": false,
+     "tag": null
+    }
+   }
+  },
+  "the5ers": {
+   "probes": {
+    "mcp:https://the5ers.com/the5ers-mcp/": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://mcp.the5ers.com/mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://the5ers.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://the5ers.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://the5ers.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://mcp.the5ers.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://mcp.the5ers.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://mcp.the5ers.com/openapi.json": {
+     "status": 404
+    },
+    "page:https://the5ers.com/the5ers-mcp/": {
+     "status": 200,
+     "hash": "e90bf52e83abde96",
+     "bytes": 8814
+    }
+   },
+   "repos": {}
+  },
+  "woodstock": {
+   "probes": {
+    "mcp:https://www.woodstock.club/ja/mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://mcp.app.woodstock.co/mcp": {
+     "status": 401,
+     "alive": true
+    },
+    "mcp:https://mcp.app.woodstock.co/.well-known/oauth-protected-resource/mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://www.woodstock.club/llms.txt": {
+     "status": 404
+    },
+    "llms:https://www.woodstock.club/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://www.woodstock.club/openapi.json": {
+     "status": 404
+    },
+    "llms:https://mcp.app.woodstock.co/llms.txt": {
+     "status": 404
+    },
+    "llms:https://mcp.app.woodstock.co/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://mcp.app.woodstock.co/openapi.json": {
+     "status": 404
+    },
+    "page:https://www.woodstock.club/ja/mcp": {
+     "status": 200,
+     "hash": "f7c00e04007ebbd9",
+     "bytes": 3498
+    }
+   },
+   "repos": {}
+  },
+  "xbtfx": {
+   "probes": {
+    "llms:https://xbtfx.com/llms.txt": {
+     "status": 200,
+     "hash": "6d936e5fde0f03a4",
+     "bytes": 13885
+    },
+    "llms:https://xbtfx.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://xbtfx.com/openapi.json": {
+     "status": 404
+    },
+    "page:https://github.com/xbtfx/xbtfx-mcp-server": {
+     "status": 200,
+     "hash": "fa2b761b7287b171",
+     "bytes": 6000
+    }
+   },
+   "repos": {
+    "xbtfx/xbtfx-mcp-server": {
+     "pushed": "2026-09-25",
+     "archived": false,
+     "tag": null
+    }
+   }
+  },
+  "b2trader": {
+   "probes": {
+    "page:https://docs.b2broker.com/b2trader/terminal/connect-your-ai-agent/overview": {
+     "status": 200,
+     "hash": "56d97cc6e05ac993",
+     "bytes": 5882
+    },
+    "mcp:https://docs.b2broker.com/api/mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "page:https://docs.b2broker.com/b2trader/terminal/connect-your-ai-agent/": {
+     "status": 200,
+     "hash": "56d97cc6e05ac993",
+     "bytes": 5882
+    },
+    "llms:https://docs.b2broker.com/llms.txt": {
+     "status": 200,
+     "hash": "32a9e9983ce5065e",
+     "bytes": 1817900
+    },
+    "llms:https://docs.b2broker.com/llms-full.txt": {
+     "status": 200,
+     "hash": "c234f874dcd78372",
+     "bytes": 16619091
+    },
+    "openapi:https://docs.b2broker.com/openapi.json": {
+     "status": 404,
+     "soft404": true
+    }
+   },
+   "repos": {}
+  },
+  "fortex": {
+   "probes": {
+    "page:https://fortex.com/en/news/agentic-ai-trading-workflows-for-brokerages/": {
+     "status": 200,
+     "hash": "b89731065680381e",
+     "bytes": 2727
+    },
+    "page:https://fortex.com/en/news/fortex-7-ai-integration-for-brokerages/": {
+     "status": 200,
+     "hash": "ce34d901f5cf6147",
+     "bytes": 2625
+    },
+    "llms:https://fortex.com/llms.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "llms:https://fortex.com/llms-full.txt": {
+     "status": 404,
+     "soft404": true
+    },
+    "openapi:https://fortex.com/openapi.json": {
+     "status": 404,
+     "soft404": true
+    }
+   },
+   "repos": {}
+  },
+  "leverate": {
+   "probes": {
+    "mcp:https://leverate.com/mcp": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://www.finanzwire.com/press-release/leverate-launches-mcp-for-traders-to-connect-ai-assistants-with-trading-platforms-IC1DC4sZSVZ": {
+     "status": 200,
+     "alive": true
+    },
+    "page:https://www.financemagnates.com/forex/technology/leverate-lets-brokers-clients-place-trades-by-chatting-with-chatgpt-or-claude/": {
+     "status": 200,
+     "hash": "778dae39319f88cb",
+     "bytes": 57123
+    },
+    "llms:https://leverate.com/llms.txt": {
+     "status": 200,
+     "hash": "7fe15af5e9efe6fa",
+     "bytes": 20063
+    },
+    "llms:https://leverate.com/llms-full.txt": {
+     "status": 200,
+     "hash": "1c95dccde63a7ede",
+     "bytes": 1997009
+    },
+    "openapi:https://leverate.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://www.finanzwire.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://www.finanzwire.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://www.finanzwire.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://www.financemagnates.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://www.financemagnates.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://www.financemagnates.com/openapi.json": {
+     "status": 404
+    },
+    "page:https://leverate.com/mcp": {
+     "status": 200,
+     "hash": "7b63e45d892e6806",
+     "bytes": 14688
+    }
+   },
+   "repos": {}
+  },
+  "match-trader": {
+   "probes": {
+    "mcp:https://match-trader.com/mcp-for-traders/": {
+     "status": 200,
+     "alive": true
+    },
+    "mcp:https://mcp.match-trader.com/mcp": {
+     "status": 401,
+     "alive": true
+    },
+    "mcp:https://match-trader.com/mcp-for-brokers/": {
+     "status": 200,
+     "alive": true
+    },
+    "page:https://match-trader.com/match-trader-brings-ai-assistants-directly-to-broker-data-via-model-context-protocol/": {
+     "status": 200,
+     "hash": "139bd5224ecf8100",
+     "bytes": 12817
+    },
+    "mcp:https://www.financemagnates.com/forex/match-trade-adds-retail-traders-to-mcp-after-brokers-and-prop-firms/": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://match-trader.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://match-trader.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://match-trader.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://mcp.match-trader.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://mcp.match-trader.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://mcp.match-trader.com/openapi.json": {
+     "status": 403
+    },
+    "llms:https://www.financemagnates.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://www.financemagnates.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://www.financemagnates.com/openapi.json": {
+     "status": 404
+    },
+    "page:https://match-trader.com/mcp-for-traders/": {
+     "status": 200,
+     "hash": "fda441c664dbf27d",
+     "bytes": 20800
+    }
+   },
+   "repos": {}
+  },
+  "metaquotes-metatrader-5": {
+   "probes": {
+    "mcp:https://www.metatrader5.com/en/terminal/help/mcp_and_ai": {
+     "status": 200,
+     "alive": true
+    },
+    "page:https://www.metatrader5.com/en/releasenotes/terminal/2470": {
+     "status": 200,
+     "hash": "b7cbd6910ad82293",
+     "bytes": 4963
+    },
+    "page:https://www.mql5.com/en/articles/21905": {
+     "status": 200,
+     "hash": "535101f83a03abc1",
+     "bytes": 40492
+    },
+    "mcp:https://www.financemagnates.com/forex/metatrader-5-beta-adds-native-ai-agents-and-mcp-support-identity-and-broker-tools-also-get-an-overhaul/": {
+     "status": 200,
+     "alive": true
+    },
+    "llms:https://www.metatrader5.com/llms.txt": {
+     "status": 200,
+     "hash": "1e35772c33529bdf",
+     "bytes": 3605
+    },
+    "llms:https://www.metatrader5.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://www.metatrader5.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://www.mql5.com/llms.txt": {
+     "status": 200,
+     "hash": "427b10cf81331b74",
+     "bytes": 1870
+    },
+    "llms:https://www.mql5.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://www.mql5.com/openapi.json": {
+     "status": 404
+    },
+    "llms:https://www.financemagnates.com/llms.txt": {
+     "status": 404
+    },
+    "llms:https://www.financemagnates.com/llms-full.txt": {
+     "status": 404
+    },
+    "openapi:https://www.financemagnates.com/openapi.json": {
+     "status": 404
+    },
+    "page:https://www.metatrader5.com/en/terminal/help/mcp_and_ai": {
+     "status": 200,
+     "hash": "c6f07437511a3de0",
+     "bytes": 6857
+    }
+   },
+   "repos": {}
+  },
+  "yourbourse": {
+   "probes": {
+    "page:https://github.com/yourbourse/trade-server-mcp": {
+     "status": 200,
+     "hash": "17287d38703fae67",
+     "bytes": 16965
+    }
+   },
+   "repos": {
+    "yourbourse/trade-server-mcp": {
+     "pushed": "2026-10-17",
+     "archived": false,
+     "tag": "v2.2.0"
     }
    }
   }

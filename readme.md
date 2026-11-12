@@ -2,13 +2,13 @@
 
 <p align="center">
   <b>Which brokers can an AI actually trade through?</b><br>
-  <sub>67 brokers checked at the source. Including the ones with nothing.</sub>
+  <sub>94 brokers checked at the source. Including the ones with nothing.</sub>
 </p>
 
 <p align="center">
   <a href="https://awesome.re"><img src="https://awesome.re/badge-flat2.svg" alt="Awesome"></a>
-  <img src="https://img.shields.io/badge/entries-67-1f6feb" alt="67 entries">
-  <img src="https://img.shields.io/badge/official%20servers-37-3fb950" alt="37 official">
+  <img src="https://img.shields.io/badge/entries-94-1f6feb" alt="94 entries">
+  <img src="https://img.shields.io/badge/official%20servers-64-3fb950" alt="64 official">
   <img src="https://img.shields.io/badge/confirmed%20no%20route-12-f85149" alt="12 confirmed none">
   <img src="https://img.shields.io/badge/last%20verified-2026--11--11-3fb950" alt="Last verified 2026-11-11">
   <a href="license"><img src="https://img.shields.io/badge/license-CC0--1.0-8957e5" alt="CC0-1.0"></a>
@@ -49,7 +49,7 @@ corrections are [documented in place](brokers/etrade.md), not quietly edited.
 | 🛡️ **The safest thing that still trades** | [Interactive Brokers](brokers/interactive-brokers.md) | The server *cannot* submit. You approve every order in IBKR's own UI. Architectural, not a setting. |
 | 🧪 **To experiment without risking money** | [Alpaca](brokers/alpaca.md) (local server) or [Kraken](brokers/kraken.md) | Paper/sandbox is the **default**, and you can leave trading tools off entirely, server-side. Alpaca's hosted endpoint has no such default: its live URL is live. |
 | 📊 **Analysis only, no execution** | [SnapTrade](aggregators/snaptrade.md) (portfolio server) / [Truthifi](aggregators/truthifi.md) | Connect SnapTrade's read-only portfolio endpoint, not its trading one; Truthifi has a few write tools. Most people wiring up an LLM want analysis — that needs no trading scope. |
-| 🌍 **Crypto** | [Kraken](brokers/kraken.md), [OKX](brokers/okx.md), [Bybit](brokers/bybit.md), [Gemini](brokers/gemini.md) | All official, all trade. Crypto is years ahead of traditional brokerage here. |
+| 🌍 **Crypto** | [Kraken](brokers/kraken.md), [OKX](brokers/okx.md), [Bybit](brokers/bybit.md), [Gemini](brokers/gemini.md) | All official, all trade, and many more now (Bitget, Gate, MEXC, Luno and others, see the Crypto table). Crypto is years ahead of traditional brokerage here. |
 | 🇮🇳 **India** | [Zerodha](brokers/zerodha-kite-connect.md), [Upstox](brokers/upstox.md) | Both official. Zerodha trades on the self-hosted build; Upstox is read-only. |
 | 🏦 **Fidelity / Vanguard / M1 / Wealthfront** | *Nothing good* | No account route. Vanguard's official MCP is advisor-only public model-portfolio data (read-only, no accounts). See [confirmed no MCP route](#-confirmed-no-mcp-route). |
 
@@ -105,6 +105,8 @@ place an order*.
 | ⚠️ | **Caveat that changes the answer.** Read the page before acting. |
 | 💀 | **Dead upstream.** The repo is gone; only mirrors remain. |
 | ❌ | **No MCP route.** Checked, confirmed nothing exists. |
+
+*The "official" count is first-party routes: hosted servers, local servers, and a few first-party CLI or skills packs with no MCP server (marked **No MCP** in the tables). It does not mean every one is production-ready; check the entry.*
 
 **Status — who wrote it:**
 
@@ -193,10 +195,17 @@ First-party. Built or hosted by the broker themselves.
 | [Korea Investment & Securities](brokers/korea-investment.md) | ✅ Yes | Korean stocks, futures/options, bonds, plus overseas stocks. 8 dispatcher tools over about 166 operations. ⚠️ **Demo is the default, but real vs demo is a per-call parameter and only a prompt restricts live; no confirm step or order caps. Fetches code from the repo's main branch at run time** | Local |
 | [Zerodha](brokers/zerodha-kite-connect.md) | ✅ Yes | Indian equities, F&O, currency, commodities. Order placement only on the self-hosted build | Remote + local |
 | [Upstox](brokers/upstox.md) | 👁️ No | Read-only by design | Remote |
+| [Groww](brokers/groww.md) | ✅ Yes | Indian stocks and F&O: portfolio analysis, F&O analysis and order placement. Hosted, OAuth (announced 2025-08-04) | Remote |
+| [Dhan](brokers/dhan.md) | ✅ Yes | Hosted `mcp.dhan.co/mcp` (OAuth 401 on probe). Docs section unreadable, details from one secondary source, low confidence | Remote |
+| [5paisa](brokers/5paisa.md) | ✅ Yes | "5paisa MCP" via Claude Desktop on the XStream APIs. Low confidence: no repo or license found | Local |
+| [FYERS](brokers/fyers.md) | 👁️ No | Hosted read-only server (`mcp.fyers.in/mcp`): portfolio and market data | Remote |
+| [Kotak Neo](brokers/kotak-neo.md) | 👁️ No | Hosted read-only server: holdings, portfolio, order book, research | Remote |
+| [Woodstock](brokers/woodstock.md) | ✅ Yes | Japan. Hosted MCP (`mcp.app.woodstock.co/mcp`, OAuth). ⚠️ The page warns orders may go through without a confirmation step | Remote |
+| [Freedom24](brokers/freedom24.md) | ✅ Yes | Tradernet API MCP, API-key auth (`tradernet.com/mcp/tn`) | Remote |
 
 ### ₿ Crypto
 
-*Crypto is years ahead of traditional brokerage here: five official servers that trade.*
+*Crypto is years ahead of traditional brokerage here: a dozen first-party routes that trade, from hosted servers to local CLIs, plus skills-only packs (HTX, Revolut X, BingX) with no MCP server.*
 
 | Exchange | Trades? | What it trades | Type |
 |---|---|---|---|
@@ -206,6 +215,13 @@ First-party. Built or hosted by the broker themselves.
 | [Gemini](brokers/gemini.md) | ✅ Yes | Full Gemini trading API surface (local server). A hosted `api.gemini.com/mcp` also exists and calls itself read-only | Local (+ hosted, read-only) |
 | [Coinbase](brokers/coinbase.md) | ✅ Yes | Coinbase for Agents (hosted, OAuth): spot crypto, US equities and futures on your real account via Advanced Trade. Portfolio scoping and OAuth scopes, no forced confirm. Plus the onchain `cdp mcp` wallet server | Remote + local |
 | [Crypto.com](brokers/crypto-com.md) | ✅ Yes (local) / 👁️ No (hosted) | Hosted server is market data only. First-party local `cdcx-cli` (95 tools) trades; its `acknowledged` flag is model-supplied, and the CLI never prompts in JSON mode | Remote (read-only) + Local (trades) |
+| [Bitget](brokers/bitget.md) | ✅ Yes | Spot, futures and more via 14 tools over 89 operations on the Unified Trading Account. 🛡️ `--read-only` and `--paper-trading` flags | Local |
+| [Gate](brokers/gate-io.md) | ✅ Yes | Official hosted servers split by function (`api.gatemcp.ai`), plus `gate-cli` and a skills marketplace. Endpoints answered "mcp_disabled" when probed, so check before relying on it | Remote + local |
+| [MEXC](brokers/mexc.md) | ✅ Yes | Official CLI with a local MCP server, 309 operations (63 need no key). 🛡️ `--read-only`, `--dry-run`. Pre-1.0 | Local |
+| [Luno](brokers/luno.md) | ✅ Yes | Luno exchange API as an MCP server (Go, MIT). Writes off by default | Local |
+| [HTX](brokers/htx.md) | ✅ Yes | **No MCP:** official CLI plus 16 agent skills (`htx-skills-hub`) driving a local `htx-cli` | Local (skills) |
+| [Revolut X](brokers/revolut-x.md) | ✅ Yes | **No MCP:** 7 official agent skills for the Revolut X API, technical preview | Skills |
+| [BingX](brokers/bingx.md) | ✅ Yes | **No MCP:** 29 official skill modules. 🛡️ Simulated VST environment, CONFIRM required for live writes | Skills |
 
 ### 💱 Forex / CFD
 
@@ -215,6 +231,15 @@ First-party. Built or hosted by the broker themselves.
 | [ThinkMarkets](brokers/thinkmarkets.md) | ✅ Yes | CFDs on ThinkTrader — place, modify, close. Read-only or full-access scope, demo accounts, 7-day connections. Claude is the only confirmed client | Remote (per-user URL) |
 | [TraderEvolution](brokers/traderevolution.md) | ✅ Yes | 31 tools per the vendor: market/limit/stop + complex orders | Unknown |
 | [IG](brokers/ig.md) | 👁️ No | Strictly read-only: prices, positions, P&L, margin. ⚠️ **ChatGPT app only (AU)**; Claude is "coming soon" | Remote |
+| [Axi](brokers/axi.md) | ✅ Yes | MT5 accounts, live or demo, via a first-party hosted connector (`mcp.axi.com/mcp`, OAuth). Page says every action needs your approval | Remote |
+| [Capital.com](brokers/capital-com.md) | ✅ Yes | CFDs via the open-source `capital-mcp` (MIT). 🛡️ Demo default, two-phase confirm | Local |
+| [XBTFX](brokers/xbtfx.md) | ✅ Yes | FX, metals, indices, crypto, stocks on XBTFX MT5 accounts. 15 tools (8 read, 7 trade), MIT | Local |
+| [Dukascopy](brokers/dukascopy.md) | ✅ Demo only | JForex **demo** accounts only today; live listed as "summer-autumn 2026", no live endpoint. Experimental | Remote |
+| [Axiory](brokers/axiory.md) | ⚠️ Announced | Axiory.ai beta platform with an MCP server. No endpoint or tool list published and its own pages disagree on execution | Remote (unpublished) |
+| [FundedNext](brokers/fundednext.md) | 👁️ No | Prop firm. Official hosted MCP (`mcp.fundednext.com`, OAuth) for account data. States it cannot place trades | Remote |
+| [The5ers](brokers/the5ers.md) | 👁️ No | Prop firm. Official hosted MCP (`mcp.the5ers.com/mcp`), read-only per its own handshake | Remote |
+
+*Not a broker, but worth knowing: TradingView ships an official MCP (`mcp.tradingview.com/mcp`, beta, paid plans) for charts, watchlists, alerts and data. It does not trade.*
 
 ## 👥 Community servers
 
@@ -262,6 +287,12 @@ everywhere," not a substitute for a broker's own trading server.
 | [Plaid](aggregators/plaid.md) | 👁️ No | Official, but developer diagnostics and Sandbox only, no account data |
 | [Teller](aggregators/teller.md) | 👁️ No | Community, read-only |
 | [Parlay](aggregators/parlay.md) | 👁️ No — read-only prediction-market data | Polymarket, Kalshi, Limitless, Manifold. Research only, not a broker route |
+| [Match-Trader](aggregators/match-trader.md) | ✅ Yes | Platform vendor with two hosted MCPs. **For Traders** (`mcp.match-trader.com/mcp`, per-account Bearer token with scoped functions, probe 401): read plus open, close and pending orders, usable only if your broker or prop firm runs Match-Trader and allows API access. **For Brokers**: staff-only, read-only today, no endpoint published | Brokers and prop firms on Match-Trader |
+| [Leverate](aggregators/leverate.md) | ✅ Yes, B2B | Back-office MCP (CRM, risk data) sold to brokers. No endpoint published. Not a retail route | Brokers using Leverate |
+| [Fortex 7](aggregators/fortex.md) | ⚠️ Claimed, B2B | Broker-tech vendor with built-in MCP servers per marketing posts. Low confidence, trade claim on one page only | Brokerages using Fortex |
+| [MetaTrader 5 (MetaQuotes)](aggregators/metaquotes-metatrader-5.md) | ✅ Yes | MetaQuotes help page describes MCP for MT5. Build that introduced it unclear (6030 vs 6060). A community mql5 server also exists | MT5 brokers |
+| [B2Trader (B2Broker)](aggregators/b2trader.md) | ✅ Yes, B2B | Broker-tech vendor docs list 23 read-only tools and 39 full-access tools. No confirmation step. For brokers on B2Broker's platform | Brokers using B2Trader |
+| [Your Bourse](aggregators/yourbourse.md) | ✅ Yes | `trade-server-mcp` (Apache-2.0, v2.2.0): plan first, then commit. Medium confidence | Self-hosted |
 
 Read-only is the norm for a reason. An aggregator already holds delegated credentials
 to every account you've linked; giving an LLM write access *through* that layer stacks

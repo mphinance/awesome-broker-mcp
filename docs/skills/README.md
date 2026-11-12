@@ -1,6 +1,6 @@
 # Broker agent skills
 
-**About 250 agent skills from 30 brokers and exchanges, read line by line.** Which ones can place a live order, which only talk to paper, and where the guardrail is real code instead of a polite sentence.
+**About 370 agent skills from 37 brokers and exchanges, read line by line.** Which ones can place a live order, which only talk to paper, and where the guardrail is real code instead of a polite sentence.
 
 An MCP server gives your agent hands. A skill tells it how to use them: when to trade, what to confirm, what never to touch. The tools are usually fine. The skill is where the safety rules live, and most of those rules are prose the model chooses to follow.
 
@@ -43,6 +43,13 @@ Scraped 2026-11-11. Every file linked below records repo URL, commit SHA, licens
 | Oracle3 (community, unvetted) | 6 | CLI only (`live run`); the 13-tool MCP server has no live tools | Paper ledger in MCP, `paper run` in CLI | **No live tools in the MCP server.** Live gates are prose only | Apache-2.0 | [oracle3](oracle3.md) |
 | MetaTrader 5 (community, unvetted) | 1 (25 tools in code, README says 32) | Yes, live or demo | Whatever account is logged in | None. Skill says execute with no confirmation; SSE on `0.0.0.0` with no auth; password as CLI arg | MIT | [metatrader](metatrader.md) |
 | TradeMemory (community, unvetted) | 7 (memory, journaling, research) | No, memory MCP has no order tool | Brake defaults to Alpaca paper | **Optional proxy: allowlist, notional caps, bracket stop, daily-loss halt in the AGPL `mnemox-control` engine; fail-closed routing, stop-cancel refusal and single-use approval in repo code.** Bypassed if the agent can reach Alpaca directly | MIT, proxy extra depends on AGPL-3.0 | [tradememory](tradememory.md) |
+| HTX | 17 | Yes, spot and USDT-M futures | None | **Source CLI dry-runs writes unless `--confirm` is passed, but the skills never mention the flag** | MIT | [htx](htx.md) |
+| Revolut X | 7 | Yes, market and limit orders | None | None. The helper signs and sends whatever the model gives it | None | [revolut-x](revolut-x.md) |
+| BingX | 29 | Yes, plus withdrawals and sub-account key admin | VST simulated environment | None. Typed `CONFIRM` is prose, `prod-live` is the default, the model writes the signing code | None on file (`package.json` claims MIT) | [bingx](bingx.md) |
+| KuCoin | 7 | No, GET only | None | Read-only by skill text. The signing reference still shows a signed POST order | MIT | [kucoin](kucoin.md) |
+| Gate | 34 (35 files), plus the CLI | Yes, CEX, DEX swaps and sends, bots, payments | None named | **Scoped OAuth agentic subaccount and server-side DEX check-in.** Write confirmation is prose and one yes can cover a sequence | None (skills and CLI) | [gate](gate.md) |
+| MEXC | 25 | Yes, spot and contract. No withdrawals | None | **CLI prompts on a terminal, refuses unattended writes (exit 10), `--read-only`, `--dry-run`, key entered only at a terminal.** `--yes` bypasses it | MIT | [mexc](mexc.md) |
+| Bitget | 0 skills, 2 MCP prompts | Yes, via the MCP server | `--paper-trading`, `--read-only` launch flags | `confirm: true` on high-risk calls is an argument the model supplies. Flags are real | MIT | [bitget](bitget.md) |
 
 Counts are what we found in each repo, not marketing numbers. Where two counts appear, the second is a separate repo.
 
